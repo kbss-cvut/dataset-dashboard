@@ -1,0 +1,29 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT {
+    ?concept a skos:Concept ;
+        rdfs:label ?conceptName .
+    ?conceptNarrower a skos:Concept ;
+        rdfs:label ?conceptNarrowerName .
+    ?concept skos:narrower ?conceptNarrower;
+}
+WHERE {
+    ?concept a skos:Concept .
+    OPTIONAL {
+        ?concept skos:prefLabel ?conceptLabel
+        FILTER(lang(?conceptLabel)="en")
+    }
+    BIND(COALESCE(?conceptLabel,?concept) AS ?conceptName)
+    OPTIONAL {
+        {
+            ?conceptNarrower skos:broader ?concept
+        } UNION {
+            ?concept skos:narrower ?conceptNarrower
+        }
+        OPTIONAL {
+            ?conceptNarrower skos:prefLabel ?conceptNarrowerLabel
+            FILTER(lang(?conceptLabel)="en")
+        }
+        BIND(COALESCE(?conceptNarrowerLabel,?conceptNarrower) AS ?conceptNarrowerName)
+    }
+}

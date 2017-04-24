@@ -1,0 +1,7 @@
+# User-specific stuff:
+.idea/*
+
+## File-based project format:
+*.iml
+
+target/*

@@ -1,0 +1,22 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?language (COUNT(*) AS ?termCount)
+WHERE {
+    ?concept a skos:Concept .
+    {
+        ?concept ?property ?label .
+        FILTER(?property in (
+            skos:prefLabel,
+            skos:hiddenLabel,
+            skos:altLabel,
+            rdfs:label,
+            skos:note,
+            skos:changeNote,
+            skos:definition,
+            skos:editorialNote,
+            skos:example,
+            skos:historyNote,
+            skos:scopeNote)
+        )
+        BIND(lang(?label) AS ?language)
+    }
+} GROUP BY ?language
