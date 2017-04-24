@@ -8,6 +8,7 @@ import CustomFrame from "./CustomFrame";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
+import DatasetSourceRow from "./DatasetSourceRow";
 
 class DashboardController extends React.Component {
 
@@ -18,7 +19,6 @@ class DashboardController extends React.Component {
                 SkosWidget: {
                     type: SkosWidget,
                     title: 'SKOS Widget',
-                    props:{datasetSourceId: 552119892}
                 }
             },
             layout: {
@@ -30,12 +30,12 @@ class DashboardController extends React.Component {
                 }]
             },
             data: [],
-            dataSourceId: null,
+            datasetSourceId: null,
             editMode: false,
             isModalOpen: false,
             addWidgetOptions: null,
-        }
-    }
+        };
+    };
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
@@ -46,17 +46,13 @@ class DashboardController extends React.Component {
             return
         }
 
-        if (data.action == Actions.getAllDatasetSources) {
+        if (data.action == Actions.selectDatasetSourceId) {
+            this.recreateWidgets(data.datasetSourceId);
+
+        } else if (data.action == Actions.getAllDatasetSources) {
             console.log(data);
-
-            var d = data.datasetSources[0];
-            if (!d) {
-                d= null;
-            }
-
             this.setState({
                 data: data.datasetSources,
-                datasetSourceId: d,
             });
         }
     };
@@ -83,27 +79,16 @@ class DashboardController extends React.Component {
         });
     };
 
-    onClick = (val) => {
-        e.preventDefault();
-        this.setState({
-            datasetSourceId:val
-        });
-    }
-
     render() {
-        var onClick = this.onClick;
-        var datasetSources = this.state.data.map((ds) => {
-            return <tr>
-                <td>{ds.hash} ({ds.id})</td>
-            </tr>;
-        });
+        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow datasetSource={ds}/> });
 
-        return <div>
-            <h1>{this.state.dataSourceId}</h1>
+        return (<div><h1>Dataset Source </h1>
             <div>
                 <table>
                     <thead>
-                    <tr><td>dataset</td></tr>
+                    <tr>
+                        <td>Dataset Source</td>
+                    </tr>
                     </thead>
                     <tbody>
                     {datasetSources}
@@ -120,7 +105,7 @@ class DashboardController extends React.Component {
                     onMove={this.onMove}
                     addWidgetComponentText=""
                 />
-            </Container></div>
+            </Container></div>);
     }
 }
 

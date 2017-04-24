@@ -9,7 +9,18 @@ const Logger = require('../utils/Logger');
 const BASE_URL = 'rest/dataset-source';
 
 const DatasetSourceStore = Reflux.createStore({
+
     listenables: [Actions],
+
+    selectDatasetSource: null,
+
+    onSelectDatasetSource: function (selectDatasetSource) {
+        this._selectDatasetSource = selectDatasetSource;
+        this.trigger({
+            action: Actions.selectDatasetSource,
+            datasetSource: selectDatasetSource
+        });
+    },
 
     onRegisterDatasetSourceEndpoint: function (endpointUrl) {
         Ajax.put(BASE_URL+"/registerEndpoint?endpointUrl="+endpointUrl).end(function (data) {

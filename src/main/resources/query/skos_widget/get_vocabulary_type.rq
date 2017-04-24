@@ -1,16 +1,14 @@
 PREFIX voc: <http://onto.fel.cvut.cz/ontologies/vocabulary/>
 CONSTRUCT {
     ?type a voc:type .
-}
-WHERE {
-    SELECT voc:hierarchy
+} WHERE {
     {
         ?concept a skos:Concept .
-        BIND(voc:skos-glossary A ?type)
+        BIND(voc:skos-glossary AS ?type)
     } UNION {
         ?concept ?property ?concept2 .
         FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
         BIND(voc:skos-thesaurus AS ?type)
     }
-    BIND(COALESCE(?type,?voc:no-skos) AS ?type)
+    BIND(COALESCE(?type,voc:no-skos) AS ?type)
 }

@@ -9,29 +9,24 @@ class SkosWidget extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            data: []
         }
     };
 
     componentWillMount() {
-        // Actions.registerDatasetSourceEndpoint("http://onto.fel.cvut.cz/rdf4j-server/repositories/eurovoc-thesaurus");
-        if (this.props.datasetSourceId) {
-            Actions.executeQueryForDatasetSource(this.props.datasetSourceId,"skos_widget/get_concept_hierarchy");
-            this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
-        }
+        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
     _onDataLoaded = (data) => {
-        if (data === undefined) {
+        if ( data === undefined ) {
             return
         }
 
-        if ( data.queryName === "skos_widget/get_concept_hierarchy") {
-            this.setState({
-                data:JSON.stringify(data.jsonLD)
-            });
-        }
-        if ( data.queryName === "skos_widget/get_concept_hierarchy") {
+        const queryHierarchy = "skos_widget/get_concept_hierarchy";
+
+        if ( data.action === Actions.selectDatasetSource ) {
+            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryHierarchy);
+        } else  if ( data.queryName === queryHierarchy ) {
             this.setState({
                 data:JSON.stringify(data.jsonLD)
             });
