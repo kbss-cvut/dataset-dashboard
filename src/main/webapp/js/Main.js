@@ -12,7 +12,7 @@ export default class Main extends React.Component {
     render() {
         return <div>
             <Router history={browserHistory}>
-                <Route path='/' component={DatasetDashboard}/>
+                <Route path='/dataset-dashboard' component={DatasetDashboard}/>
             </Router>
         </div>;
     }

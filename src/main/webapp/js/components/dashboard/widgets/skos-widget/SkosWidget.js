@@ -57,6 +57,10 @@ class SkosWidget extends React.Component {
                 data.jsonLD['@graph'].forEach((item) => {
                     lst.push(item);
                 });
+            } else {
+                data.jsonLD.forEach((item) => {
+                    lst.push(item);
+                });
             }
 
             this.setState({
@@ -65,7 +69,7 @@ class SkosWidget extends React.Component {
             });
         } else if (data.queryName === queryType) {
             this.setState({
-                type: JSON.stringify(data.jsonLD)
+                type: data.jsonLD
             });
         }
     };
@@ -79,6 +83,9 @@ class SkosWidget extends React.Component {
         if (this.state.lst) {
                 list = this.state.lst.map((item) => {
                 let label = item['http://www.w3.org/2000/01/rdf-schema#label'];
+                if ( label.length > 0 ) {
+                    label = label[0];
+                }
                 if (label["@language"]) {
                     label = label["@value"] + ' (' + label["@language"] + ')';
                 } else if (label["@value"]) {
