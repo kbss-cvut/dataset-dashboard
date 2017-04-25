@@ -14,6 +14,10 @@ const DatasetSourceStore = Reflux.createStore({
 
     selectDatasetSource: null,
 
+    getSelectedDatasetSource: function() {
+        return this.selectDatasetSource;
+    },
+
     onSelectDatasetSource: function (selectDatasetSource) {
         this._selectDatasetSource = selectDatasetSource;
         this.trigger({

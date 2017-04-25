@@ -2,6 +2,7 @@
 
 import React from "react";
 import Actions from "../../actions/Actions";
+import DatasetSourceLabel from "./DatasetSourceLabel";
 
 class DatasetSourceRow extends React.Component {
 
@@ -23,7 +24,7 @@ class DatasetSourceRow extends React.Component {
         }
 
         return ( <tr><td>({ds.hash})</td>
-            <td><a href="#" onClick={(e) => this.onClick(e)}>{label}</a></td>
+            <td><a href="#" onClick={(e) => this.onClick(e)}><DatasetSourceLabel datasetSource={ds}/></a></td>
         </tr> );
     }
 }

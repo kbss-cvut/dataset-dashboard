@@ -16,18 +16,16 @@ class PropertyPartitionWidget extends React.Component {
     };
 
     componentWillMount() {
-        // Actions.registerDatasetSourceEndpoint("http://onto.fel.cvut.cz/rdf4j-server/repositories/eurovoc-thesaurus");
-        if (this.props.datasetSourceId) {
-            Actions.executeQueryForDatasetSource(this.props.datasetSourceId, "void/property_partitions");
-            this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
-        }
+        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
     _onDataLoaded = (data) => {
         if (data === undefined) {
             return
         }
-
+        if (data.action === Actions.selectDatasetSource) {
+            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "void/property_partitions");
+        }
         if (data.queryName === "void/property_partitions") {
             this.setState({
                 data: data.jsonLD

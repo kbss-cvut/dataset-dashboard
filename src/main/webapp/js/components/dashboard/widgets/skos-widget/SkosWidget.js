@@ -93,12 +93,12 @@ class SkosWidget extends React.Component {
                 } else if (label["@id"]) {
                     label = label["@id"];
                 }
-                return ( <li key={item['@id']}><a href={label}>{label}</a></li> );
+                return ( <li key={item['@id']}><a href={item['@id']}>{label}</a></li> );
             });
         }
         var type = 'unknown'
-        if (this.state.type) {
-            type = this.state.type[0]['@id']
+        if (this.state.type && this.state.type[0]) {
+            type = this.state.type[0]['@id'];
         }
         return ( <div><h4>{type}</h4>
             <ul>{list}</ul>

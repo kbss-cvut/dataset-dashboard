@@ -16,19 +16,16 @@ class BasicStatsWidget extends React.Component {
     };
 
     componentWillMount() {
-        // Actions.registerDatasetSourceEndpoint("http://onto.fel.cvut.cz/rdf4j-server/repositories/eurovoc-thesaurus");
-        if (this.props.datasetSourceId) {
-            Actions.executeQueryForDatasetSource(this.props.datasetSourceId, "void/class_partitions");
-            this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
-        }
+        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
     _onDataLoaded = (data) => {
         if (data === undefined) {
             return
         }
-
-        if (data.queryName === "void/class_partitions") {
+        if (data.action === Actions.selectDatasetSource) {
+            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "void/class_partitions");
+        } else if (data.queryName === "void/class_partitions") {
             this.setState({
                 data: data.jsonLD
             });

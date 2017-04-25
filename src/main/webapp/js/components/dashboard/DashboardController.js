@@ -11,6 +11,7 @@ import SkosWidget from "./widgets/skos-widget/SkosWidget";
 import DatasetSourceRow from "./DatasetSourceRow";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
+import DatasetSourceLabel from "./DatasetSourceLabel";
 
 class DashboardController extends React.Component {
 
@@ -53,8 +54,8 @@ class DashboardController extends React.Component {
                     },
                 ]
             },
+            selectedDatasetSource: null,
             data: [],
-            datasetSourceId: null,
             editMode: false,
             isModalOpen: false,
             addWidgetOptions: null,
@@ -62,6 +63,7 @@ class DashboardController extends React.Component {
     };
 
     componentWillMount() {
+        Actions.getAllDatasetSources();
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
@@ -70,6 +72,11 @@ class DashboardController extends React.Component {
             return
         }
 
+        if (data.action == Actions.selectDatasetSource) {
+            this.setState({
+                selectedDatasetSource: data.datasetSource,
+            });
+        } else
         if (data.action == Actions.getAllDatasetSources) {
             this.setState({
                 data: data.datasetSources,
@@ -102,7 +109,7 @@ class DashboardController extends React.Component {
     render() {
         var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow key={ds.hash} datasetSource={ds}/> });
 
-        return (<div><h1>Dataset Source </h1>
+        return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
             <div>
                 <table>
                     <thead>
