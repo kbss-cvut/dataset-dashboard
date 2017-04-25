@@ -9,6 +9,8 @@ import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
 import DatasetSourceRow from "./DatasetSourceRow";
+import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
+import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 
 class DashboardController extends React.Component {
 
@@ -19,15 +21,37 @@ class DashboardController extends React.Component {
                 SkosWidget: {
                     type: SkosWidget,
                     title: 'SKOS Widget',
+                },
+                ClassPartitionWidget: {
+                    type: ClassPartitionWidget,
+                    title: 'Class Partitions',
+                },
+                PropertyPartitionWidget: {
+                    type: PropertyPartitionWidget,
+                    title: 'Property Partitions',
                 }
             },
             layout: {
-                rows: [{
-                    columns: [{
-                        className: 'col-md-6 col-sm-6 col-xs-6',
-                        widgets: [{key: 'SkosWidget'}],
-                    }],
-                }]
+                rows: [
+                    {
+                        columns: [{
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'SkosWidget'}],
+                        }],
+                    },
+                    {
+                        columns: [{
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'ClassPartitionWidget'}],
+                        }],
+                    },
+                    {
+                        columns: [{
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'PropertyPartitionWidget'}],
+                        }],
+                    },
+                ]
             },
             data: [],
             datasetSourceId: null,
