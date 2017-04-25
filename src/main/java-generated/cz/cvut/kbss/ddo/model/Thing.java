@@ -59,7 +59,7 @@ public class Thing {
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_is_created_by)
     protected Set<execution_context_dataset_source> inv_dot_is_created_by;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_source)
-    protected Set<single_snapshot_dataset_source> has_source;
+    protected Set<source_dataset_snapshot> has_source;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_intent)
     protected Set<dataset_exploring_journalist> inv_dot_has_intent;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_is_part_of)
@@ -99,7 +99,7 @@ public class Thing {
     @OWLObjectProperty(iri = Vocabulary.s_p_has_published_dataset_snapshot)
     protected Set<dataset_snapshot> has_published_dataset_snapshot;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_source)
-    protected Set<cz.cvut.kbss.ddo.model.description> inv_dot_has_source;
+    protected Set<dataset_publication> inv_dot_has_source;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_sub_dataset_snapshot)
     protected Set<dataset_snapshot> inv_dot_has_sub_dataset_snapshot;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_sub_dataset_snapshot)
@@ -263,11 +263,11 @@ public class Thing {
         return inv_dot_is_created_by;
     }
 
-    public void setHas_source(Set<single_snapshot_dataset_source> has_source) {
+    public void setHas_source(Set<source_dataset_snapshot> has_source) {
         this.has_source = has_source;
     }
 
-    public Set<single_snapshot_dataset_source> getHas_source() {
+    public Set<source_dataset_snapshot> getHas_source() {
         return has_source;
     }
 
@@ -423,11 +423,11 @@ public class Thing {
         return has_published_dataset_snapshot;
     }
 
-    public void setInv_dot_has_source(Set<cz.cvut.kbss.ddo.model.description> inv_dot_has_source) {
+    public void setInv_dot_has_source(Set<dataset_publication> inv_dot_has_source) {
         this.inv_dot_has_source = inv_dot_has_source;
     }
 
-    public Set<cz.cvut.kbss.ddo.model.description> getInv_dot_has_source() {
+    public Set<dataset_publication> getInv_dot_has_source() {
         return inv_dot_has_source;
     }
 

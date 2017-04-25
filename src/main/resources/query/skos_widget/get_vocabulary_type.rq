@@ -1,14 +1,17 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX voc: <http://onto.fel.cvut.cz/ontologies/vocabulary/>
 CONSTRUCT {
     ?type a voc:type .
 } WHERE {
     {
-        ?concept a skos:Concept .
-        BIND(voc:skos-glossary AS ?type)
-    } UNION {
         ?concept ?property ?concept2 .
         FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
         BIND(voc:skos-thesaurus AS ?type)
+    } UNION {
+        ?concept3 a skos:Concept .
+        OPTIONAL { ?concept3 ?property ?concept2 . }
+        FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
+        FILTER(!bound(?concept3))
+        BIND(voc:skos-glossary AS ?type)
     }
-    BIND(COALESCE(?type,voc:no-skos) AS ?type)
 }

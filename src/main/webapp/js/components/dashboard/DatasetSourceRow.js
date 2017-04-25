@@ -11,8 +11,19 @@ class DatasetSourceRow extends React.Component {
 
     render() {
         const ds = this.props.datasetSource;
-        return ( <tr>
-            <td><a href="#" onClick={(e) => this.onClick(e)}>{ds.hash} ({ds.id})</a></td>
+        let label;
+        if ( ds.endpointUrl ) {
+            if (ds.graphId) {
+                label = <div>{ds.endpointUrl}<br/>{ds.graphId}</div>
+            } else {
+                label = <div>{ds.endpointUrl}</div>
+            }
+        } else {
+            label = <div>{ds.downloadId}</div>
+        }
+
+        return ( <tr><td>({ds.hash})</td>
+            <td><a href="#" onClick={(e) => this.onClick(e)}>{label}</a></td>
         </tr> );
     }
 }

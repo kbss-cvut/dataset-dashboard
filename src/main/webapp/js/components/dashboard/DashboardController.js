@@ -46,11 +46,7 @@ class DashboardController extends React.Component {
             return
         }
 
-        if (data.action == Actions.selectDatasetSourceId) {
-            this.recreateWidgets(data.datasetSourceId);
-
-        } else if (data.action == Actions.getAllDatasetSources) {
-            console.log(data);
+        if (data.action == Actions.getAllDatasetSources) {
             this.setState({
                 data: data.datasetSources,
             });
@@ -80,7 +76,7 @@ class DashboardController extends React.Component {
     };
 
     render() {
-        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow datasetSource={ds}/> });
+        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow key={ds.hash} datasetSource={ds}/> });
 
         return (<div><h1>Dataset Source </h1>
             <div>
