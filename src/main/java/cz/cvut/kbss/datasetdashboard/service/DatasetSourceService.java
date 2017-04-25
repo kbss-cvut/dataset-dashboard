@@ -35,16 +35,30 @@ public class DatasetSourceService {
     @Qualifier("localDataLoader")
     private DataLoader localLoader;
 
+    /**
+     * Registers a dataset source defined by an URL.
+     *
+     * @param url to store as a dataset source
+     * @return an identifier of the registered dataset source.
+     */
     public int register(final String url) {
         int id = url.hashCode();
         final dataset_source ds = new dataset_source();
         ds.setId(Vocabulary.s_c_dataset_source + "-" + id);
-        ds.setProperties(Collections.singletonMap(Vocabulary.s_p_has_download_url, Collections.singleton(url)));
+        ds.setProperties(
+            Collections.singletonMap(Vocabulary.s_p_has_download_url, Collections.singleton(url)));
         ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
         datasetSources.put(id, ds);
         return id;
     }
 
+    /**
+     * Registers a dataset source by an endpoint URL and a graph IRI.
+     *
+     * @param endpointUrl URL of the SPARQL endpoint
+     * @param graphIri IRI of the context within the SPARQL endpoint
+     * @return an identifier of the registered dataset source
+     */
     public int register(final String endpointUrl, final String graphIri) {
         int id = (endpointUrl + graphIri).hashCode();
         final dataset_source ds = new dataset_source();
@@ -66,24 +80,34 @@ public class DatasetSourceService {
         return id;
     }
 
+    /**
+     * Returns all registered data sources.
+     *
+     * @return a list of data sources.
+     */
     public RawJson getDataSources() {
         final JsonArray result = new JsonArray();
-        datasetSources.forEach( (k,v) -> {
+        datasetSources.forEach((k, v) -> {
             final JsonObject ds = new JsonObject();
-            ds.addProperty("hash",k);
-            ds.addProperty("id",v.getId());
-            if( v.getTypes().contains(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-                ds.addProperty("type",Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-                ds.addProperty("endpointUrl",v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next());
-                ds.addProperty("graphId",v.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next());
-            } else if( v.getTypes().contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-                ds.addProperty("type",Vocabulary.s_c_sparql_endpoint_dataset_source);
-                ds.addProperty("endpointUrl",v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next());
-            } else if( v.getTypes().contains(Vocabulary.s_c_url_dataset_source)) {
-                ds.addProperty("type",Vocabulary.s_c_url_dataset_source);
-                ds.addProperty("downloadUrl",v.getProperties().get(Vocabulary.s_p_has_download_url).iterator().next());
+            ds.addProperty("hash", k);
+            ds.addProperty("id", v.getId());
+            if (v.getTypes().contains(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
+                ds.addProperty("type",
+                    Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
+                ds.addProperty("endpointUrl",
+                    v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next());
+                ds.addProperty("graphId",
+                    v.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next());
+            } else if (v.getTypes().contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+                ds.addProperty("type", Vocabulary.s_c_sparql_endpoint_dataset_source);
+                ds.addProperty("endpointUrl",
+                    v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next());
+            } else if (v.getTypes().contains(Vocabulary.s_c_url_dataset_source)) {
+                ds.addProperty("type", Vocabulary.s_c_url_dataset_source);
+                ds.addProperty("downloadUrl",
+                    v.getProperties().get(Vocabulary.s_p_has_download_url).iterator().next());
             } else {
-                ds.addProperty("type",Vocabulary.s_c_dataset_source);
+                ds.addProperty("type", Vocabulary.s_c_dataset_source);
             }
             result.add(ds);
         });
@@ -91,8 +115,8 @@ public class DatasetSourceService {
     }
 
     /**
-     * Executes given SPARQL Construct query against a dataset source. Efficiently, a new dataset snapshot
-     * is created and queried by the user supplied query
+     * Executes given SPARQL Construct query against a dataset source. Efficiently, a new dataset
+     * snapshot is created and queried by the user supplied query
      *
      * @param queryFile of the SPARQL query to execute
      * @return a {@link RawJson} object containing JSONLD-formatted result.
@@ -101,23 +125,23 @@ public class DatasetSourceService {
      */
     public RawJson getSparqlConstructResult(final String queryFile, final int datasetSourceId) {
         if (!datasetSources.containsKey(datasetSourceId)) {
-            throw new IllegalStateException("Unable to find dataset source with id " +
-                datasetSourceId);
+            throw new IllegalStateException("Unable to find dataset source with id "
+                + datasetSourceId);
         }
         final dataset_source datasetSource = datasetSources.get(datasetSourceId);
         if (datasetSource.getTypes().contains(
             Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            final String endpointURL = datasetSource.getProperties()
+            final String endpointUrl = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_endpoint_url).iterator().next();
-            final String graphIRI = datasetSource.getProperties()
+            final String graphIri = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_graph_id).iterator().next();
-            return getSparqlResult(queryFile, endpointURL,
-                graphIRI, "application/ld+json");
+            return getSparqlResult(queryFile, endpointUrl,
+                graphIri, "application/ld+json");
         } else if (datasetSource.getTypes()
             .contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            final String endpointURL = datasetSource.getProperties()
+            final String endpointUrl = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_endpoint_url).iterator().next();
-            return getSparqlResult(queryFile, endpointURL,
+            return getSparqlResult(queryFile, endpointUrl,
                 null, "application/ld+json");
         } else {
             throw new IllegalStateException(MessageFormat.format(
@@ -136,16 +160,16 @@ public class DatasetSourceService {
      */
     private RawJson getSparqlResult(final String queryFile,
                                     final String repositoryUrl,
-                                    final String graphIRI,
+                                    final String graphIri,
                                     final String mediaType) {
         if (repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
-            if (graphIRI != null) {
+            if (graphIri != null) {
                 final Query q = QueryFactory.create(query);
-                q.addGraphURI(graphIRI);
+                q.addGraphURI(graphIri);
                 query = q.toString();
             }
             query = URLEncoder.encode(query, Constants.UTF_8_ENCODING);

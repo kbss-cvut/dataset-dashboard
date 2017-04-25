@@ -11,6 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = "cz.cvut.kbss.datasetdashboard.rest")
 public class RestConfig {
 
+    /**
+     * Returns an object mapper for JSON.
+     *
+     * @return the object mapper
+     */
     @Bean
     public ObjectMapper objectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
