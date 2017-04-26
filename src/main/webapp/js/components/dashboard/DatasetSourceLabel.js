@@ -10,16 +10,16 @@ class DatasetSourceLabel extends React.Component {
         if (ds) {
             if (ds.endpointUrl) {
                 if (ds.graphId) {
-                    label = <div>{ds.endpointUrl}<br/><div style={{fontSize : '75%'}}>&#10148; {ds.graphId}</div></div>
+                    label = <span>{ds.endpointUrl}<br/><span style={{fontSize : '75%'}}>&#10148; {ds.graphId}</span></span>
                 } else {
-                    label = <div>{ds.endpointUrl}</div>
+                    label = <span>{ds.endpointUrl}</span>
                 }
             } else {
-                label = <div>{ds.downloadId}</div>
+                label = <span>{ds.downloadId}</span>
             }
         }
 
-        return ( <div>{label}</div> );
+        return ( <span>{label}</span> );
     }
 }
 

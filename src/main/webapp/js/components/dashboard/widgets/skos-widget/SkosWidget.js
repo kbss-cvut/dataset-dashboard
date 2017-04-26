@@ -4,6 +4,7 @@ import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import Actions from "../../../../actions/Actions";
 import {TreeNode} from "rc-tree";
+import LoadingWrapper from "../../../misc/LoadingWrapper";
 
 class SkosWidget extends React.Component {
     constructor(props) {
@@ -11,7 +12,8 @@ class SkosWidget extends React.Component {
         this.state = {
             data: [],
             lst: [],
-            tree: []
+            tree: [],
+            loadedQueries: []
         }
     };
 
@@ -48,6 +50,8 @@ class SkosWidget extends React.Component {
         const queryType = "skos_widget/get_vocabulary_type";
 
         if (data.action === Actions.selectDatasetSource) {
+            this.setState({loadedQueries:[]})
+            this.props.loadingOn();
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryHierarchy);
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryType);
         } else if (data.queryName === queryHierarchy) {
@@ -63,14 +67,23 @@ class SkosWidget extends React.Component {
                 });
             }
 
+            let lq = this.state.loadedQueries;
+            lq.push(queryHierarchy);
             this.setState({
                 data: JSON.stringify(data.jsonLD),
-                lst: lst
+                lst: lst,
+                loadedQueries: lq
             });
         } else if (data.queryName === queryType) {
+            let lq = this.state.loadedQueries;
+            lq.push(queryType);
             this.setState({
-                type: data.jsonLD
+                type: data.jsonLD,
+                loadedQueries: lq
             });
+        }
+        if (this.state.loadedQueries.length == 2) {
+            this.props.loadingOff();
         }
     };
 
@@ -119,5 +132,4 @@ class SkosWidget extends React.Component {
 // </Tree>
 
 export
-default
-SkosWidget;
+default LoadingWrapper(SkosWidget, {maskClass: 'mask-container'});
