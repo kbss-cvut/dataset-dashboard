@@ -12,6 +12,7 @@ import DatasetSourceRow from "./DatasetSourceRow";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 import DatasetSourceLabel from "./DatasetSourceLabel";
+import {Table} from "react-bootstrap";
 
 class DashboardController extends React.Component {
 
@@ -38,19 +39,12 @@ class DashboardController extends React.Component {
                         columns: [{
                             className: 'col-md-6 col-sm-6 col-xs-6',
                             widgets: [{key: 'SkosWidget'}],
-                        }],
-                    },
-                    {
-                        columns: [{
+                        },
+                        {
                             className: 'col-md-6 col-sm-6 col-xs-6',
-                            widgets: [{key: 'ClassPartitionWidget'}],
-                        }],
-                    },
-                    {
-                        columns: [{
-                            className: 'col-md-6 col-sm-6 col-xs-6',
-                            widgets: [{key: 'PropertyPartitionWidget'}],
-                        }],
+                            widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
+                        },
+                        ],
                     },
                 ]
             },
@@ -111,7 +105,7 @@ class DashboardController extends React.Component {
 
         return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
             <div>
-                <table>
+                <Table>
                     <thead>
                     <tr>
                         <td>Dataset Source</td>
@@ -120,7 +114,7 @@ class DashboardController extends React.Component {
                     <tbody>
                     {datasetSources}
                     </tbody>
-                </table>
+                </Table>
             </div>
             <Container>
                 <EditBar onEdit={this.toggleEdit}/>

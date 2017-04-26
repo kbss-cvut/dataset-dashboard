@@ -8,6 +8,8 @@ const Logger = require('../utils/Logger');
 
 const BASE_URL = 'rest/dataset-source';
 
+const jsonld = require('jsonld');
+
 const DatasetSourceStore = Reflux.createStore({
 
     listenables: [Actions],
@@ -96,11 +98,14 @@ const DatasetSourceStore = Reflux.createStore({
 
     onExecuteQueryForDatasetSource: function (datasetSourceId, queryName) {
         Ajax.get(BASE_URL+"/"+datasetSourceId+"/executeQuery?queryFile="+queryName).end(function (data) {
-            this.trigger({
-                action: Actions.executeQueryForDatasetSource,
-                queryName: queryName,
-                datasetSourceId: datasetSourceId,
-                jsonLD: data
+            const that = this;
+            jsonld.flatten(data, function(err, canonical) {
+                that.trigger({
+                    action: Actions.executeQueryForDatasetSource,
+                    queryName: queryName,
+                    datasetSourceId: datasetSourceId,
+                    jsonLD: canonical
+                });
             });
         }.bind(this), function () {
             Logger.error('Unable to execute query.');

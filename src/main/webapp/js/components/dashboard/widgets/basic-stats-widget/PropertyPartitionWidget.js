@@ -5,6 +5,8 @@ import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import Actions from "../../../../actions/Actions";
 import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
+import Utils from "../../../../utils/Utils";
+import LoadingWrapper from "../../../misc/LoadingWrapper";
 
 
 class PropertyPartitionWidget extends React.Component {
@@ -24,12 +26,14 @@ class PropertyPartitionWidget extends React.Component {
             return
         }
         if (data.action === Actions.selectDatasetSource) {
+            this.props.loadingOn();
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, "void/property_partitions");
         }
         if (data.queryName === "void/property_partitions") {
             this.setState({
                 data: data.jsonLD
             });
+            this.props.loadingOff();
         }
     };
 
@@ -37,19 +41,18 @@ class PropertyPartitionWidget extends React.Component {
         this.unsubscribe();
     };
 
-
     render() {
         if (this.state.data.length === 0) {
             return <div/>;
         }
-        var data = this.state.data['@graph']
+        var data = this.state.data
             .filter(r => (!r.hasOwnProperty('@type')))
             .map(r => {
                 return {
-                    'property': r[Void.PROPERTY]['@id'],
-                    'triples': r[Void.TRIPLES],
-                    'distinctSubjects': r[Void.DISTINCT_SUBJECTS],
-                    'distinctObjects': r[Void.DISTINCT_OBJECTS]
+                    'property': Utils.getJsonLdFirst(r[Void.PROPERTY],"@id"),
+                    'triples': Utils.getJsonLdFirst(r[Void.TRIPLES],"@value"),
+                    'distinctSubjects': Utils.getJsonLdFirst(r[Void.DISTINCT_SUBJECTS],['@value']),
+                    'distinctObjects': Utils.getJsonLdFirst(r[Void.DISTINCT_OBJECTS],['@value'])
                 }
             });
 
@@ -63,4 +66,4 @@ class PropertyPartitionWidget extends React.Component {
     };
 }
 
-export default PropertyPartitionWidget;
+export default LoadingWrapper(PropertyPartitionWidget, {maskClass: 'mask-container'});
