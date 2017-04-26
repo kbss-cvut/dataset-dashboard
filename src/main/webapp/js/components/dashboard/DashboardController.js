@@ -8,11 +8,11 @@ import CustomFrame from "./CustomFrame";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
-import DatasetSourceRow from "./DatasetSourceRow";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 import DatasetSourceLabel from "./DatasetSourceLabel";
 import {Table} from "react-bootstrap";
+import DatasetSourceList from "./DatasetSourceList";
 
 class DashboardController extends React.Component {
 
@@ -101,21 +101,10 @@ class DashboardController extends React.Component {
     };
 
     render() {
-        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow key={ds.hash} datasetSource={ds}/> });
+        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceLabel key={ds.hash} datasetSource={ds}/> });
 
         return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
-            <div>
-                <Table>
-                    <thead>
-                    <tr>
-                        <td>Dataset Source</td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {datasetSources}
-                    </tbody>
-                </Table>
-            </div>
+            <DatasetSourceList data={datasetSources}/>
             <Container>
                 <EditBar onEdit={this.toggleEdit}/>
                 <Dashboard
