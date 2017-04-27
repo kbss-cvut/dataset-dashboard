@@ -9,7 +9,6 @@ CONSTRUCT {
             void:entities ?instances;
         ] .
 }
-FROM <http://data.czso.cz/resource/dataset/demography-in-regions-czech-republic-age-categories>
 WHERE {
     SELECT (COUNT(DISTINCT ?instance) AS ?instances) ?type  WHERE {
         ?instance a ?type
