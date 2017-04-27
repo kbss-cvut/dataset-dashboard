@@ -3,15 +3,17 @@ PREFIX voc: <http://onto.fel.cvut.cz/ontologies/vocabulary/>
 CONSTRUCT {
     ?type a voc:type .
 } WHERE {
-    {
+    OPTIONAL {
         ?concept ?property ?concept2 .
         FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
         BIND(voc:skos-thesaurus AS ?type)
-    } UNION {
-        ?concept3 a skos:Concept .
-        OPTIONAL { ?concept3 ?property ?concept2 . }
-        FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
-        FILTER(!bound(?concept3))
+    }
+    OPTIONAL {
+        ?concept a skos:Concept .
+         FILTER NOT EXISTS {
+                   ?concept3  ?property3  ?concept4
+                   FILTER ( ?property3 IN (skos:broader, skos:narrower, skos:broaderMatch, skos:narrowerMatch) )
+                }
         BIND(voc:skos-glossary AS ?type)
     }
 }
