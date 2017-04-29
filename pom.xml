@@ -178,6 +178,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.0.0</version>
+                <configuration>
+                    <!-- Exclude files and folders which are not necessary in the war -->
+                    <warSourceExcludes>
+                        node_modules/,package.json,.babelrc,.eslintrc
+                    </warSourceExcludes>
+                    <packagingExcludes>
+                        node_modules/,package.json,.babelrc,.eslintrc
+                    </packagingExcludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
