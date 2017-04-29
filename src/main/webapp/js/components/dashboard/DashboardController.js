@@ -1,5 +1,6 @@
 'use strict';
 
+import Reflux from "reflux";
 import React from "react";
 import Dashboard, {addWidget} from "react-dazzle";
 import EditBar from "./EditBar";
@@ -8,6 +9,7 @@ import CustomFrame from "./CustomFrame";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
+import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
 import DatasetSourceRow from "./DatasetSourceRow";
 
 class DashboardController extends React.Component {
@@ -19,6 +21,10 @@ class DashboardController extends React.Component {
                 SkosWidget: {
                     type: SkosWidget,
                     title: 'SKOS Widget',
+                },
+                SchemaWidget: {
+                    type: SchemaWidget,
+                    title: 'Schema Widget',
                 }
             },
             layout: {
@@ -26,7 +32,12 @@ class DashboardController extends React.Component {
                     columns: [{
                         className: 'col-md-6 col-sm-6 col-xs-6',
                         widgets: [{key: 'SkosWidget'}],
-                    }],
+                    },
+                    {
+                        className: 'col-md-6 col-sm-6 col-xs-6',
+                        widgets: [{key: 'SchemaWidget'}],
+                    }
+                ],
                 }]
             },
             data: [],
