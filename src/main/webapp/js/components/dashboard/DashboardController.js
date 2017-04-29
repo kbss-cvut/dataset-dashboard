@@ -10,7 +10,11 @@ import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
 import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
-import DatasetSourceRow from "./DatasetSourceRow";
+import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
+import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
+import DatasetSourceLabel from "./DatasetSourceLabel";
+import {Table} from "react-bootstrap";
+import DatasetSourceList from "./DatasetSourceList";
 
 class DashboardController extends React.Component {
 
@@ -25,23 +29,36 @@ class DashboardController extends React.Component {
                 SchemaWidget: {
                     type: SchemaWidget,
                     title: 'Schema Widget',
+                },
+                ClassPartitionWidget: {
+                    type: ClassPartitionWidget,
+                    title: 'Class Partitions',
+                },
+                PropertyPartitionWidget: {
+                    type: PropertyPartitionWidget,
+                    title: 'Property Partitions',
                 }
             },
             layout: {
-                rows: [{
-                    columns: [{
-                        className: 'col-md-6 col-sm-6 col-xs-6',
-                        widgets: [{key: 'SkosWidget'}],
-                    },
+                rows: [
                     {
-                        className: 'col-md-6 col-sm-6 col-xs-6',
-                        widgets: [{key: 'SchemaWidget'}],
+                        columns: [{
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'SkosWidget'}],
+                        },
+                        {
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
+                        },
+                        {
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'SchemaWidget'}],
+                        }]
                     }
-                ],
-                }]
+                ]
             },
+            selectedDatasetSource: null,
             data: [],
-            datasetSourceId: null,
             editMode: false,
             isModalOpen: false,
             addWidgetOptions: null,
@@ -49,6 +66,7 @@ class DashboardController extends React.Component {
     };
 
     componentWillMount() {
+        Actions.getAllDatasetSources();
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
@@ -57,6 +75,11 @@ class DashboardController extends React.Component {
             return
         }
 
+        if (data.action == Actions.selectDatasetSource) {
+            this.setState({
+                selectedDatasetSource: data.datasetSource,
+            });
+        } else
         if (data.action == Actions.getAllDatasetSources) {
             this.setState({
                 data: data.datasetSources,
@@ -87,21 +110,10 @@ class DashboardController extends React.Component {
     };
 
     render() {
-        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceRow key={ds.hash} datasetSource={ds}/> });
+        var datasetSources = this.state.data.map((ds) => { return <DatasetSourceLabel key={ds.hash} datasetSource={ds}/> });
 
-        return (<div><h1>Dataset Source </h1>
-            <div>
-                <table>
-                    <thead>
-                    <tr>
-                        <td>Dataset Source</td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {datasetSources}
-                    </tbody>
-                </table>
-            </div>
+        return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
+            <DatasetSourceList data={datasetSources}/>
             <Container>
                 <EditBar onEdit={this.toggleEdit}/>
                 <Dashboard

@@ -24,7 +24,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@Import({RestConfig.class})
+@Import( {RestConfig.class})
 public class WebAppConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
@@ -70,7 +70,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
         converters.add(converter);
         final StringHttpMessageConverter stringConverter =
             new StringHttpMessageConverter(Charset.forName(
-            Constants.UTF_8_ENCODING));
+                Constants.UTF_8_ENCODING));
         converters.add(stringConverter);
         super.configureMessageConverters(converters);
     }
