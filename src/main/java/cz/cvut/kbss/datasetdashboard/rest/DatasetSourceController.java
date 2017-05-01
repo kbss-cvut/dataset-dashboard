@@ -46,6 +46,12 @@ public class DatasetSourceController {
         @RequestParam String queryFile) {
         return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id);
     }
+    
+    @RequestMapping(path = "/{id}/spo-summary", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public RawJson getDatasetSPO(@PathVariable Integer id) {
+        return datasetSourceService.getDatasetSPO(id);
+    }
 
     @RequestMapping(path = "/all", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)

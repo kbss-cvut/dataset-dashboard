@@ -1,0 +1,8 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?s ?p ?o {
+    ?t rdf:subject ?_s;
+      rdf:predicate ?p;
+      rdf:object ?_o.
+    ?_s a ?s.
+    ?_o a ?o.
+}
