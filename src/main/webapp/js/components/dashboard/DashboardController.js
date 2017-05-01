@@ -51,7 +51,7 @@ class DashboardController extends React.Component {
                             widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
                         },
                         {
-                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            className: 'col-md-12 col-sm-12 col-xs-12',
                             widgets: [{key: 'SchemaWidget'}],
                         }]
                     }
