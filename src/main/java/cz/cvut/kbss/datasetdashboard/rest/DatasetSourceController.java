@@ -46,14 +46,6 @@ public class DatasetSourceController {
         @RequestParam String queryFile) {
         return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id);
     }
-    
-    @RequestMapping(path = "/{id}/lastDescriptor", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    public RawJson getLastDescriptor(
-        @PathVariable Integer id,
-        @RequestParam String descriptorType) {
-        return datasetSourceService.getLastDescriptor(id, descriptorType);
-    }
 
     @RequestMapping(path = "/all", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,4 +53,11 @@ public class DatasetSourceController {
         return datasetSourceService.getDataSources();
     }
 
+    @RequestMapping(path = "/{id}/lastDescriptor", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public RawJson getLastDescriptor(
+        @PathVariable Integer id,
+        @RequestParam String descriptorType) {
+        return datasetSourceService.getLastDescriptor(id, descriptorType);
+    }
 }

@@ -84,7 +84,8 @@ public class DatasetSourceService {
      * @throws IllegalArgumentException When the specified queryName is not known
      */
     public RawJson getSparqlConstructResult(final String queryFile, final int datasetSourceId) {
-        return new RawJson(toJsonLd(datasetSourceDao.getSparqlConstructResult(queryFile,datasetSourceId)));
+        return new RawJson(toJsonLd(
+            datasetSourceDao.getSparqlConstructResult(queryFile,datasetSourceId)));
     }
 
     private static String toJsonLd(String turtle) {
@@ -96,7 +97,7 @@ public class DatasetSourceService {
     }
 
 
-    public RawJson getLastDescriptor(final int datasetSourceId, final String descriptorType){
+    public RawJson getLastDescriptor(final int datasetSourceId, final String descriptorType) {
         return new RawJson(datasetSourceDao.getLastDescriptor(datasetSourceId, descriptorType));
     }
 }

@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DatasetSourceDao {
 
-    private Logger LOGGER = LoggerFactory.getLogger(DatasetSourceDao.class);
+    private Logger logger = LoggerFactory.getLogger(DatasetSourceDao.class);
     private static final String JSON_LD = "application/ld+json";
 
     @Autowired
@@ -46,46 +46,51 @@ public class DatasetSourceDao {
 
     @PostConstruct
     public void init() {
-//        loadCkanDatasetSources("http://147.32.84.102:7200/repositories/eu_opendatamonitor_jopa");
-//        loadCkanDatasetSources("http://147.32.84.102:7200/repositories/cz_opendata_jopa");
+        // loadCkanDatasetSources("http://147.32.84.102:7200/repositories/eu_opendatamonitor_jopa");
+        // loadCkanDatasetSources("http://147.32.84.102:7200/repositories/cz_opendata_jopa");
     }
 
     private String getStringValue(final JsonObject o, final String parameter) {
         return o.get(parameter).getAsJsonObject().get("value").getAsString();
     }
 
-    private JsonArray getSparqlSelectResult(final String queryName, final String sparqlEndpointUrl) {
+    private JsonArray getSparqlSelectResult(final String queryName,
+                                            final String sparqlEndpointUrl) {
         final JsonParser jsonParser = new JsonParser();
         final String result = getSparqlResult(queryName,
-            sparqlEndpointUrl,null,"application/json");
+            sparqlEndpointUrl, null, "application/json");
         final JsonElement jsonResult = jsonParser.parse(result);
-        return jsonResult.getAsJsonObject().get("results").getAsJsonObject().get("bindings").getAsJsonArray();
+        return jsonResult.getAsJsonObject()
+            .get("results").getAsJsonObject()
+            .get("bindings").getAsJsonArray();
     }
 
     private void loadCkanDatasetSources(final String sparqlEndpointUrl) {
         try {
-            getSparqlSelectResult("query/get_ckan_datasetsources.rq", sparqlEndpointUrl).forEach((e) -> {
-                final String type = getStringValue(e.getAsJsonObject(),"type");
-                final String url = getStringValue(e.getAsJsonObject(),"url");
+            getSparqlSelectResult("query/get_ckan_datasetsources.rq", sparqlEndpointUrl)
+                .forEach((e) -> {
+                    final String type = getStringValue(e.getAsJsonObject(), "type");
+                    final String url = getStringValue(e.getAsJsonObject(), "url");
 
-                if (Vocabulary.s_c_sparql_endpoint_dataset_source.equals(type)) {
-                    final int id = register(url, null);
-                    loadAllNamedGraphsFromEndpoint(url);
-                } else if (Vocabulary.s_c_url_dataset_source.equals(type)) {
-                    register(url, null);
-                }
-            });
+                    if (Vocabulary.s_c_sparql_endpoint_dataset_source.equals(type)) {
+                        final int id = register(url, null);
+                        loadAllNamedGraphsFromEndpoint(url);
+                    } else if (Vocabulary.s_c_url_dataset_source.equals(type)) {
+                        register(url, null);
+                    }
+                });
         } catch (final Exception e) {
-            LOGGER.info("Unable to fetch dataset sources from {}", sparqlEndpointUrl, e);
+            logger.info("Unable to fetch dataset sources from {}", sparqlEndpointUrl, e);
         }
     }
 
     private void loadAllNamedGraphsFromEndpoint(final String sparqlEndpointUrl) {
         getSparqlSelectResult("query/get_sparql_endpoint_named_graph_datasetsources.rq",
             sparqlEndpointUrl).forEach((e) -> {
-            final String graph = getStringValue(e.getAsJsonObject(),"graph");
-            register(sparqlEndpointUrl, graph);
-        });
+                final String graph = getStringValue(e.getAsJsonObject(), "graph");
+                register(sparqlEndpointUrl, graph);
+            }
+        );
     }
 
     /**
@@ -162,7 +167,7 @@ public class DatasetSourceDao {
             ds.getTypes().add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
 
             int idEndpoint = register(endpointUrl, null);
-//            ds.getProperties().put(Vocabulary.s_p_has_, Collections.singleton(graphIri));
+            // ds.getProperties().put(Vocabulary.s_p_has_, Collections.singleton(graphIri));
         } else {
             ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
             rootDatasetSources.add(id);
@@ -186,7 +191,7 @@ public class DatasetSourceDao {
      *
      * @return a list of data sources.
      */
-    public Map<Integer,dataset_source> getDataSources() {
+    public Map<Integer, dataset_source> getDataSources() {
         return datasetSources;
     }
 
@@ -226,11 +231,18 @@ public class DatasetSourceDao {
                     datasetSource.getTypes()));
             }
         } catch (Exception e) {
-            LOGGER.error("Fetching data failed for queryFile {} and datasetSourceId {}", queryFile, datasetSourceId, e);
+            logger.error("Fetching data failed for queryFile {} and datasetSourceId {}",
+                queryFile, datasetSourceId, e);
             return null;
         }
     }
 
+    /**
+     * Retrieves the last descriptor of given type for the given dataset source id.
+     * @param datasetSourceId id of the dataset source
+     * @param descriptorType IRI of the class of the descriptor
+     * @return content of the descriptor
+     */
     public String getLastDescriptor(final int datasetSourceId, final String descriptorType) {
         if (!datasetSources.containsKey(datasetSourceId)) {
             throw new IllegalStateException("Unable to find dataset source with id "
@@ -239,7 +251,8 @@ public class DatasetSourceDao {
 
         final dataset_source datasetSource = datasetSources.get(datasetSourceId);
 
-        if ((Vocabulary.ONTOLOGY_IRI_dataset_descriptor+"/s-p-o-summary-descriptor").equals(descriptorType)) {
+        if ((Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/s-p-o-summary-descriptor")
+            .equals(descriptorType)) {
             if (datasetSource.getTypes().contains(
                 Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
 
