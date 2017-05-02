@@ -65,8 +65,8 @@
   "scripts": {
     "start": "watchify -o ../../../target/dataset-dashboard-0.0.1/js/bundle.js -v -d js/app.js",
     "browserify": "browserify . -g [envify --NODE_ENV 'production'] -t -o js/bundle.js",
-    "build-js": "browserify . -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > target/js/bundle.min.js",
-    "build-css": "cleancss --skip-rebase -d -o target/resources/css/dd.min.css resources/css/dd.css",
+    "build-js": "browserify . -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > js/bundle.js",
+    "build-css": "cleancss --skip-rebase -d -o resources/css/dd.css resources/css/dd.css",
     "build": "npm run build-css & npm run build-js",
     "prebuild": "npm install",
     "test": "jasmine JASMINE_CONFIG_PATH=tests/jasmine.json",
