@@ -23,4 +23,12 @@ Actions.registerDatasetSourceNamedGraph("http://linked.opendata.cz/sparql",
     "http://ruian.linked.opendata.cz/resource/dataset");
 Actions.getAllDatasetSources();
 
+Actions.registerNamespace('http://www.w3.org/2001/XMLSchema#','xsd');
+Actions.registerNamespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdf');
+Actions.registerNamespace('http://www.w3.org/2004/02/skos/core#','skos');
+Actions.registerNamespace('http://schema.org/','schema');
+Actions.registerNamespace('http://xmlns.com/foaf/0.1/','foaf');
+Actions.registerNamespace('http://purl.org/goodrelations/v1#','gr');
+Actions.registerNamespace('http://purl.org/dc/terms/','dcterms');
+
 main();

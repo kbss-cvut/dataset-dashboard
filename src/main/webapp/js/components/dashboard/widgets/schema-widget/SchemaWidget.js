@@ -2,34 +2,50 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import DatasetSourceSchemaStore from "../../../../stores/DatasetSourceSchemaStore";
+import Actions from "../../../../actions/Actions";
 import Logger from "../../../../utils/Logger";
+import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
+import NamespaceStore from "../../../../stores/NamespaceStore";
+import LoadingWrapper from "../../../misc/LoadingWrapper";
 
 class SchemaWidget extends React.Component {
     
     constructor(props) {
         super(props);
         Logger.log('SchemaWidget.constructor')
-        Logger.log(this.setState)
         this.state = {
             datasetSource : null,
-            datasetSchema : null
+            datasetSchema : null,
+            namespaces: {}
         };
     };
-    
+
     componentWillMount() {
         Logger.log('componentWillMount')
-        Logger.log(this.setState)
-        this.unsubscribe = DatasetSourceSchemaStore.listen(this._onStoreChanged);
+        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
     };
-    
-    _onStoreChanged = (data) => {
-        if(data.datasetSchema){
-            this.setState({
-                    datasetSource : DatasetSourceSchemaStore.getSelectDatasetSource(),
-                    datasetSchema : _constructGraphData(data.datasetSchema)
-                }
-            );
+
+    componentWillUnmount() {
+        this.unsubscribe();
+    };
+
+    _onDataLoaded = (data) => {
+        const descriptorTypeId = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary-descriptor";
+
+        if (data.action === Actions.selectDatasetSource) {
+            this.setState({loadedQueries: []})
+            this.props.loadingOn();
+            Actions.getDescriptorForLastSnapshotOfDatasetSource(data.datasetSource.hash, descriptorTypeId);
+        } else {
+            if (data.descriptorTypeId == descriptorTypeId ) {
+                console.log('I am here')
+                this.props.loadingOff();
+                this.setState({
+                        datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
+                        datasetSchema: _constructGraphData(data.jsonLD)
+                    }
+                );
+            }
         }
     };
 
@@ -39,7 +55,13 @@ class SchemaWidget extends React.Component {
         }else{
             var options = {
                 layout: {
-                    hierarchical: true
+                    hierarchical: {
+                        direction: 'LR',
+                        levelSeparation: 400,
+                        nodeSpacing: 100,
+                        treeSpacing: 200,
+
+                    }
                 },
                 edges: {
                     color: "#000000"
@@ -52,7 +74,7 @@ class SchemaWidget extends React.Component {
                 },
             }
 
-            return <div>Schema Diagram for {this.state.datasetSource.graphId}<br/><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'600px'}}/></div>;
+            return <div>Schema Diagram for {this.state.datasetSource.graphId}<br/><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'300px'}}/></div>;
         }
     };
 }
@@ -66,6 +88,7 @@ function _constructGraphData(results){
     var nodes = [];
     var edges = [];
 
+
     // check whether the uri is a datatype
     var isDataType = function (uri){
         return uri.startsWith('http://www.w3.org/2001/XMLSchema#') || uri.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns#langString');
@@ -77,12 +100,32 @@ function _constructGraphData(results){
         return uri;
     };
 
+    // calculate a short form of a uri
+    var getShortForm = function(uri){
+        if ( uri.indexOf("#") != -1 ) {
+            const [namespace,id] = uri.split('#');
+            const prefix=NamespaceStore.getPrefix(namespace+'#');
+            if (prefix) {
+                return prefix+':'+id;
+            }
+        } else if ( uri.indexOf("/") != -1 ) {
+            const namespace = uri.substring(0,uri.lastIndexOf('/'))
+            const id = uri.substring(uri.lastIndexOf('/') + 1)
+            const prefix=NamespaceStore.getPrefix(namespace+'/');
+            if (prefix) {
+                return prefix+':'+id;
+            }
+        }
+
+        return uri;
+    };
+
     // get the node for the uri, or create a new one if the node does not exist yet
     var ensureNodeCreated = function(uri){
             var nodeId = getNodeId(uri);
             var n = nodeMap[nodeId];
             if(!n){ // the node is not created yet
-                    n = {'id': nodeId, 'size': 150, 'label': uri, 'color': "#FFCFCF", 'shape': 'box', 'font': {'face': 'monospace', 'align': 'left'}},
+                    n = {'id': nodeId, 'size': 150, 'label': getShortForm(uri)+'\n', 'color': "#FFCFCF", 'shape': 'box', 'font': {'face': 'monospace', 'align': 'left'}},
                     nodes.push(n);
                     nodeMap[nodeId] = n;
             }
@@ -90,19 +133,23 @@ function _constructGraphData(results){
     };
 
     // transform triples to vsijs nodes and edges
-    results.results.bindings.forEach(function (b){
-        if(isDataType(b.o.value)){
-            // do nothing for now
-            var sourceNode = ensureNodeCreated(b.s.value);
-            //var targetNode = ensureNodeCreated(b.o.value);
-            sourceNode['label'] = sourceNode['label'] + "\n" + b.p.value + " : " + b.o.value;
-        }else{
-            // create the two nodes and the 
-            var sourceNode = ensureNodeCreated(b.s.value);
-            var targetNode = ensureNodeCreated(b.o.value);
-            var edge =  {'from': sourceNode.id, 'to': targetNode.id, label: b.p.value, 'arrows': 'to', 'physics': false, 'smooth': {'type': 'cubicBezier'}};
-            edges.push(edge);
-        }
+    results.forEach(function (b){
+        let sourceNode = ensureNodeCreated(b['@id']);
+        Object.keys(b).forEach((po) => {
+            if ( po == '@id' ) {
+                return;
+            }
+            if(isDataType(b[po][0]['@id'])){
+                // do nothing for now
+                //var targetNode = ensureNodeCreated(b.o.value);
+                sourceNode['label'] = sourceNode['label'] + "\n" + getShortForm(po) + " ► " + getShortForm(b[po][0]['@id']);
+            }else{
+                // create the two nodes and the
+                var targetNode = ensureNodeCreated(b[po][0]['@id']);
+                var edge =  {'from': sourceNode.id, 'to': targetNode.id, label: getShortForm(po), 'arrows': 'to', 'physics': false, 'smooth': {'type': 'cubicBezier'}};
+                edges.push(edge);
+            }
+        });
 
     });
     return {'nodes' : nodes, 'edges': edges};
@@ -129,4 +176,4 @@ function _fetchMockSchemaData(selectedDataSource){
 
 
 
-export default SchemaWidget;
+export default  LoadingWrapper(SchemaWidget, {maskClass: 'mask-container'});

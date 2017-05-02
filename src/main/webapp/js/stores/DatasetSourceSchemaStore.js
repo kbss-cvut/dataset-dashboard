@@ -29,7 +29,7 @@ const DatasetSourceSchemaStore = Reflux.createStore({
         }.bind(this), function () {
             Logger.error('Unable to fetch spo for the given dataset.');
             this.trigger({
-                action: Actions.registerDatasetUrl,
+                action: Actions.selectDatasetSource,
                 datasetSchema: null
             });
         }.bind(this));

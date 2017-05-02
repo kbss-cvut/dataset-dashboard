@@ -8,5 +8,7 @@ module.exports = Reflux.createActions([
     'registerDatasetUrl',
     'getAllDatasetSources',
     'executeQueryForDatasetSource',
-    'selectDatasetSource'
+    'selectDatasetSource',
+    'getDescriptorForLastSnapshotOfDatasetSource',
+    'registerNamespace'
 ]);

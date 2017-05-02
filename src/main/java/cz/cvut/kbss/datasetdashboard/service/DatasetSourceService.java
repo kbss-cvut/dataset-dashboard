@@ -150,29 +150,35 @@ public class DatasetSourceService {
         }
     }
 
-    public RawJson getDatasetSPO(final int datasetSourceId){
+    public RawJson getLastDescriptor(final int datasetSourceId, final String descriptorType){
         if (!datasetSources.containsKey(datasetSourceId)) {
             throw new IllegalStateException("Unable to find dataset source with id "
                 + datasetSourceId);
         }
-        final dataset_source datasetSource = datasetSources.get(datasetSourceId);
-        if (datasetSource.getTypes().contains(
-            Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
 
-            final String graphIri = datasetSource.getProperties()
-                .get(Vocabulary.s_p_has_graph_id).iterator().next();
-            return getSparqlResult(
+        final dataset_source datasetSource = datasetSources.get(datasetSourceId);
+
+        if ( "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary-descriptor".equals(descriptorType)) {
+            if (datasetSource.getTypes().contains(
+                Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
+
+                final String graphIri = datasetSource.getProperties()
+                    .get(Vocabulary.s_p_has_graph_id).iterator().next();
+                return getSparqlResult(
                     "/query/spo/spo-summary.rq", // the query to select precalculated spo
                     "http://onto.fel.cvut.cz/rdf4j-server/repositories/linked.opendata.cz-s-p-o-summary-descriptor", // the endpoint where the precalculated spos are located
-                    graphIri, 
-                    "application/json");
-        } else if (datasetSource.getTypes()
-            .contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            return null;
+                    graphIri,
+                    "application/ld+json");
+            } else if (datasetSource.getTypes()
+                .contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+                return null;
+            } else {
+                throw new IllegalStateException(MessageFormat.format(
+                    "The dataset source of types {} is not recognized.",
+                    datasetSource.getTypes()));
+            }
         } else {
-            throw new IllegalStateException(MessageFormat.format(
-                "The dataset source of types {} is not recognized.",
-                datasetSource.getTypes()));
+            return null;
         }
     }
     

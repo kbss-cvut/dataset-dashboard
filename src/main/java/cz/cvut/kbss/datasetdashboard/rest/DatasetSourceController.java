@@ -47,10 +47,12 @@ public class DatasetSourceController {
         return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id);
     }
     
-    @RequestMapping(path = "/{id}/spo-summary", method = RequestMethod.GET,
+    @RequestMapping(path = "/{id}/lastDescriptor", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public RawJson getDatasetSPO(@PathVariable Integer id) {
-        return datasetSourceService.getDatasetSPO(id);
+    public RawJson getLastDescriptor(
+        @PathVariable Integer id,
+        @RequestParam String descriptorType) {
+        return datasetSourceService.getLastDescriptor(id, descriptorType);
     }
 
     @RequestMapping(path = "/all", method = RequestMethod.GET,

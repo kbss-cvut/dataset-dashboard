@@ -1,6 +1,5 @@
 'use strict';
 
-import Reflux from "reflux";
 import React from "react";
 import Dashboard, {addWidget} from "react-dazzle";
 import EditBar from "./EditBar";
@@ -42,17 +41,18 @@ class DashboardController extends React.Component {
             layout: {
                 rows: [
                     {
-                        columns: [{
+                        columns: [
+                        {
+                            className: 'col-md-12 col-sm-12 col-xs-12',
+                            widgets: [{key: 'SchemaWidget'}],
+                        },
+                        {
                             className: 'col-md-6 col-sm-6 col-xs-6',
                             widgets: [{key: 'SkosWidget'}],
                         },
                         {
                             className: 'col-md-6 col-sm-6 col-xs-6',
                             widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
-                        },
-                        {
-                            className: 'col-md-12 col-sm-12 col-xs-12',
-                            widgets: [{key: 'SchemaWidget'}],
                         }]
                     }
                 ]

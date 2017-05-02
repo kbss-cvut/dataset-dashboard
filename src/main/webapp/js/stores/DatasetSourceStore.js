@@ -21,7 +21,7 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onSelectDatasetSource: function (selectDatasetSource) {
-        this._selectDatasetSource = selectDatasetSource;
+        this.selectDatasetSource = selectDatasetSource;
         this.trigger({
             action: Actions.selectDatasetSource,
             datasetSource: selectDatasetSource
@@ -116,8 +116,29 @@ const DatasetSourceStore = Reflux.createStore({
                 jsonLD: []
             });
         }.bind(this));
-    }
+    },
 
+    onGetDescriptorForLastSnapshotOfDatasetSource: function (datasetSourceId, descriptorTypeId) {
+        Ajax.get(BASE_URL+"/"+datasetSourceId+"/lastDescriptor?descriptorType="+descriptorTypeId).end(function (data) {
+            const that = this;
+            jsonld.flatten(data, function(err, canonical) {
+                that.trigger({
+                    action: Actions.getDescriptorForLastSnapshotOfDatasetSource,
+                    descriptorTypeId: descriptorTypeId,
+                    datasetSourceId: datasetSourceId,
+                    jsonLD: canonical
+                });
+            });
+        }.bind(this), function () {
+            Logger.error('Unable to fetch last descriptor of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
+            this.trigger({
+                action: Actions.getDescriptorForLastSnapshotOfDatasetSource,
+                descriptorTypeId: descriptorTypeId,
+                datasetSourceId: datasetSourceId,
+                jsonLD: []
+            });
+        }.bind(this));
+    }
 });
 
 module.exports = DatasetSourceStore;
