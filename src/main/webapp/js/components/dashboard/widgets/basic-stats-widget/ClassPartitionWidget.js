@@ -2,6 +2,7 @@
 
 import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
+import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
@@ -49,7 +50,7 @@ class BasicStatsWidget extends React.Component {
             .filter(r => (!r.hasOwnProperty('@type')))
             .map(r => {
                 return {
-                    'class': Utils.getJsonLdFirst(r[Void.CLASS],'@id'),
+                    'class': NamespaceStore.getShortForm(Utils.getJsonLdFirst(r[Void.CLASS],'@id')),
                     'entities': Utils.getJsonLdFirst(r[Void.ENTITIES], '@value')
                 }
             });

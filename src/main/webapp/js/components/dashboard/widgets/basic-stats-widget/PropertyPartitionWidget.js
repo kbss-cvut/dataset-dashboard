@@ -2,6 +2,7 @@
 
 import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
+import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
@@ -49,7 +50,7 @@ class PropertyPartitionWidget extends React.Component {
             .filter(r => (!r.hasOwnProperty('@type')))
             .map(r => {
                 return {
-                    'property': Utils.getJsonLdFirst(r[Void.PROPERTY],"@id"),
+                    'property': NamespaceStore.getShortForm(Utils.getJsonLdFirst(r[Void.PROPERTY],"@id")),
                     'triples': Utils.getJsonLdFirst(r[Void.TRIPLES],"@value"),
                     'distinctSubjects': Utils.getJsonLdFirst(r[Void.DISTINCT_SUBJECTS],['@value']),
                     'distinctObjects': Utils.getJsonLdFirst(r[Void.DISTINCT_OBJECTS],['@value'])

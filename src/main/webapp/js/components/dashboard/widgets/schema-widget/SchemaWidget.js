@@ -38,7 +38,6 @@ class SchemaWidget extends React.Component {
             Actions.getDescriptorForLastSnapshotOfDatasetSource(data.datasetSource.hash, descriptorTypeId);
         } else {
             if (data.descriptorTypeId == descriptorTypeId ) {
-                console.log('I am here')
                 this.props.loadingOff();
                 this.setState({
                         datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
@@ -74,7 +73,7 @@ class SchemaWidget extends React.Component {
                 },
             }
 
-            return <div>Schema Diagram for {this.state.datasetSource.graphId}<br/><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'300px'}}/></div>;
+            return <div><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'400px'}}/></div>;
         }
     };
 }
@@ -100,32 +99,12 @@ function _constructGraphData(results){
         return uri;
     };
 
-    // calculate a short form of a uri
-    var getShortForm = function(uri){
-        if ( uri.indexOf("#") != -1 ) {
-            const [namespace,id] = uri.split('#');
-            const prefix=NamespaceStore.getPrefix(namespace+'#');
-            if (prefix) {
-                return prefix+':'+id;
-            }
-        } else if ( uri.indexOf("/") != -1 ) {
-            const namespace = uri.substring(0,uri.lastIndexOf('/'))
-            const id = uri.substring(uri.lastIndexOf('/') + 1)
-            const prefix=NamespaceStore.getPrefix(namespace+'/');
-            if (prefix) {
-                return prefix+':'+id;
-            }
-        }
-
-        return uri;
-    };
-
     // get the node for the uri, or create a new one if the node does not exist yet
     var ensureNodeCreated = function(uri){
             var nodeId = getNodeId(uri);
             var n = nodeMap[nodeId];
             if(!n){ // the node is not created yet
-                    n = {'id': nodeId, 'size': 150, 'label': getShortForm(uri)+'\n', 'color': "#FFCFCF", 'shape': 'box', 'font': {'face': 'monospace', 'align': 'left'}},
+                    n = {'id': nodeId, 'size': 150, 'label': NamespaceStore.getShortForm(uri)+'\n', 'color': "#FFCFCF", 'shape': 'box', 'font': {'face': 'monospace', 'align': 'left'}},
                     nodes.push(n);
                     nodeMap[nodeId] = n;
             }
@@ -142,11 +121,11 @@ function _constructGraphData(results){
             if(isDataType(b[po][0]['@id'])){
                 // do nothing for now
                 //var targetNode = ensureNodeCreated(b.o.value);
-                sourceNode['label'] = sourceNode['label'] + "\n" + getShortForm(po) + " ► " + getShortForm(b[po][0]['@id']);
+                sourceNode['label'] = sourceNode['label'] + "\n" + NamespaceStore.getShortForm(po) + " ► " + NamespaceStore.getShortForm(b[po][0]['@id']);
             }else{
                 // create the two nodes and the
                 var targetNode = ensureNodeCreated(b[po][0]['@id']);
-                var edge =  {'from': sourceNode.id, 'to': targetNode.id, label: getShortForm(po), 'arrows': 'to', 'physics': false, 'smooth': {'type': 'cubicBezier'}};
+                var edge =  {'from': sourceNode.id, 'to': targetNode.id, label: NamespaceStore.getShortForm(po), 'arrows': 'to', 'physics': false, 'smooth': {'type': 'cubicBezier'}};
                 edges.push(edge);
             }
         });

@@ -113,7 +113,9 @@ class DashboardController extends React.Component {
         var datasetSources = this.state.data.map((ds) => { return <DatasetSourceLabel key={ds.hash} datasetSource={ds}/> });
 
         return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
+            <table style={{width:'100%'}}><tbody><tr><td className='topLeft'>
             <DatasetSourceList data={datasetSources}/>
+            </td><td className='topCenter'>
             <Container>
                 <EditBar onEdit={this.toggleEdit}/>
                 <Dashboard
@@ -124,7 +126,8 @@ class DashboardController extends React.Component {
                     onMove={this.onMove}
                     addWidgetComponentText=""
                 />
-            </Container></div>);
+            </Container></td></tr></tbody></table>
+        </div>);
     }
 }
 

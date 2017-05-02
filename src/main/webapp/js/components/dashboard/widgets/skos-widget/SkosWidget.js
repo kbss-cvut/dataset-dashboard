@@ -2,6 +2,7 @@
 
 import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
+import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import {TreeNode} from "rc-tree";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
@@ -100,7 +101,7 @@ class SkosWidget extends React.Component {
                 } else if (label["@value"]) {
                     label = label["@value"];
                 } else if (label["@id"]) {
-                    label = label["@id"];
+                    label = NamespaceStore.getShortForm(label["@id"]);
                 }
                 return ( <li key={item['@id']}><a href={item['@id']}>{label}</a></li> );
             });

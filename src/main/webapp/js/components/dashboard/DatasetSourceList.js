@@ -67,9 +67,9 @@ class DatasetSourceList extends React.Component {
                     options={ options }
                     pagination={true}
                 striped condensed hover>
-                    <TableHeaderColumn dataField='hash' isKey>#</TableHeaderColumn>
-                    <TableHeaderColumn dataField='id'
-                                       dataFormat={ (cell, row) => { return (
+                    <TableHeaderColumn  isKey
+                                        dataField='id'
+                                        dataFormat={ (cell, row) => { return (
                                            <DatasetSourceLink datasetSource={ row } /> ); }
                                        }>Dataset Source</TableHeaderColumn>
                     </BootstrapTable></div>

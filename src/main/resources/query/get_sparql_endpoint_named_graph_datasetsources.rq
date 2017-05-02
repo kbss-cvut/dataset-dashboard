@@ -1,0 +1,10 @@
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX ckan-r: <http://onto.fel.cvut.cz/ontologies/org/ckan/resource/>
+PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
+SELECT DISTINCT ?graph
+WHERE {
+    GRAPH ?graph {
+        ?s ?p ?o .
+    }
+}

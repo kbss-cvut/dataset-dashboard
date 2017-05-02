@@ -1,0 +1,14 @@
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX ckan-r: <http://onto.fel.cvut.cz/ontologies/org/ckan/resource/>
+PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
+SELECT ?url ?type
+WHERE {
+    ?resource ckan-r:format ?format ;
+        ckan-r:url ?url .
+    OPTIONAL {
+       FILTER(?format IN ( "api/sqarql"@en,"api/sparql"@en, "SPARQL"@en, "SPARQL endpoint"@en, "SPARQL Endpoint"@en, "sparql endpoint"@en))
+       BIND(ddo:sparql-endpoint-dataset-source AS ?type)
+    }
+    FILTER(bound(?type))
+} GROUP BY ?url ?type

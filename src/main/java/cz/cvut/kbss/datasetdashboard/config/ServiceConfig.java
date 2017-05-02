@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@ComponentScan(basePackages = "cz.cvut.kbss.datasetdashboard.service")
+@ComponentScan(basePackages = {"cz.cvut.kbss.datasetdashboard.service","cz.cvut.kbss.datasetdashboard.dao"})
 public class ServiceConfig {
 
     @Bean
