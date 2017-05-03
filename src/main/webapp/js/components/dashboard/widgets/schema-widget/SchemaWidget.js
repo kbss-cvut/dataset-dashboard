@@ -110,7 +110,7 @@ function _constructGraphData(results){
             }
             return n;
     };
-
+    let fromToCount={};
     // transform triples to vsijs nodes and edges
     results.forEach(function (b){
         let sourceNode = ensureNodeCreated(b['@id']);
@@ -125,7 +125,24 @@ function _constructGraphData(results){
             }else{
                 // create the two nodes and the
                 var targetNode = ensureNodeCreated(b[po][0]['@id']);
-                var edge =  {'from': sourceNode.id, 'to': targetNode.id, label: NamespaceStore.getShortForm(po), 'arrows': 'to', 'physics': false, 'smooth': {'type': 'cubicBezier'}};
+
+                let x = fromToCount[sourceNode.id+targetNode.id];
+                if (!x) {x = 0};
+                const max = 10;
+                let y = ( ( x == 0 ) ? x :( ( x % max ) * ( ( x % 2 ) - 0.5 ) / max ) );
+                var edge =  {
+                    from: sourceNode.id,
+                    to: targetNode.id,
+                    label: NamespaceStore.getShortForm(po),
+                    font: {align: 'middle'},
+                    arrows: 'to',
+                    physics: false,
+                    smooth: {
+                        'type': 'curvedCW',
+                        'roundness': y
+                    }
+                };
+                fromToCount[sourceNode.id+targetNode.id] = x+1;
                 edges.push(edge);
             }
         });
