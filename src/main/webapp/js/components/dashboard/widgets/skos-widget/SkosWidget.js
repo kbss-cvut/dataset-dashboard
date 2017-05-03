@@ -48,8 +48,8 @@ class SkosWidget extends React.Component {
             return
         }
 
-        const queryHierarchy = "skos_widget/get_concept_hierarchy";
-        const queryType = "skos_widget/get_vocabulary_type";
+        const queryHierarchy = "skos/get_concept_hierarchy";
+        const queryType = "skos/get_vocabulary_type";
 
         if (data.action === Actions.selectDatasetSource) {
             this.setState({loadedQueries: []})
