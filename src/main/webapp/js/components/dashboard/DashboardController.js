@@ -9,6 +9,7 @@ import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
 import SkosWidget from "./widgets/skos-widget/SkosWidget";
 import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
+import SpatialWidget from "./widgets/spatial-widget/SpatialWidget"
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 import DatasetSourceLabel from "./DatasetSourceLabel";
@@ -36,6 +37,10 @@ class DashboardController extends React.Component {
                 PropertyPartitionWidget: {
                     type: PropertyPartitionWidget,
                     title: 'Property Partitions',
+                },
+                SpatialWidget: {
+                    type: SpatialWidget,
+                    title: 'Spatial representation',
                 }
             },
             layout: {
@@ -49,6 +54,10 @@ class DashboardController extends React.Component {
                         {
                             className: 'col-md-6 col-sm-6 col-xs-6',
                             widgets: [{key: 'SkosWidget'}],
+                        },
+                        {
+                            className: 'col-md-6 col-sm-6 col-xs-6',
+                            widgets: [{key: 'SpatialWidget'}],
                         },
                         {
                             className: 'col-md-6 col-sm-6 col-xs-6',

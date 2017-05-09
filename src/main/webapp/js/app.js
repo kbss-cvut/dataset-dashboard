@@ -18,7 +18,7 @@ Actions.registerDatasetSourceNamedGraph("http://linked.opendata.cz/sparql",
     "http://data.czso.cz/resource/dataset/demography-in-regions-czech-republic-age-categories");
 Actions.registerDatasetSourceNamedGraph("http://linked.opendata.cz/sparql",
     "http://linked.opendata.cz/resource/dataset/seznam.gov.cz/ovm");
-Actions.registerDatasetSourceNamedGraph("http://linked.opendata.cz/sparql",
+Actions.registerDatasetSourceNamedGraph("https://ruian.linked.opendata.cz/sparql",
     "http://ruian.linked.opendata.cz/resource/dataset");
 
 // Actions.registerDatasetSourceEndpoint("http://onto.fel.cvut.cz/rdf4j-server/repositories/eurovoc-thesaurus");
