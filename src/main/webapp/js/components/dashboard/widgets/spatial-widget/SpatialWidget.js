@@ -44,7 +44,7 @@ class SpatialWidget extends React.Component {
 
         //var data = this.state.data
         if (this.state.data.length === 0) {
-            var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+            //var mymap = L.map('mapid').setView([51.505, -0.09], 13);
             return <div id="mapid"/>;
         }
 
