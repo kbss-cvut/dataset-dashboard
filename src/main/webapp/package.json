@@ -1,5 +1,5 @@
 {
-  "name": "inbas-reporting-tool",
+  "name": "dataset-dashboard",
   "version": "2.0.0",
   "description": "Dataset Dashboard.",
   "main": "js/app.js",

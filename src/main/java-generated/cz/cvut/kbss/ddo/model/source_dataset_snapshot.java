@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_source_dataset_snapshot)
-public class source_dataset_snapshot {
+public class source_dataset_snapshot
+    extends dataset_snapshot
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -32,11 +34,11 @@ public class source_dataset_snapshot {
     protected String id;
     @Properties
     protected Map<String, Set<String>> properties;
-    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_source)
+    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_input)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_transformation, min = 1)
     })
-    protected Set<Thing> inv_dot_has_source;
+    protected Set<Thing> inv_dot_has_input;
 
     public void setName(String name) {
         this.name = name;
@@ -78,12 +80,12 @@ public class source_dataset_snapshot {
         return properties;
     }
 
-    public void setInv_dot_has_source(Set<Thing> inv_dot_has_source) {
-        this.inv_dot_has_source = inv_dot_has_source;
+    public void setInv_dot_has_input(Set<Thing> inv_dot_has_input) {
+        this.inv_dot_has_input = inv_dot_has_input;
     }
 
-    public Set<Thing> getInv_dot_has_source() {
-        return inv_dot_has_source;
+    public Set<Thing> getInv_dot_has_input() {
+        return inv_dot_has_input;
     }
 
 }

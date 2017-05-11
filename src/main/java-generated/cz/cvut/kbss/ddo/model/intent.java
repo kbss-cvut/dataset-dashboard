@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_intent)
-public class intent {
+public class intent
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;

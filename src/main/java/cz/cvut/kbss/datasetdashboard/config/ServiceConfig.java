@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @ComponentScan(basePackages = {"cz.cvut.kbss.datasetdashboard.service",
-    "cz.cvut.kbss.datasetdashboard.dao"})
+    "cz.cvut.kbss.datasetdashboard.dao", "cz.cvut.kbss.datasetdashboard.persistence"})
 public class ServiceConfig {
 
     @Bean

@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_transformation)
-public class transformation {
+public class transformation
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -32,21 +34,21 @@ public class transformation {
     protected String id;
     @Properties
     protected Map<String, Set<String>> properties;
-    @OWLObjectProperty(iri = Vocabulary.s_p_has_target)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_target_dataset_snapshot, min = 1, max = 1)
-    })
-    protected Set<Thing> has_target;
-    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_is_created_by)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_execution_context_dataset_source, min = 1, max = 1)
-    })
-    protected Set<Thing> inv_dot_is_created_by;
-    @OWLObjectProperty(iri = Vocabulary.s_p_has_source)
+    @OWLObjectProperty(iri = Vocabulary.s_p_has_input)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_source_dataset_snapshot, min = 1, max = 1)
     })
-    protected Set<Thing> has_source;
+    protected source_dataset_snapshot has_input;
+    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_is_created_by)
+    @ParticipationConstraints({
+        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_execution_context_dataset_source, max = 1)
+    })
+    protected execution_context_dataset_source inv_dot_is_created_by;
+    @OWLObjectProperty(iri = Vocabulary.s_p_has_output)
+    @ParticipationConstraints({
+        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_target_dataset_snapshot, min = 1, max = 1)
+    })
+    protected Set<Thing> has_output;
 
     public void setName(String name) {
         this.name = name;
@@ -88,28 +90,28 @@ public class transformation {
         return properties;
     }
 
-    public void setHas_target(Set<Thing> has_target) {
-        this.has_target = has_target;
+    public void setHas_input(source_dataset_snapshot has_input) {
+        this.has_input = has_input;
     }
 
-    public Set<Thing> getHas_target() {
-        return has_target;
+    public source_dataset_snapshot getHas_input() {
+        return has_input;
     }
 
-    public void setInv_dot_is_created_by(Set<Thing> inv_dot_is_created_by) {
+    public void setInv_dot_is_created_by(execution_context_dataset_source inv_dot_is_created_by) {
         this.inv_dot_is_created_by = inv_dot_is_created_by;
     }
 
-    public Set<Thing> getInv_dot_is_created_by() {
+    public execution_context_dataset_source getInv_dot_is_created_by() {
         return inv_dot_is_created_by;
     }
 
-    public void setHas_source(Set<Thing> has_source) {
-        this.has_source = has_source;
+    public void setHas_output(Set<Thing> has_output) {
+        this.has_output = has_output;
     }
 
-    public Set<Thing> getHas_source() {
-        return has_source;
+    public Set<Thing> getHas_output() {
+        return has_output;
     }
 
 }

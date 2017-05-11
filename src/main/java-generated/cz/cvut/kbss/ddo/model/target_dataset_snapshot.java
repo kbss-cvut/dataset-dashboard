@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_target_dataset_snapshot)
-public class target_dataset_snapshot {
+public class target_dataset_snapshot
+    extends dataset_snapshot
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -32,11 +34,11 @@ public class target_dataset_snapshot {
     protected String id;
     @Properties
     protected Map<String, Set<String>> properties;
-    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_target)
+    @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_output)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_transformation, min = 1)
     })
-    protected Set<Thing> inv_dot_has_target;
+    protected Set<transformation> inv_dot_has_output;
 
     public void setName(String name) {
         this.name = name;
@@ -78,12 +80,12 @@ public class target_dataset_snapshot {
         return properties;
     }
 
-    public void setInv_dot_has_target(Set<Thing> inv_dot_has_target) {
-        this.inv_dot_has_target = inv_dot_has_target;
+    public void setInv_dot_has_output(Set<transformation> inv_dot_has_output) {
+        this.inv_dot_has_output = inv_dot_has_output;
     }
 
-    public Set<Thing> getInv_dot_has_target() {
-        return inv_dot_has_target;
+    public Set<transformation> getInv_dot_has_output() {
+        return inv_dot_has_output;
     }
 
 }

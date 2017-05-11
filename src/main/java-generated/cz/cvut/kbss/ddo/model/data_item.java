@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_data_item)
-public class data_item {
+public class data_item
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,7 +38,7 @@ public class data_item {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_data, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_has_member;
+    protected data inv_dot_has_member;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_item)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_single_item_selector, min = 1, max = 1)
@@ -83,11 +85,11 @@ public class data_item {
         return properties;
     }
 
-    public void setInv_dot_has_member(Set<Thing> inv_dot_has_member) {
+    public void setInv_dot_has_member(data inv_dot_has_member) {
         this.inv_dot_has_member = inv_dot_has_member;
     }
 
-    public Set<Thing> getInv_dot_has_member() {
+    public data getInv_dot_has_member() {
         return inv_dot_has_member;
     }
 

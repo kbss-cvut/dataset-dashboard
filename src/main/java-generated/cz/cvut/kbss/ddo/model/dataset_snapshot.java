@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_snapshot)
-public class dataset_snapshot {
+public class dataset_snapshot
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -41,17 +43,12 @@ public class dataset_snapshot {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_publication, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_has_published_dataset_snapshot;
-    @OWLObjectProperty(iri = Vocabulary.s_p_constitutes)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_data, min = 1)
-    })
-    protected Set<Thing> constitutes;
+    protected dataset_publication inv_dot_has_published_dataset_snapshot;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_sub_dataset_snapshot)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, max = 1)
     })
-    protected Set<Thing> inv_dot_has_sub_dataset_snapshot;
+    protected dataset_snapshot inv_dot_has_sub_dataset_snapshot;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_sub_dataset_snapshot)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 2)
@@ -106,27 +103,19 @@ public class dataset_snapshot {
         return has_dataset;
     }
 
-    public void setInv_dot_has_published_dataset_snapshot(Set<Thing> inv_dot_has_published_dataset_snapshot) {
+    public void setInv_dot_has_published_dataset_snapshot(dataset_publication inv_dot_has_published_dataset_snapshot) {
         this.inv_dot_has_published_dataset_snapshot = inv_dot_has_published_dataset_snapshot;
     }
 
-    public Set<Thing> getInv_dot_has_published_dataset_snapshot() {
+    public dataset_publication getInv_dot_has_published_dataset_snapshot() {
         return inv_dot_has_published_dataset_snapshot;
     }
 
-    public void setConstitutes(Set<Thing> constitutes) {
-        this.constitutes = constitutes;
-    }
-
-    public Set<Thing> getConstitutes() {
-        return constitutes;
-    }
-
-    public void setInv_dot_has_sub_dataset_snapshot(Set<Thing> inv_dot_has_sub_dataset_snapshot) {
+    public void setInv_dot_has_sub_dataset_snapshot(dataset_snapshot inv_dot_has_sub_dataset_snapshot) {
         this.inv_dot_has_sub_dataset_snapshot = inv_dot_has_sub_dataset_snapshot;
     }
 
-    public Set<Thing> getInv_dot_has_sub_dataset_snapshot() {
+    public dataset_snapshot getInv_dot_has_sub_dataset_snapshot() {
         return inv_dot_has_sub_dataset_snapshot;
     }
 

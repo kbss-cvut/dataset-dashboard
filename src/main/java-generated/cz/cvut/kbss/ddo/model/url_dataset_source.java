@@ -17,7 +17,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_url_dataset_source)
-public class url_dataset_source {
+public class url_dataset_source
+    extends dataset_source
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;

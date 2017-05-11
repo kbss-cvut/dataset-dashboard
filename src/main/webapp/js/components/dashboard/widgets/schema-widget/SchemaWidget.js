@@ -30,7 +30,7 @@ class SchemaWidget extends React.Component {
     };
 
     _onDataLoaded = (data) => {
-        const descriptorTypeId = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary-descriptor";
+        const descriptorTypeId = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/spo-summary-descriptor";
 
         if (data.action === Actions.selectDatasetSource) {
             this.setState({loadedQueries: []})
@@ -104,7 +104,17 @@ function _constructGraphData(results){
             var nodeId = getNodeId(uri);
             var n = nodeMap[nodeId];
             if(!n){ // the node is not created yet
-                    n = {'id': nodeId, 'size': 150, 'label': NamespaceStore.getShortForm(uri)+'\n', 'color': "#FFCFCF", 'shape': 'box', 'font': {'face': 'monospace', 'align': 'left'}},
+                    n = {
+                        id: nodeId,
+                        size: 150,
+                        label: NamespaceStore.getShortForm(uri)+'\n',
+                        color: "#FFCFCF",
+                        shape: 'box',
+                        font: {
+                            face: 'monospace',
+                            align: 'left'
+                        }
+                    },
                     nodes.push(n);
                     nodeMap[nodeId] = n;
             }
@@ -121,7 +131,12 @@ function _constructGraphData(results){
             if(isDataType(b[po][0]['@id'])){
                 // do nothing for now
                 //var targetNode = ensureNodeCreated(b.o.value);
-                sourceNode['label'] = sourceNode['label'] + "\n" + NamespaceStore.getShortForm(po) + " ► " + NamespaceStore.getShortForm(b[po][0]['@id']);
+                sourceNode['label'] =
+                    sourceNode['label']
+                    + "\n"
+                    + NamespaceStore.getShortForm(po)
+                    + " ► "
+                    + NamespaceStore.getShortForm(b[po][0]['@id']);
             }else{
                 // create the two nodes and the
                 var targetNode = ensureNodeCreated(b[po][0]['@id']);

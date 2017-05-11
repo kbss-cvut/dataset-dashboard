@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_publication)
-public class dataset_publication {
+public class dataset_publication
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -32,21 +34,16 @@ public class dataset_publication {
     protected String id;
     @Properties
     protected Map<String, Set<String>> properties;
-    @OWLObjectProperty(iri = Vocabulary.s_p_has_source)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_single_snapshot_dataset_source, min = 1)
-    })
-    protected Set<Thing> has_source;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_publisher)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_publisher, min = 1, max = 1)
     })
-    protected Set<Thing> has_publisher;
+    protected publisher has_publisher;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_published_dataset_snapshot)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 1, max = 1)
     })
-    protected Set<Thing> has_published_dataset_snapshot;
+    protected dataset_snapshot has_published_dataset_snapshot;
 
     public void setName(String name) {
         this.name = name;
@@ -88,27 +85,19 @@ public class dataset_publication {
         return properties;
     }
 
-    public void setHas_source(Set<Thing> has_source) {
-        this.has_source = has_source;
-    }
-
-    public Set<Thing> getHas_source() {
-        return has_source;
-    }
-
-    public void setHas_publisher(Set<Thing> has_publisher) {
+    public void setHas_publisher(publisher has_publisher) {
         this.has_publisher = has_publisher;
     }
 
-    public Set<Thing> getHas_publisher() {
+    public publisher getHas_publisher() {
         return has_publisher;
     }
 
-    public void setHas_published_dataset_snapshot(Set<Thing> has_published_dataset_snapshot) {
+    public void setHas_published_dataset_snapshot(dataset_snapshot has_published_dataset_snapshot) {
         this.has_published_dataset_snapshot = has_published_dataset_snapshot;
     }
 
-    public Set<Thing> getHas_published_dataset_snapshot() {
+    public dataset_snapshot getHas_published_dataset_snapshot() {
         return has_published_dataset_snapshot;
     }
 

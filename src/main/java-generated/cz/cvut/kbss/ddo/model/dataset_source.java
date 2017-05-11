@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_source)
-public class dataset_source {
+public class dataset_source
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,7 +38,7 @@ public class dataset_source {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset, min = 1)
     })
-    protected Set<Thing> offers_dataset;
+    protected Set<dataset> offers_dataset;
 
     public void setName(String name) {
         this.name = name;
@@ -78,11 +80,11 @@ public class dataset_source {
         return properties;
     }
 
-    public void setOffers_dataset(Set<Thing> offers_dataset) {
+    public void setOffers_dataset(Set<dataset> offers_dataset) {
         this.offers_dataset = offers_dataset;
     }
 
-    public Set<Thing> getOffers_dataset() {
+    public Set<dataset> getOffers_dataset() {
         return offers_dataset;
     }
 

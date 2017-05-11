@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_single_item_selector)
-public class single_item_selector {
+public class single_item_selector
+    extends dataset_selector
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,7 +38,7 @@ public class single_item_selector {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_data_item, min = 1, max = 1)
     })
-    protected Set<Thing> has_item;
+    protected data_item has_item;
 
     public void setName(String name) {
         this.name = name;
@@ -78,11 +80,11 @@ public class single_item_selector {
         return properties;
     }
 
-    public void setHas_item(Set<Thing> has_item) {
+    public void setHas_item(data_item has_item) {
         this.has_item = has_item;
     }
 
-    public Set<Thing> getHas_item() {
+    public data_item getHas_item() {
         return has_item;
     }
 

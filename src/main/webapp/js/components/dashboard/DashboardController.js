@@ -23,11 +23,11 @@ class DashboardController extends React.Component {
             widgets: {
                 SkosWidget: {
                     type: SkosWidget,
-                    title: 'SKOS Widget',
+                    title: 'SKOS',
                 },
                 SchemaWidget: {
                     type: SchemaWidget,
-                    title: 'Schema Widget',
+                    title: 'Schema',
                 },
                 ClassPartitionWidget: {
                     type: ClassPartitionWidget,
@@ -114,7 +114,7 @@ class DashboardController extends React.Component {
 
         return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
             <table style={{width:'100%'}}><tbody><tr><td className='topLeft'>
-            <DatasetSourceList data={datasetSources}/>
+                <div style={{display:'inline'}}><DatasetSourceList data={datasetSources}/></div>
             </td><td className='topCenter'>
             <Container>
                 <EditBar onEdit={this.toggleEdit}/>

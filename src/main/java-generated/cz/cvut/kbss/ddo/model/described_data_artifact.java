@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_described_data_artifact)
-public class described_data_artifact {
+public class described_data_artifact
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,12 +38,12 @@ public class described_data_artifact {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_descriptor, min = 1)
     })
-    protected Set<Thing> inv_dot_describes;
+    protected Set<dataset_descriptor> inv_dot_describes;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_is_description_of)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_description, min = 1)
     })
-    protected Set<Thing> inv_dot_is_description_of;
+    protected Set<cz.cvut.kbss.ddo.model.description> inv_dot_is_description_of;
 
     public void setName(String name) {
         this.name = name;
@@ -83,19 +85,19 @@ public class described_data_artifact {
         return properties;
     }
 
-    public void setInv_dot_describes(Set<Thing> inv_dot_describes) {
+    public void setInv_dot_describes(Set<dataset_descriptor> inv_dot_describes) {
         this.inv_dot_describes = inv_dot_describes;
     }
 
-    public Set<Thing> getInv_dot_describes() {
+    public Set<dataset_descriptor> getInv_dot_describes() {
         return inv_dot_describes;
     }
 
-    public void setInv_dot_is_description_of(Set<Thing> inv_dot_is_description_of) {
+    public void setInv_dot_is_description_of(Set<cz.cvut.kbss.ddo.model.description> inv_dot_is_description_of) {
         this.inv_dot_is_description_of = inv_dot_is_description_of;
     }
 
-    public Set<Thing> getInv_dot_is_description_of() {
+    public Set<cz.cvut.kbss.ddo.model.description> getInv_dot_is_description_of() {
         return inv_dot_is_description_of;
     }
 

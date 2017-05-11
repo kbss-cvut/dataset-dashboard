@@ -17,7 +17,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_spo_summary_descriptor)
-public class spo_summary_descriptor {
+public class spo_summary_descriptor
+    extends content_descriptor
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;

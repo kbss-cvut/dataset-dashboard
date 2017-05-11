@@ -17,7 +17,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)
-public class named_graph_sparql_endpoint_dataset_source {
+public class named_graph_sparql_endpoint_dataset_source
+    extends url_dataset_source
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;

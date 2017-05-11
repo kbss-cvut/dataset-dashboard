@@ -1,20 +1,32 @@
 'use strict';
 
-const Reflux = require('reflux');
+import Reflux from 'reflux';
+import jsonld from 'jsonld';
+import Actions from '../actions/Actions';
+import Ajax from '../utils/Ajax';
+import Logger from '../utils/Logger';
 
-const Actions = require('../actions/Actions');
-const Ajax = require('../utils/Ajax');
-const Logger = require('../utils/Logger');
+const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
 
 const BASE_URL = 'rest/dataset-source';
-
-const jsonld = require('jsonld');
 
 const DatasetSourceStore = Reflux.createStore({
 
     listenables: [Actions],
 
     selectDatasetSource: null,
+
+    init() {
+      this.addFromResource(datasetSourcesAdHoc);
+    },
+
+    addFromResource(data) {
+        for (var key in data) {
+            if ( data[key]['endpointUrl']) {
+                this.onRegisterDatasetSourceEndpoint([data[key]['endpointUrl']]);
+            }
+        }
+    },
 
     getSelectedDatasetSource: function() {
         return this.selectDatasetSource;

@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_description)
-public class description {
+public class description
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,12 +38,7 @@ public class description {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_descriptor, min = 1, max = 1)
     })
-    protected Set<Thing> has_dataset_descriptor;
-    @OWLObjectProperty(iri = Vocabulary.s_p_has_source)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_single_snapshot_dataset_source, min = 1, max = 1)
-    })
-    protected Set<Thing> has_source;
+    protected dataset_descriptor has_dataset_descriptor;
     @OWLObjectProperty(iri = Vocabulary.s_p_is_description_of)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_described_data_artifact, min = 1, max = 1)
@@ -88,20 +85,12 @@ public class description {
         return properties;
     }
 
-    public void setHas_dataset_descriptor(Set<Thing> has_dataset_descriptor) {
+    public void setHas_dataset_descriptor(dataset_descriptor has_dataset_descriptor) {
         this.has_dataset_descriptor = has_dataset_descriptor;
     }
 
-    public Set<Thing> getHas_dataset_descriptor() {
+    public dataset_descriptor getHas_dataset_descriptor() {
         return has_dataset_descriptor;
-    }
-
-    public void setHas_source(Set<Thing> has_source) {
-        this.has_source = has_source;
-    }
-
-    public Set<Thing> getHas_source() {
-        return has_source;
     }
 
     public void setIs_description_of(Set<Thing> is_description_of) {

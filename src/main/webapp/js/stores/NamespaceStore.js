@@ -1,18 +1,25 @@
 'use strict';
 
-const Reflux = require('reflux');
-
-const Actions = require('../actions/Actions');
-const Ajax = require('../utils/Ajax');
-const Logger = require('../utils/Logger');
-
-const jsonld = require('jsonld');
+import Reflux from 'reflux';
+import Actions from '../actions/Actions';
+const namespacesAdHoc = require('../../resources/namespaces/ad-hoc.json');
+const namespacesPrefixcc = require('../../resources/namespaces/prefix-cc.json');
 
 const NamespaceStore = Reflux.createStore({
 
     listenables: [Actions],
-
     namespaces: [],
+
+    init() {
+        this.addFromResource(namespacesPrefixcc);
+        this.addFromResource(namespacesAdHoc);
+    },
+
+    addFromResource(data) {
+        for (var key in data) {
+            this.namespaces[data[key]]=key;
+        }
+    },
 
     getPrefix: function(namespace) {
         return this.namespaces[namespace];

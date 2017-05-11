@@ -22,10 +22,11 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <com.fasterxml.jackson.version>2.7.3</com.fasterxml.jackson.version>
 
-        <cz.cvut.kbss.jopa.version>0.9.5</cz.cvut.kbss.jopa.version>
+        <cz.cvut.kbss.jopa.version>0.9.6-20170510-patch</cz.cvut.kbss.jopa.version>
         <org.springframework.version>4.3.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>4.2.1.RELEASE</org.springframework.security.version>
         <ch.qos.logback.version>1.1.6</ch.qos.logback.version>
+        <org.aspectj.version>1.8.10</org.aspectj.version>
     </properties>
 
     <repositories>
@@ -50,8 +51,13 @@
             <snapshots>
                 <checksumPolicy>warn</checksumPolicy>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
+                <updatePolicy>never</updatePolicy>
             </snapshots>
+            <releases>
+                <checksumPolicy>warn</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 
@@ -233,7 +239,7 @@
             <plugin>
                 <groupId>cz.cvut.kbss.jopa</groupId>
                 <artifactId>jopa-maven-plugin</artifactId>
-                <version>0.9.5</version>
+                <version>${cz.cvut.kbss.jopa.version}</version>
                 <executions>
                     <execution>
                         <id>generate-sources</id>
@@ -268,6 +274,46 @@
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.7</version>
+                <configuration>
+                    <complianceLevel>1.8</complianceLevel>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>cz.cvut.kbss.jopa</groupId>
+                            <artifactId>jopa-impl</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${org.aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                        <version>${org.aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>compile</goal>
+                            <!-- use this goal to weave all your main classes -->
+                            <goal>test-compile</goal>
+                            <!-- use this goal to weave all your test classes -->
                         </goals>
                     </execution>
                 </executions>

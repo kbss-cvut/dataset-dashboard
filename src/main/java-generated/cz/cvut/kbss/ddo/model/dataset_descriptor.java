@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_descriptor)
-public class dataset_descriptor {
+public class dataset_descriptor
+    extends dataset_snapshot
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -41,7 +43,7 @@ public class dataset_descriptor {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_description, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_has_dataset_descriptor;
+    protected cz.cvut.kbss.ddo.model.description inv_dot_has_dataset_descriptor;
 
     public void setName(String name) {
         this.name = name;
@@ -91,11 +93,11 @@ public class dataset_descriptor {
         return describes;
     }
 
-    public void setInv_dot_has_dataset_descriptor(Set<Thing> inv_dot_has_dataset_descriptor) {
+    public void setInv_dot_has_dataset_descriptor(cz.cvut.kbss.ddo.model.description inv_dot_has_dataset_descriptor) {
         this.inv_dot_has_dataset_descriptor = inv_dot_has_dataset_descriptor;
     }
 
-    public Set<Thing> getInv_dot_has_dataset_descriptor() {
+    public cz.cvut.kbss.ddo.model.description getInv_dot_has_dataset_descriptor() {
         return inv_dot_has_dataset_descriptor;
     }
 

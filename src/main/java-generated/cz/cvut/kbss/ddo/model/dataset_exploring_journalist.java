@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_exploring_journalist)
-public class dataset_exploring_journalist {
+public class dataset_exploring_journalist
+    extends person
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,12 +38,12 @@ public class dataset_exploring_journalist {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_exploration, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_has_dataset_explorer;
+    protected dataset_exploration inv_dot_has_dataset_explorer;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_intent)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_intent, min = 1)
     })
-    protected Set<Thing> has_intent;
+    protected Set<intent> has_intent;
 
     public void setName(String name) {
         this.name = name;
@@ -83,19 +85,19 @@ public class dataset_exploring_journalist {
         return properties;
     }
 
-    public void setInv_dot_has_dataset_explorer(Set<Thing> inv_dot_has_dataset_explorer) {
+    public void setInv_dot_has_dataset_explorer(dataset_exploration inv_dot_has_dataset_explorer) {
         this.inv_dot_has_dataset_explorer = inv_dot_has_dataset_explorer;
     }
 
-    public Set<Thing> getInv_dot_has_dataset_explorer() {
+    public dataset_exploration getInv_dot_has_dataset_explorer() {
         return inv_dot_has_dataset_explorer;
     }
 
-    public void setHas_intent(Set<Thing> has_intent) {
+    public void setHas_intent(Set<intent> has_intent) {
         this.has_intent = has_intent;
     }
 
-    public Set<Thing> getHas_intent() {
+    public Set<intent> getHas_intent() {
         return has_intent;
     }
 

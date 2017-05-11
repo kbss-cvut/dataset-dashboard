@@ -20,7 +20,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  * 
  */
 @OWLClass(iri = Vocabulary.s_c_dataset)
-public class dataset {
+public class dataset
+    extends Thing
+{
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
     protected String name;
@@ -36,27 +38,27 @@ public class dataset {
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset, min = 2)
     })
-    protected Set<Thing> has_subdataset;
+    protected Set<dataset> has_subdataset;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_offers_dataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_source, min = 1)
     })
-    protected Set<Thing> inv_dot_offers_dataset;
+    protected Set<dataset_source> inv_dot_offers_dataset;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_subdataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_has_subdataset;
+    protected dataset inv_dot_has_subdataset;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_explored_dataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_exploration, min = 1)
     })
-    protected Set<Thing> inv_dot_has_explored_dataset;
+    protected Set<dataset_exploration> inv_dot_has_explored_dataset;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_dataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 1)
     })
-    protected Set<Thing> inv_dot_has_dataset;
+    protected Set<dataset_snapshot> inv_dot_has_dataset;
 
     public void setName(String name) {
         this.name = name;
@@ -98,43 +100,43 @@ public class dataset {
         return properties;
     }
 
-    public void setHas_subdataset(Set<Thing> has_subdataset) {
+    public void setHas_subdataset(Set<dataset> has_subdataset) {
         this.has_subdataset = has_subdataset;
     }
 
-    public Set<Thing> getHas_subdataset() {
+    public Set<dataset> getHas_subdataset() {
         return has_subdataset;
     }
 
-    public void setInv_dot_offers_dataset(Set<Thing> inv_dot_offers_dataset) {
+    public void setInv_dot_offers_dataset(Set<dataset_source> inv_dot_offers_dataset) {
         this.inv_dot_offers_dataset = inv_dot_offers_dataset;
     }
 
-    public Set<Thing> getInv_dot_offers_dataset() {
+    public Set<dataset_source> getInv_dot_offers_dataset() {
         return inv_dot_offers_dataset;
     }
 
-    public void setInv_dot_has_subdataset(Set<Thing> inv_dot_has_subdataset) {
+    public void setInv_dot_has_subdataset(dataset inv_dot_has_subdataset) {
         this.inv_dot_has_subdataset = inv_dot_has_subdataset;
     }
 
-    public Set<Thing> getInv_dot_has_subdataset() {
+    public dataset getInv_dot_has_subdataset() {
         return inv_dot_has_subdataset;
     }
 
-    public void setInv_dot_has_explored_dataset(Set<Thing> inv_dot_has_explored_dataset) {
+    public void setInv_dot_has_explored_dataset(Set<dataset_exploration> inv_dot_has_explored_dataset) {
         this.inv_dot_has_explored_dataset = inv_dot_has_explored_dataset;
     }
 
-    public Set<Thing> getInv_dot_has_explored_dataset() {
+    public Set<dataset_exploration> getInv_dot_has_explored_dataset() {
         return inv_dot_has_explored_dataset;
     }
 
-    public void setInv_dot_has_dataset(Set<Thing> inv_dot_has_dataset) {
+    public void setInv_dot_has_dataset(Set<dataset_snapshot> inv_dot_has_dataset) {
         this.inv_dot_has_dataset = inv_dot_has_dataset;
     }
 
-    public Set<Thing> getInv_dot_has_dataset() {
+    public Set<dataset_snapshot> getInv_dot_has_dataset() {
         return inv_dot_has_dataset;
     }
 
