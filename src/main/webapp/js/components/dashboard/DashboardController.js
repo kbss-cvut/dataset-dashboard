@@ -13,7 +13,7 @@ import SpatialWidget from "./widgets/spatial-widget/SpatialWidget"
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 import DatasetSourceLabel from "./DatasetSourceLabel";
-import {Table} from "react-bootstrap";
+import {Table, Panel, Grid, Row, Col} from "react-bootstrap";
 import DatasetSourceList from "./DatasetSourceList";
 
 class DashboardController extends React.Component {
@@ -62,7 +62,8 @@ class DashboardController extends React.Component {
                         {
                             className: 'col-md-6 col-sm-6 col-xs-6',
                             widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
-                        }]
+                        }
+                        ]
                     }
                 ]
             },
@@ -120,22 +121,30 @@ class DashboardController extends React.Component {
 
     render() {
         var datasetSources = this.state.data.map((ds) => { return <DatasetSourceLabel key={ds.hash} datasetSource={ds}/> });
-
-        return (<div><h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>
-            <table style={{width:'100%'}}><tbody><tr><td className='topLeft'>
-                <div style={{display:'inline'}}><DatasetSourceList data={datasetSources}/></div>
-            </td><td className='topCenter'>
-            <Container>
-                <EditBar onEdit={this.toggleEdit}/>
-                <Dashboard
-                    frameComponent={CustomFrame}
-                    layout={this.state.layout}
-                    widgets={this.state.widgets}
-                    editable={this.state.editMode}
-                    onMove={this.onMove}
-                    addWidgetComponentText=""
-                />
-            </Container></td></tr></tbody></table>
+        var title = <h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>;
+        return (<div>
+            <Grid>
+                <Row className="show-grid">
+                    <Col xs={6} md={4}>
+                        <DatasetSourceList data={datasetSources}/>
+                    </Col>
+                    <Col xs={12} md={8}>
+                        <Panel header={title} bsStyle="info">
+                            <Container>
+                                <EditBar onEdit={this.toggleEdit}/>
+                                <Dashboard
+                                    frameComponent={CustomFrame}
+                                    layout={this.state.layout}
+                                    widgets={this.state.widgets}
+                                    editable={this.state.editMode}
+                                    onMove={this.onMove}
+                                    addWidgetComponentText=""
+                                />
+                            </Container>
+                        </Panel>
+                    </Col>
+                </Row>
+            </Grid>
         </div>);
     }
 }
