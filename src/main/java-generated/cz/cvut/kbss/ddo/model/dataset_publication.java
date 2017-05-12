@@ -21,7 +21,7 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_publication)
 public class dataset_publication
-    extends Thing
+    extends Nothing
 {
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
@@ -38,7 +38,7 @@ public class dataset_publication
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_publisher, min = 1, max = 1)
     })
-    protected publisher has_publisher;
+    protected Set<Thing> has_publisher;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_published_dataset_snapshot)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 1, max = 1)
@@ -85,11 +85,11 @@ public class dataset_publication
         return properties;
     }
 
-    public void setHas_publisher(publisher has_publisher) {
+    public void setHas_publisher(Set<Thing> has_publisher) {
         this.has_publisher = has_publisher;
     }
 
-    public publisher getHas_publisher() {
+    public Set<Thing> getHas_publisher() {
         return has_publisher;
     }
 

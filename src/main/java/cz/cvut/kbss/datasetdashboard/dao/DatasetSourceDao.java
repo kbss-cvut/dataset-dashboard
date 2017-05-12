@@ -207,6 +207,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
             ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
             ds.getProperties().put(Vocabulary.s_p_has_download_url, Collections.singleton(url));
             ds.setOffers_dataset(Collections.singleton(dataset));
+            dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
             final EntityTransaction t = e.getTransaction();
             t.begin();
             e.persist(dataset);
@@ -243,6 +244,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                 ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
             }
             ds.setOffers_dataset(Collections.singleton(dataset));
+            dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
             final EntityTransaction t = e.getTransaction();
             t.begin();
             e.persist(dataset);

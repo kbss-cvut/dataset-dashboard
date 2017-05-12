@@ -38,7 +38,7 @@ public class intent
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_exploration, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_uses;
+    protected dataset_exploration inv_dot_uses;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_intent)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_exploring_journalist, min = 1, max = 1)
@@ -85,11 +85,11 @@ public class intent
         return properties;
     }
 
-    public void setInv_dot_uses(Set<Thing> inv_dot_uses) {
+    public void setInv_dot_uses(dataset_exploration inv_dot_uses) {
         this.inv_dot_uses = inv_dot_uses;
     }
 
-    public Set<Thing> getInv_dot_uses() {
+    public dataset_exploration getInv_dot_uses() {
         return inv_dot_uses;
     }
 

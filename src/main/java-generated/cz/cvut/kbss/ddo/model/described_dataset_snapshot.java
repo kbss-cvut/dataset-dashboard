@@ -18,7 +18,7 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  */
 @OWLClass(iri = Vocabulary.s_c_described_dataset_snapshot)
 public class described_dataset_snapshot
-    extends dataset_snapshot
+    extends described_data_artifact
 {
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)

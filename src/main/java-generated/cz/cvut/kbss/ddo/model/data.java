@@ -21,7 +21,7 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  */
 @OWLClass(iri = Vocabulary.s_c_data)
 public class data
-    extends Thing
+    extends Nothing
 {
 
     @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
@@ -43,7 +43,7 @@ public class data
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 1, max = 1)
     })
-    protected Set<Thing> inv_dot_constitutes;
+    protected dataset_snapshot inv_dot_constitutes;
     @OWLObjectProperty(iri = Vocabulary.s_p_is_part_of)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_data, max = 1)
@@ -98,11 +98,11 @@ public class data
         return has_member;
     }
 
-    public void setInv_dot_constitutes(Set<Thing> inv_dot_constitutes) {
+    public void setInv_dot_constitutes(dataset_snapshot inv_dot_constitutes) {
         this.inv_dot_constitutes = inv_dot_constitutes;
     }
 
-    public Set<Thing> getInv_dot_constitutes() {
+    public dataset_snapshot getInv_dot_constitutes() {
         return inv_dot_constitutes;
     }
 

@@ -46,14 +46,9 @@ public class dataset_snapshot
     protected dataset_publication inv_dot_has_published_dataset_snapshot;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_sub_dataset_snapshot)
     @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, max = 1)
+        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_complex_dataset_snapshot, max = 1)
     })
-    protected dataset_snapshot inv_dot_has_sub_dataset_snapshot;
-    @OWLObjectProperty(iri = Vocabulary.s_p_has_sub_dataset_snapshot)
-    @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_snapshot, min = 2)
-    })
-    protected Set<Thing> has_sub_dataset_snapshot;
+    protected complex_dataset_snapshot inv_dot_has_sub_dataset_snapshot;
 
     public void setName(String name) {
         this.name = name;
@@ -111,20 +106,12 @@ public class dataset_snapshot
         return inv_dot_has_published_dataset_snapshot;
     }
 
-    public void setInv_dot_has_sub_dataset_snapshot(dataset_snapshot inv_dot_has_sub_dataset_snapshot) {
+    public void setInv_dot_has_sub_dataset_snapshot(complex_dataset_snapshot inv_dot_has_sub_dataset_snapshot) {
         this.inv_dot_has_sub_dataset_snapshot = inv_dot_has_sub_dataset_snapshot;
     }
 
-    public dataset_snapshot getInv_dot_has_sub_dataset_snapshot() {
+    public complex_dataset_snapshot getInv_dot_has_sub_dataset_snapshot() {
         return inv_dot_has_sub_dataset_snapshot;
-    }
-
-    public void setHas_sub_dataset_snapshot(Set<Thing> has_sub_dataset_snapshot) {
-        this.has_sub_dataset_snapshot = has_sub_dataset_snapshot;
-    }
-
-    public Set<Thing> getHas_sub_dataset_snapshot() {
-        return has_sub_dataset_snapshot;
     }
 
 }

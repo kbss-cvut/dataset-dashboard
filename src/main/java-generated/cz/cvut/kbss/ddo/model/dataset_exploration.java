@@ -41,9 +41,9 @@ public class dataset_exploration
     protected Set<Thing> has_dataset_explorer;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_explored_dataset)
     @ParticipationConstraints({
-        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset, min = 1)
+        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_explored_dataset, min = 1)
     })
-    protected Set<Thing> has_explored_dataset;
+    protected Set<explored_dataset> has_explored_dataset;
     @OWLObjectProperty(iri = Vocabulary.s_p_uses)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_intent, min = 1)
@@ -98,11 +98,11 @@ public class dataset_exploration
         return has_dataset_explorer;
     }
 
-    public void setHas_explored_dataset(Set<Thing> has_explored_dataset) {
+    public void setHas_explored_dataset(Set<explored_dataset> has_explored_dataset) {
         this.has_explored_dataset = has_explored_dataset;
     }
 
-    public Set<Thing> getHas_explored_dataset() {
+    public Set<explored_dataset> getHas_explored_dataset() {
         return has_explored_dataset;
     }
 

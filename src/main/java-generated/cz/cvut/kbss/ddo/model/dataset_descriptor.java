@@ -38,7 +38,7 @@ public class dataset_descriptor
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_described_data_artifact, min = 1, max = 1)
     })
-    protected Set<Thing> describes;
+    protected described_data_artifact describes;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_has_dataset_descriptor)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_description, min = 1, max = 1)
@@ -85,11 +85,11 @@ public class dataset_descriptor
         return properties;
     }
 
-    public void setDescribes(Set<Thing> describes) {
+    public void setDescribes(described_data_artifact describes) {
         this.describes = describes;
     }
 
-    public Set<Thing> getDescribes() {
+    public described_data_artifact getDescribes() {
         return describes;
     }
 

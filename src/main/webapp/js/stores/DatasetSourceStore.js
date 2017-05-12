@@ -22,8 +22,12 @@ const DatasetSourceStore = Reflux.createStore({
 
     addFromResource(data) {
         for (var key in data) {
-            if ( data[key]['endpointUrl']) {
-                this.onRegisterDatasetSourceEndpoint([data[key]['endpointUrl']]);
+            if ( data[key]['endpointUrl'] ) {
+                if ( data[key]['graphId'] ) {
+                    this.onRegisterDatasetSourceNamedGraph([data[key]['endpointUrl']],[data[key]['graphId']]);
+                } else {
+                    this.onRegisterDatasetSourceEndpoint([data[key]['endpointUrl']]);
+                }
             }
         }
     },
