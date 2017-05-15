@@ -2,10 +2,13 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 CONSTRUCT {
     ?concept a skos:Concept ;
-        rdfs:label ?conceptName .
+        rdfs:label ?conceptName ;
+        skos:inScheme ?conceptScheme .
+    ?conceptScheme a skos:ConceptScheme ;
+        rdfs:label ?conceptSchemeName.
+    ?concept skos:narrower ?conceptNarrower .
     ?conceptNarrower a skos:Concept ;
         rdfs:label ?conceptNarrowerName .
-    ?concept skos:narrower ?conceptNarrower;
 }
 WHERE {
     ?concept a skos:Concept .
@@ -22,8 +25,16 @@ WHERE {
         }
         OPTIONAL {
             ?conceptNarrower skos:prefLabel ?conceptNarrowerLabel
-            FILTER(lang(?conceptLabel)="en")
+            FILTER(lang(?conceptNarrowerLabel)="en")
         }
         BIND(COALESCE(?conceptNarrowerLabel,?conceptNarrower) AS ?conceptNarrowerName)
+    }
+    OPTIONAL {
+        ?concept skos:inScheme ?conceptScheme
+        OPTIONAL {
+            ?conceptScheme rdfs:label ?conceptSchemeLabel
+            FILTER(lang(?conceptLabel)="en")
+        }
+        BIND(COALESCE(?conceptSchemeLabel,?conceptScheme) AS ?conceptSchemeName)
     }
 }

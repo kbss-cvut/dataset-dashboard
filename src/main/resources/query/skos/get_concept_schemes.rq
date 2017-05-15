@@ -1,0 +1,14 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT {
+    ?cs a skos:ConceptScheme;
+        rdfs:label ?conceptSchemeName.
+}
+WHERE {
+    ?conceptScheme a skos:ConceptScheme .
+    OPTIONAL {
+        ?conceptScheme skos:prefLabel ?conceptSchemeLabel
+        FILTER(lang(?conceptSchemeLabel)="en")
+    }
+    BIND(COALESCE(?conceptSchemeLabel,?concept) AS ?conceptSchemeName)
+}
