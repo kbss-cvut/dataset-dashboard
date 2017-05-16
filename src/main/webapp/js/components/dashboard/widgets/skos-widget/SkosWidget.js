@@ -128,7 +128,7 @@ class SkosWidget extends React.Component {
                     let conceptSchemeIri = concept.conceptSchemeIri;
                     if (!conceptSchemeIri) {
                         conceptSchemeIri = defaultConceptSchemeIri;
-                        if ( roots.indexOf(defaultConceptScheme) >= 0 ) {
+                        if ( roots.indexOf(defaultConceptScheme) < 0 ) {
                             roots.push(defaultConceptScheme);
                         }
                     }

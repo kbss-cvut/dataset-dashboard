@@ -61,6 +61,10 @@ class DatasetSourceList extends React.Component {
             withFirstAndLast: true // Hide the going to First and Last page button
         };
 
+        this.state.datasetSources.forEach((row) => {
+           row.txt=row.endpointUrl + " " + row.graphId;
+        });
+
         return (
                 <div><BootstrapTable
                     data={ this.state.datasetSources }
@@ -68,10 +72,11 @@ class DatasetSourceList extends React.Component {
                     pagination={true}
                 striped condensed hover>
                     <TableHeaderColumn  isKey
-                                        dataField='id'
-                                        dataFormat={ (cell, row) => { return (
-                                           <DatasetSourceLink datasetSource={ row } /> ); }
-                                       }>Dataset Source</TableHeaderColumn>
+                                        dataField='txt'
+                                        filter={ { type: 'TextFilter', delay: 1000 } }
+                                        dataFormat={ (cell, row) => {
+                                            return ( <DatasetSourceLink datasetSource={row}/>);}
+                                        }>Dataset Source</TableHeaderColumn>
                     </BootstrapTable></div>
         );
     }
