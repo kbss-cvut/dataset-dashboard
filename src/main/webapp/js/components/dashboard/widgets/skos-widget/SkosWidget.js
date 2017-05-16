@@ -12,10 +12,7 @@ class SkosWidget extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
-            lst: [],
-            tree: [],
-            loadedQueries: []
+            type: null,
         }
     };
 
