@@ -6,6 +6,7 @@ import Actions from "../../actions/Actions";
 import {Table} from "react-bootstrap";
 import {BootstrapTable,TableHeaderColumn} from "react-bootstrap-table";
 import DatasetSourceLink from "./DatasetSourceLink";
+import LoadingWrapper from "../misc/LoadingWrapper";
 
 class DatasetSourceList extends React.Component {
 
@@ -17,6 +18,7 @@ class DatasetSourceList extends React.Component {
     };
 
     componentWillMount() {
+        this.props.loadingOn();
         Actions.getAllDatasetSources();
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
@@ -27,6 +29,7 @@ class DatasetSourceList extends React.Component {
         }
 
         if (data.action == Actions.getAllDatasetSources) {
+            this.props.loadingOff();
             this.setState({
                 datasetSources: data.datasetSources,
             });
@@ -81,5 +84,4 @@ class DatasetSourceList extends React.Component {
         );
     }
 }
-
-export default DatasetSourceList;
+export default LoadingWrapper(DatasetSourceList, {maskClass: 'mask-container'});
