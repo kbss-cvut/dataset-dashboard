@@ -8,7 +8,7 @@ import DatasetDashboard from "./DatasetDashboard";
 class DashboardController extends React.Component {
     render() {
         return (
-            <Grid>
+            <Grid fluid={true}>
                 <Row>
                     <Col xs={6} md={4}>
                         <DatasetSourceList/>

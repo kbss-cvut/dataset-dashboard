@@ -6,9 +6,7 @@ import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
 import {Badge} from "react-bootstrap";
-import Tree,{TreeNode} from "rc-tree";
-import ConceptScheme from "./model/ConceptScheme";
-import Concept from "./model/Concept";
+import Hierarchy from "./Hierarchy";
 
 class SkosWidget extends React.Component {
     constructor(props) {
@@ -30,177 +28,24 @@ class SkosWidget extends React.Component {
             return
         }
 
-        const queryHierarchy = "skos/get_concept_hierarchy";
-        const queryConceptSchemes = "skos/get_concept_schemes";
         const queryType = "skos/get_vocabulary_type";
-        const queryLanguages = "skos/get_languages";
 
         if (data.action === Actions.selectDatasetSource) {
-            this.setState({loadedQueries: []})
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryHierarchy);
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryConceptSchemes);
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryLanguages);
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryType);
         } else {
-            let lq = this.state.loadedQueries;
-            if (data.queryName === queryHierarchy) {
-                lq.push(queryHierarchy);
-                this.setState({
-                    tree: this.constructTree(data.jsonLD),
-                });
-            } else if (data.queryName === queryType) {
-                lq.push(queryType);
+            if (data.queryName === queryType) {
                 this.setState({
                     type: data.jsonLD,
                 });
-            } else if (data.queryName === queryLanguages) {
-                lq.push(queryLanguages);
-                this.setState({
-                    languages: data.jsonLD.map((item) => {
-                        return item['@value']
-                    }),
-                });
-            } else if (data.queryName === queryConceptSchemes) {
-                lq.push(queryConceptSchemes);
-                let lst = [];
-
-                data.jsonLD.forEach((item) => {
-                    lst.push(item);
-                });
-
-                this.setState({
-                    conceptSchemes: lst,
-                });
             }
-            if (lq.length >= 4) {
-                this.props.loadingOff();
-            }
-            this.setState({
-                loadedQueries: lq,
-            });
+            this.props.loadingOff();
         }
     };
 
     componentWillUnmount() {
         this.unsubscribe();
     };
-
-    getLabelForItem(item) {
-        let label = item['http://www.w3.org/2000/01/rdf-schema#label'];
-        if (label) {
-            if (label.length > 0) {
-                label = label[0];
-            }
-            if (label["@language"]) {
-                label = label["@value"] + ' (' + label["@language"] + ')';
-            } else if (label["@value"]) {
-                label = label["@value"];
-            } else if (label["@id"]) {
-                label = NamespaceStore.getShortForm(label["@id"]);
-            }
-        }
-        return label;
-    }
-
-    constructTree(jsonLD) {
-        let roots = [];
-        let conceptSchemeIriToConceptsMap = {};
-        let conceptIriToConceptMap = {};
-
-        const skosPrefix = "http://www.w3.org/2004/02/skos/core#";
-        const defaultConceptSchemeIri = "http://onto.fel.cvut.cz/ontologies/skos/concept-scheme/default";
-        const defaultConceptScheme = new ConceptScheme(defaultConceptSchemeIri);
-
-        if (jsonLD.length) {
-            jsonLD.forEach((item) => {
-                let type = item['@type'];
-                if (type[0]) {
-                    type = type[0];
-                }
-                if (type == skosPrefix + "ConceptScheme") {
-                    roots.push(ConceptScheme.loadFromJsonLd(item));
-                    // return this.renderConceptScheme(item)
-                } else if (type == skosPrefix + "Concept") {
-                    const concept = Concept.loadFromJsonLd(item);
-                    conceptIriToConceptMap[concept.iri] = concept;
-
-                    let conceptSchemeIri = concept.conceptSchemeIri;
-                    if (!conceptSchemeIri) {
-                        conceptSchemeIri = defaultConceptSchemeIri;
-                        if ( roots.indexOf(defaultConceptScheme) < 0 ) {
-                            roots.push(defaultConceptScheme);
-                        }
-                    }
-                    let concepts = conceptSchemeIriToConceptsMap[conceptSchemeIri];
-                    if (!concepts) {
-                        concepts = [];
-                        conceptSchemeIriToConceptsMap[conceptSchemeIri] = concepts;
-                    }
-                    concepts.push(concept);
-                }
-            });
-
-            roots.forEach((conceptScheme) => {
-                if (!conceptScheme.children) {
-                    conceptScheme.children = [];
-                }
-                const concepts = conceptSchemeIriToConceptsMap[conceptScheme.iri];
-                concepts.forEach((concept) => {
-                    if (!concept.children) {
-                        concept.children = [];
-                    }
-                    concept.childrenIris.forEach((childIri) => {
-                        concept.children.push(conceptIriToConceptMap[childIri])
-                    });
-                    conceptScheme.children.push(concept);
-                });
-            });
-        };
-
-        return roots;
-    }
-
-    renderTree() {
-        const children = this.state.tree.map((node) => {
-            return this._renderTree(node);
-        });
-
-        return ( <Tree
-            showLine
-            showIcon={false}
-            defaultExpandAll
-            autoExpandParent={true}>
-            {children}
-        </Tree> );
-    };
-
-    _renderTree(current) {
-        const children = current.children.map((child) => {
-            return this._renderTree(child)
-        });
-        const label = NamespaceStore.getShortForm(current.labelMap ? current.labelMap["en"] : current.iri);
-        if ( !children || ( children.length == 0 ) ) {
-            return (<TreeNode key={current.iri} title={label} disableCheckbox/> );
-
-        } else {
-            return (<TreeNode key={current.iri} title={label} disableCheckbox
-                              isLeaf={!children || children.empty}>{children}</TreeNode> );
-        }
-    };
-
-    getConceptSchemeForConcept(item) {
-        let scheme = item["http://www.w3.org/2004/02/skos/core#inScheme"]
-        if (!scheme) {
-            scheme = "<UNKNOWN>"
-        } else {
-            if (scheme[0]) {
-                scheme = scheme[0];
-            }
-        }
-
-        return scheme['@id']
-    }
 
     renderType() {
         let type = 'unknown';
@@ -213,7 +58,7 @@ class SkosWidget extends React.Component {
     render() {
         var list = []
         return ( <div>{this.renderType()}
-            {this.renderTree()}
+           <Hierarchy/>
         </div> );
     };
 }
