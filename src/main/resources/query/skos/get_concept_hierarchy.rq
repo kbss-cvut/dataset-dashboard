@@ -33,7 +33,7 @@ WHERE {
         ?concept skos:inScheme ?conceptScheme
         OPTIONAL {
             ?conceptScheme rdfs:label ?conceptSchemeLabel
-            FILTER(lang(?conceptLabel)="en")
+            FILTER(lang(?conceptSchemeLabel)="en")
         }
         BIND(COALESCE(?conceptSchemeLabel,?conceptScheme) AS ?conceptSchemeName)
     }

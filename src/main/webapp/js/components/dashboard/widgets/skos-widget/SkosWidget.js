@@ -113,8 +113,6 @@ class SkosWidget extends React.Component {
         const defaultConceptScheme = new ConceptScheme(defaultConceptSchemeIri);
 
         if (jsonLD.length) {
-            roots.push(defaultConceptScheme);
-
             jsonLD.forEach((item) => {
                 let type = item['@type'];
                 if (type[0]) {
@@ -130,6 +128,9 @@ class SkosWidget extends React.Component {
                     let conceptSchemeIri = concept.conceptSchemeIri;
                     if (!conceptSchemeIri) {
                         conceptSchemeIri = defaultConceptSchemeIri;
+                        if ( roots.indexOf(defaultConceptScheme) >= 0 ) {
+                            roots.push(defaultConceptScheme);
+                        }
                     }
                     let concepts = conceptSchemeIriToConceptsMap[conceptSchemeIri];
                     if (!concepts) {
@@ -166,7 +167,9 @@ class SkosWidget extends React.Component {
         });
 
         return ( <Tree
-            showLine defaultExpandAll
+            showLine
+            showIcon={false}
+            defaultExpandAll
             autoExpandParent={true}>
             {children}
         </Tree> );
@@ -177,7 +180,13 @@ class SkosWidget extends React.Component {
             return this._renderTree(child)
         });
         const label = NamespaceStore.getShortForm(current.labelMap ? current.labelMap["en"] : current.iri);
-        return ( <TreeNode key={current.iri} title={label} disableCheckbox>{children}</TreeNode> );
+        if ( !children || ( children.length == 0 ) ) {
+            return (<TreeNode key={current.iri} title={label} disableCheckbox/> );
+
+        } else {
+            return (<TreeNode key={current.iri} title={label} disableCheckbox
+                              isLeaf={!children || children.empty}>{children}</TreeNode> );
+        }
     };
 
     getConceptSchemeForConcept(item) {
@@ -193,15 +202,6 @@ class SkosWidget extends React.Component {
         return scheme['@id']
     }
 
-    renderConcept(item) {
-        return (<li key={item['@id']}>C:<a href={item['@id']}>{this.getLabelForItem(item)}</a>
-            ({this.getConceptSchemeForConcept(item)})</li> );
-    };
-
-    renderConceptScheme(item) {
-        return ( <li key={item['@id']}>CS:<a href={item['@id']}>{this.getLabelForItem(item)}</a></li> );
-    };
-
     renderType() {
         let type = 'unknown';
         if (this.state.type && this.state.type[0]) {
@@ -213,8 +213,6 @@ class SkosWidget extends React.Component {
     render() {
         var list = []
         return ( <div>{this.renderType()}
-            {/*<ul>{lstCS}</ul>*/}
-            {/*<ul>{list}</ul>*/}
             {this.renderTree()}
         </div> );
     };
