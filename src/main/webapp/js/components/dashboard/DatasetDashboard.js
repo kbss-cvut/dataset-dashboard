@@ -54,10 +54,10 @@ class DashboardController extends React.Component {
                                 className: 'col-md-12 col-sm-12 col-xs-12',
                                 widgets: [{key: 'VocabularyWidget'}],
                             },
-                            // {
-                            //     className: 'col-md-6 col-sm-6 col-xs-6',
-                            //     widgets: [{key: 'SpatialWidget'}],
-                            // },
+                            {
+                                 className: 'col-md-12 col-sm-12 col-xs-12',
+                                 widgets: [{key: 'SpatialWidget'}],
+                            },
                             {
                                 className: 'col-md-12 col-sm-12 col-xs-12',
                                 widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
