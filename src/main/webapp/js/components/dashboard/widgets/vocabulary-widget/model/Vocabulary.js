@@ -3,7 +3,9 @@
 import React from "react";
 import Resource from "./Resource"
 
-class ConceptScheme extends Resource {
+class Vocabulary extends Resource {
+
+    subVocabularies;
 
     constructor(iri, labelMap) {
         super(iri, labelMap);
@@ -13,8 +15,8 @@ class ConceptScheme extends Resource {
         const iri = jsonLd['@id'];
         const label = Resource.getLiteral('http://www.w3.org/2000/01/rdf-schema#label', jsonLd);
 
-        return new ConceptScheme( iri, {"en" : label});
+        return new Vocabulary( iri, {"en" : label});
     }
 }
 
-export default ConceptScheme;
+export default Vocabulary;

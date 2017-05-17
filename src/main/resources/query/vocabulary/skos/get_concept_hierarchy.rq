@@ -6,7 +6,7 @@ CONSTRUCT {
         skos:inScheme ?conceptScheme .
     ?conceptScheme a skos:ConceptScheme ;
         rdfs:label ?conceptSchemeName.
-    ?concept skos:narrower ?conceptNarrower .
+    ?conceptNarrower skos:broader ?concept .
     ?conceptNarrower a skos:Concept ;
         rdfs:label ?conceptNarrowerName .
 }

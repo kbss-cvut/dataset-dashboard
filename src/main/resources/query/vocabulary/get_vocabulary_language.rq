@@ -1,0 +1,16 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX voc: <http://onto.fel.cvut.cz/ontologies/vocabulary/>
+CONSTRUCT {
+    voc:this voc:hasVocabularyLanguage ?language .
+}
+WHERE {
+        ?term a ?classClass .
+        FILTER( ?classClass in (owl:Class, rdfs:Class, skos:Concept) )
+        BIND((
+          if(?classClass = owl:Class, owl:,
+          if(?classClass = rdfs:Class, rdfs:,
+          if(?classClass = skos:Concept, skos:,voc:none
+        )))) AS ?language )
+}

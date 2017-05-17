@@ -1,3 +1,4 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX voc: <http://onto.fel.cvut.cz/ontologies/vocabulary/>
 CONSTRUCT {
@@ -5,15 +6,15 @@ CONSTRUCT {
 } WHERE {
     OPTIONAL {
         ?concept ?property ?concept2 .
-        FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch))
-        BIND(voc:skos-thesaurus AS ?type)
+        FILTER(?property IN (skos:broader,skos:narrower,skos:broaderMatch,skos:narrowerMatch,rdfs:subClassOf))
+        BIND(voc:thesaurus AS ?type)
     }
     OPTIONAL {
         ?concept a skos:Concept .
          FILTER NOT EXISTS {
                    ?concept3  ?property3  ?concept4
-                   FILTER ( ?property3 IN (skos:broader, skos:narrower, skos:broaderMatch, skos:narrowerMatch) )
+                   FILTER ( ?property3 IN (skos:broader, skos:narrower, skos:broaderMatch, skos:narrowerMatch,rdfs:subClassOf) )
                 }
-        BIND(voc:skos-glossary AS ?type)
+        BIND(voc:glossary AS ?type)
     }
 }

@@ -1,0 +1,26 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+    ?concept a owl:Class ;
+        rdfs:label ?conceptName .
+    ?subConcept rdfs:subClassOf ?concept;
+        rdfs:label ?subConceptName .
+}
+WHERE {
+    ?concept a owl:Class .
+    OPTIONAL {
+        ?concept rdfs:label ?conceptLabel
+        FILTER(lang(?conceptLabel)="en")
+    }
+    BIND(COALESCE(?conceptLabel,?concept) AS ?conceptName)
+    OPTIONAL {
+        ?subConcept rdfs:subClassOf ?concept
+        OPTIONAL {
+            ?subConcept rdfs:label ?subConceptLabel
+            FILTER(lang(?subConceptLabel)="en")
+        }
+        BIND(COALESCE(?subConceptLabel,?subConcept) AS ?subConceptName)
+    }
+}

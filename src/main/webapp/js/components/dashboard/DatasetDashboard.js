@@ -7,7 +7,7 @@ import Container from "./Container";
 import CustomFrame from "./CustomFrame";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
-import SkosWidget from "./widgets/skos-widget/SkosWidget";
+import VocabularyWidget from "./widgets/vocabulary-widget/VocabularyWidget";
 import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
 import SpatialWidget from "./widgets/spatial-widget/SpatialWidget";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
@@ -21,9 +21,9 @@ class DashboardController extends React.Component {
         super(props);
         this.state = {
             widgets: {
-                SkosWidget: {
-                    type: SkosWidget,
-                    title: 'SKOS',
+                VocabularyWidget: {
+                    type: VocabularyWidget,
+                    title: 'Vocabulary',
                 },
                 SchemaWidget: {
                     type: SchemaWidget,
@@ -52,7 +52,7 @@ class DashboardController extends React.Component {
                             },
                             {
                                 className: 'col-md-12 col-sm-12 col-xs-12',
-                                widgets: [{key: 'SkosWidget'}],
+                                widgets: [{key: 'VocabularyWidget'}],
                             },
                             // {
                             //     className: 'col-md-6 col-sm-6 col-xs-6',
