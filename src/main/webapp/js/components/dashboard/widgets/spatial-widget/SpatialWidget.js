@@ -5,9 +5,8 @@ import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import Actions from "../../../../actions/Actions";
 import {TreeNode} from "rc-tree";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-//import { render } from 'react-dom';
-import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
-
+import {render} from "react-dom";
+import {Map, Marker, Popup, TileLayer} from "react-leaflet";
 
 
 class SpatialWidget extends React.Component {
@@ -30,6 +29,13 @@ class SpatialWidget extends React.Component {
             this.props.loadingOn();
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry");
         } else if (data.queryName === "spatial/get_feature_geometry") {
+
+            if (data.jsonLD) {
+                data.jsonLD.forEach((point) => {
+                    console.log(point['@id']);
+                });
+            }
+
             this.setState({
                 data: data.jsonLD
             });
@@ -44,7 +50,7 @@ class SpatialWidget extends React.Component {
     render() {
         const position = [51.505, -0.09];
         return (
-            <Map center={position} zoom={13}>
+            <Map center={position} zoom={13} style={{height: 500}}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
@@ -59,5 +65,4 @@ class SpatialWidget extends React.Component {
     }
 }
 //window.ReactDOM.render(<SimpleExample />, document.getElementById('mask-container'));
-
 export default LoadingWrapper(SpatialWidget, {maskClass: 'mask-container'});

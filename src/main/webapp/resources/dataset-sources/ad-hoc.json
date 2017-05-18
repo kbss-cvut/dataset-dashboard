@@ -12,6 +12,6 @@
 //  }
 //    {
 //      "endpointUrl": "https://ruian.linked.opendata.cz/sparql",
-//      "graphId": "http://ruian.linked.opendata.cz/resource/dataset"
+//      "graphId": "https://ruian.linked.opendata.cz/zdroj/datová-sada/rúian"
 //    }
 ]
