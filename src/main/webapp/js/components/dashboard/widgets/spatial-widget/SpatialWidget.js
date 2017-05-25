@@ -30,11 +30,13 @@ class SpatialWidget extends React.Component {
             Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry");
         } else if (data.queryName === "spatial/get_feature_geometry") {
 
-            if (data.jsonLD) {
-                data.jsonLD.forEach((point) => {
-                    console.log(point['@id']);
-                });
-            }
+            // if (data.jsonLD) {
+            //     data.jsonLD.forEach((point) => {
+            //         console.log(point['@id']);
+            //         console.log(point["http://www.opengis.net/ont/gml#id"][0]['@value']);
+            //         console.log(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
+            //     });
+            // }
 
             this.setState({
                 data: data.jsonLD
@@ -48,7 +50,39 @@ class SpatialWidget extends React.Component {
     };
 
     render() {
-        const position = [51.505, -0.09];
+        if (this.state.data.length === 0) {
+            return <div>No data</div>;
+        }
+
+        // create coords array with coords only,
+        // parse it from xml to numbers,
+        // attach to id,
+
+        var points;
+        var data = this.state.data;
+        var i = 0;
+        data.forEach((point) => {
+            points[i]['coords'] = point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
+            points[i]['id'] = point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
+            var xmlDoc;
+            if (window.DOMParser){
+                var parser = new DOMParser();
+                xmlDoc = parser.parseFromString(points[i]['coords']);
+            }
+            else // Internet Explorer
+            {
+                xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async=false;
+                xmlDoc.loadXML(points[i]['coords']);
+            }
+            points[i]['srs']=xmlDoc.getElementsByTagName("gml:Point")[0].getAttributeByName('srsName')[0].nodeValue;
+            console.log(points[i]['srs']);
+            i++;
+        });
+        // calculate mean coordinates as position,
+        // render coords with id as label
+        const position = [49.0, 14.5];
+
         return (
             <Map center={position} zoom={13} style={{height: 500}}>
                 <TileLayer
