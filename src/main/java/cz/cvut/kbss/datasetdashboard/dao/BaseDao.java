@@ -1,6 +1,5 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
-
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.datasetdashboard.persistence.PersistenceException;
 import cz.cvut.kbss.jopa.model.EntityManager;
@@ -57,7 +56,8 @@ public abstract class BaseDao<T> implements GenericDao<T> {
     }
 
     protected List<T> findAll(EntityManager em) {
-        return em.createNativeQuery("SELECT ?x WHERE { ?x a ?type . }", type).setParameter("type", typeUri)
+        return em.createNativeQuery("SELECT ?x WHERE { ?x a ?type . }", type)
+            .setParameter("type", typeUri)
             .getResultList();
     }
 
@@ -182,7 +182,8 @@ public abstract class BaseDao<T> implements GenericDao<T> {
             return false;
         }
         final String owlClass = type.getDeclaredAnnotation(OWLClass.class).iri();
-        return em.createNativeQuery("ASK { ?individual a ?type . }", Boolean.class).setParameter("individual", uri)
+        return em.createNativeQuery("ASK { ?individual a ?type . }", Boolean.class)
+            .setParameter("individual", uri)
             .setParameter("type", URI.create(owlClass)).getSingleResult();
     }
 

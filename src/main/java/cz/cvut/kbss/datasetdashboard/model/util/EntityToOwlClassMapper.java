@@ -28,16 +28,24 @@ public class EntityToOwlClassMapper {
         return owlClass.iri();
     }
 
-    public static boolean isOfType(final Object entity, String s) {
+    /**
+     * Checks, whether an object is of ontological type given by the IRI as string.
+     *
+     * @param entity  Java object under investigation
+     * @param typeIri IRI of the type
+     * @return true if the entity is of the given type and false otherwise
+     */
+    public static boolean isOfType(final Object entity, String typeIri) {
         final String owlClass = getOwlClassForEntity(entity.getClass());
-        if ( s.equals(owlClass)) {
+        if (typeIri.equals(owlClass)) {
             return true;
-        };
-        for(final Field f : entity.getClass().getDeclaredFields()) {
+        }
+        ;
+        for (final Field f : entity.getClass().getDeclaredFields()) {
             f.setAccessible(true);
-            if ( f.getDeclaredAnnotation(Types.class) != null ) {
+            if (f.getDeclaredAnnotation(Types.class) != null) {
                 try {
-                    return ((Set) (f.get(entity))).contains(s);
+                    return ((Set) (f.get(entity))).contains(typeIri);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }

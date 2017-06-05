@@ -21,7 +21,11 @@ WHERE {
         {
             ?conceptNarrower skos:broader ?concept
         } UNION {
+             ?conceptNarrower skos:broaderTransitive ?concept
+        } UNION {
             ?concept skos:narrower ?conceptNarrower
+        } UNION {
+            ?concept skos:narrowerTransitive ?conceptNarrower
         }
         OPTIONAL {
             ?conceptNarrower skos:prefLabel ?conceptNarrowerLabel

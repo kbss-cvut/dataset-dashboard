@@ -9,7 +9,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @EnableMBeanExport
-@Import( {WebAppConfig.class, ServiceConfig.class})
+@Import({WebAppConfig.class, ServiceConfig.class})
 @PropertySource("classpath:config.properties")
 public class AppConfig {
     @Bean

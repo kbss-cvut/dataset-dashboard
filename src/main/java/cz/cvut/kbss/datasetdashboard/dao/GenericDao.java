@@ -54,15 +54,15 @@ public interface GenericDao<T> {
 
     /**
      * Deletes the specified instances.
-     * <p>
-     * If any of the entities does not exist, it is skipped and the removal continues.
      *
+     * <p>If any of the entities does not exist, it is skipped and the removal continues.
      * @param entities Entities to remove
      */
     void remove(Collection<T> entities);
 
     /**
-     * Checks whether an entity with the specified URI exists (and has the type managed by this DAO).
+     * Checks whether an entity with the specified URI exists
+     * (and has the type managed by this DAO).
      *
      * @param uri Entity identifier
      * @return {@literal true} if entity exists, {@literal false} otherwise

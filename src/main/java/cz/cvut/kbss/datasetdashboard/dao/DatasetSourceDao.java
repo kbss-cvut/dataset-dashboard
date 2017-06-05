@@ -54,11 +54,15 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
     private DataLoader localLoader;
 
     @Autowired
-    private Environment environment;
+    private Environment env;
 
+    /**
+     * Initializes the DAO - loads predefined dataset sources and stores them.
+     */
     @PostConstruct
     public void init() {
-        for (final String ckanEndpoint : environment.getProperty("ckan.jackan.sparqlEndpoints").split(",")) {
+        final String[] urls = env.getProperty("ckan.jackan.sparqlEndpoints").split(",");
+        for (final String ckanEndpoint : urls) {
             if (!ckanEndpoint.isEmpty()) {
                 loadCkanDatasetSources(ckanEndpoint);
             }
@@ -124,14 +128,14 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                                   final String repositoryUrl,
                                   final String graphIri,
                                   final String mediaType) {
-        return getSparqlResult(queryFile,repositoryUrl,graphIri,mediaType,entityManager());
+        return getSparqlResult(queryFile, repositoryUrl, graphIri, mediaType, entityManager());
     }
 
     private String getSparqlResult(final String queryFile,
-        final String repositoryUrl,
-        final String graphIri,
-        final String mediaType,
-        final EntityManager em) {
+                                   final String repositoryUrl,
+                                   final String graphIri,
+                                   final String mediaType,
+                                   final EntityManager em) {
         if (repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
@@ -150,7 +154,8 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
             }
             return remoteLoader.loadData(repositoryUrl, params);
         } catch (WebServiceIntegrationException e) {
-            logger.warn("Error during query execution {} to endpoint {} and graphIri {}", queryFile, repositoryUrl, graphIri);
+            logger.warn("Error during query execution {} to endpoint {} and graphIri {}",
+                queryFile, repositoryUrl, graphIri);
             return null;
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("Unable to find encoding "
@@ -202,7 +207,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
         dataset_source ds = e.find(dataset_source.class, Vocabulary.s_c_dataset_source + "-" + id);
 
         if (ds == null) {
-            dataset dataset = createDataset(id);
+            final dataset dataset = createDataset(id);
             ds = createDatasetSource(id);
             ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
             ds.getProperties().put(Vocabulary.s_p_has_download_url, Collections.singleton(url));
@@ -231,12 +236,14 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
         int id = (endpointUrl + graphIri).hashCode();
         dataset_source ds = e.find(dataset_source.class, Vocabulary.s_c_dataset_source + "-" + id);
         if (ds == null) {
-            dataset dataset = createDataset(id);
+            final dataset dataset = createDataset(id);
             ds = createDatasetSource(id);
-            ds.getProperties().put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(endpointUrl));
+            ds.getProperties().put(Vocabulary.s_p_has_endpoint_url,
+                Collections.singleton(endpointUrl));
             ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
             if (graphIri != null) {
-                ds.getProperties().put(Vocabulary.s_p_has_graph_id, Collections.singleton(graphIri));
+                ds.getProperties().put(Vocabulary.s_p_has_graph_id,
+                    Collections.singleton(graphIri));
                 ds.getTypes().add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
                 register(endpointUrl, null);
                 // ds.getProperties().put(Vocabulary.s_p_has_, Collections.singleton(graphIri));
@@ -268,7 +275,8 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
     public String getSparqlConstructResult(final String queryFile, final String datasetSourceId) {
         final EntityManager em = entityManager();
         try {
-            final URI datasetSourceIri = URI.create(Vocabulary.s_c_dataset_source + "-" + datasetSourceId);
+            final URI datasetSourceIri
+                = URI.create(Vocabulary.s_c_dataset_source + "-" + datasetSourceId);
             Objects.requireNonNull(datasetSourceIri);
             dataset_source datasetSource = findByUri(datasetSourceIri, em);
             return getSparqlConstructResult(datasetSource, queryFile, em);
@@ -281,7 +289,9 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
         }
     }
 
-    private String getSparqlConstructResult(final dataset_source datasetSource, final String queryFile, final EntityManager em) {
+    private String getSparqlConstructResult(final dataset_source datasetSource,
+                                            final String queryFile,
+                                            final EntityManager em) {
         if (EntityToOwlClassMapper.isOfType(datasetSource,
             Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
             final String endpointUrl = datasetSource.getProperties()
@@ -289,8 +299,9 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
             final String graphIri = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_graph_id).iterator().next();
             return getSparqlResult(queryFile, endpointUrl,
-                graphIri, "text/turtle",em);
-        } else if (EntityToOwlClassMapper.isOfType(datasetSource,Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+                graphIri, "text/turtle", em);
+        } else if (EntityToOwlClassMapper
+            .isOfType(datasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
             final String endpointUrl = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_endpoint_url).iterator().next();
             return getSparqlResult(queryFile, endpointUrl,
@@ -309,14 +320,17 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
      * @param descriptorType   IRI of the class of the descriptor
      * @return content of the descriptor
      */
-    private List<dataset_descriptor> getDescriptors(final String datasetSourceIri, final String descriptorType, final EntityManager em) {
+    private List<dataset_descriptor> getDescriptors(final String datasetSourceIri,
+                                                    final String descriptorType,
+                                                    final EntityManager em) {
         List<dataset_descriptor> result = em.createNativeQuery(
             "SELECT DISTINCT ?datasetDescriptor { ?vocDescriptionInstance a ?vocDescription ; ?vocHasSource ?datasetSource . ?datasetDescriptor ?vocInvHasDatasetDescriptor ?vocDescriptionInstance. ?datasetDescriptor a ?datasetDescriptorType }",
             dataset_descriptor.class
         )
             .setParameter("vocDescription", URI.create(Vocabulary.s_c_description))
             .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
-            .setParameter("vocInvHasDatasetDescriptor", URI.create(Vocabulary.s_p_inv_dot_has_dataset_descriptor))
+            .setParameter("vocInvHasDatasetDescriptor",
+                URI.create(Vocabulary.s_p_inv_dot_has_dataset_descriptor))
             .setParameter("datasetSource", URI.create(datasetSourceIri))
             .setParameter("datasetDescriptorType", URI.create(descriptorType)).getResultList();
         result.forEach((r) -> {
@@ -332,30 +346,36 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
      * @param datasetDescriptor iri of the dataset source
      * @return content of the descriptor
      */
-    private String getDescriptorContent(final dataset_descriptor datasetDescriptor, final EntityManager em) {
+    private String getDescriptorContent(final dataset_descriptor datasetDescriptor,
+                                        final EntityManager em) {
         if (spo_summary_descriptor.class.equals(datasetDescriptor.getClass())
-            || (datasetDescriptor.getTypes() != null && datasetDescriptor.getTypes().contains(Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/s-p-o-summary-descriptor"))
+            || (datasetDescriptor.getTypes() != null && datasetDescriptor.getTypes()
+            .contains(Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/s-p-o-summary-descriptor"))
             ) {
-            return executeQueryOnDescriptorContent(datasetDescriptor, "query/spo/spo-summary.rq", em);
-//            }
+            return executeQueryOnDescriptorContent(datasetDescriptor,
+                "query/spo/spo-summary.rq", em);
         } else {
-//            return null;
-            return executeQueryOnDescriptorContent(datasetDescriptor, "query/get_full_endpoint.rq", em);
+            return executeQueryOnDescriptorContent(datasetDescriptor,
+                "query/get_full_endpoint.rq", em);
         }
     }
 
-    private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor, final EntityManager em) {
+    private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor,
+                                                  final EntityManager em) {
         final dataset_source datasetSource = em.createNativeQuery(
             "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource ?datasetSource. }",
             dataset_source.class
         )
             .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
-            .setParameter("publication", URI.create(datasetDescriptor.getInv_dot_has_published_dataset_snapshot().getId()))
+            .setParameter("publication",
+                URI.create(datasetDescriptor.getInv_dot_has_published_dataset_snapshot().getId()))
             .getSingleResult();
         return datasetSource;
     }
 
-    private String executeQueryOnDescriptorContent(final dataset_descriptor datasetDescriptor, final String queryFile, final EntityManager em) {
+    private String executeQueryOnDescriptorContent(final dataset_descriptor datasetDescriptor,
+                                                   final String queryFile,
+                                                   final EntityManager em) {
         final dataset_source datasetSource = getSourceForDescriptor(datasetDescriptor, em);
         return getSparqlConstructResult(datasetSource, queryFile, em);
     }
@@ -370,7 +390,8 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
     public String getLastDescriptor(final String datasetSourceId, final String descriptorType) {
         final EntityManager em = entityManager();
         final List<dataset_descriptor> datasetDescriptors
-            = getDescriptors(Vocabulary.s_c_dataset_source + "-" + datasetSourceId, descriptorType, em);
+            = getDescriptors(Vocabulary.s_c_dataset_source + "-" + datasetSourceId,
+            descriptorType, em);
 
         if (datasetDescriptors.isEmpty()) {
             return "";

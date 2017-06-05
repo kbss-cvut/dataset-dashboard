@@ -1,7 +1,12 @@
 package cz.cvut.kbss.datasetdashboard.persistence;
 
+import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.CACHE_ENABLED;
+import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.DATA_SOURCE_CLASS;
+import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.JPA_PERSISTENCE_PROVIDER;
+import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.ONTOLOGY_PHYSICAL_URI_KEY;
+import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.SCAN_PACKAGE;
+
 import cz.cvut.kbss.jopa.model.EntityManagerFactory;
-import static cz.cvut.kbss.jopa.model.JOPAPersistenceProperties.*;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProvider;
 import cz.cvut.kbss.ontodriver.config.OntoDriverProperties;
 import java.util.Collections;
@@ -51,10 +56,14 @@ public class PersistenceFactory {
     @PostConstruct
     private void init() {
         final Map<String, String> properties = new HashMap<>(DEFAULT_PARAMS);
-        properties.put(ONTOLOGY_PHYSICAL_URI_KEY, environment.getProperty("jopa.ddo.repositoryUrl"));
-        properties.put(DATA_SOURCE_CLASS, environment.getProperty("jopa.ddo.driver"));
-        properties.put(CACHE_ENABLED, environment.getProperty("jopa.ddo.cache_enabled"));
-        this.emf = cz.cvut.kbss.jopa.Persistence.createEntityManagerFactory("ddPU", properties);
+        properties.put(ONTOLOGY_PHYSICAL_URI_KEY,
+            environment.getProperty("jopa.ddo.repositoryUrl"));
+        properties.put(DATA_SOURCE_CLASS,
+            environment.getProperty("jopa.ddo.driver"));
+        properties.put(CACHE_ENABLED,
+            environment.getProperty("jopa.ddo.cache_enabled"));
+        this.emf = cz.cvut.kbss.jopa.Persistence
+            .createEntityManagerFactory("ddPU", properties);
     }
 
     @PreDestroy

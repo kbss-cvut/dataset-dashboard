@@ -6,7 +6,6 @@ import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
@@ -43,15 +42,16 @@ public class RemoteDataLoader implements DataLoader {
     }
 
     private static void disableSslVerification() {
-        try
-        {
+        try {
             // Create a trust manager that does not validate certificate chains
             TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
+
                 public void checkClientTrusted(X509Certificate[] certs, String authType) {
                 }
+
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 }
             }
@@ -102,7 +102,8 @@ public class RemoteDataLoader implements DataLoader {
         try {
             final ResponseEntity<String> result = restTemplate.exchange(urlWithQuery,
                 HttpMethod.GET, entity, String.class);
-            if (HttpStatus.MOVED_PERMANENTLY.equals(result.getStatusCode()) || HttpStatus.FOUND.equals(result.getStatusCode())) {
+            if (HttpStatus.MOVED_PERMANENTLY.equals(result.getStatusCode())
+                || HttpStatus.FOUND.equals(result.getStatusCode())) {
                 Map<String, String> params2 = new HashMap<>();
                 params2.put(HttpHeaders.ACCEPT, headers.getAccept().iterator().next().toString());
                 return loadData(result.getHeaders().getLocation().toString(), params2);
