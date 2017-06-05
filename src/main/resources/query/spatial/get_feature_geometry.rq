@@ -1,6 +1,7 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ogcgs: <http://www.opengis.net/ont/geosparql#>
 PREFIX ogcgml: <http://www.opengis.net/ont/gml#>
+PREFIX schema: <http://schema.org/>
 PREFIX ruian: <https://ruian.linked.opendata.cz/slovník/>
 construct {?s ?p ?o}
 where
@@ -8,6 +9,5 @@ where
         ?s ?p ?o.
         ?s rdf:type ogcgs:Geometry .
         ?s rdf:type ruian:Okres .
-        FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT || ?p = ogcgml:id)
+        FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT || ?p = ogcgml:id || ?p = schema:name)
     }
-    LIMIT 20
