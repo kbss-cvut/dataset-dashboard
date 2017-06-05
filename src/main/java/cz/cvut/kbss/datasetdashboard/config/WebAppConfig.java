@@ -24,7 +24,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@Import( {RestConfig.class})
+@Import({RestConfig.class})
 public class WebAppConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
