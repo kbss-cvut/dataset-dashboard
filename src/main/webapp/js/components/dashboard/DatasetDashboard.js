@@ -21,7 +21,7 @@ class DashboardController extends React.Component {
         super(props);
         this.state = {
             widgets: {
-                VocabularyWidget: {
+               /* VocabularyWidget: {
                     type: VocabularyWidget,
                     title: 'Vocabulary',
                 },
@@ -36,7 +36,7 @@ class DashboardController extends React.Component {
                 PropertyPartitionWidget: {
                     type: PropertyPartitionWidget,
                     title: 'Property Partitions',
-                },
+                },*/
                 SpatialWidget: {
                     type: SpatialWidget,
                     title: 'Spatial representation',
@@ -46,22 +46,22 @@ class DashboardController extends React.Component {
                 rows: [
                     {
                         columns: [
-                            {
+                            /*{
                                 className: 'col-md-12 col-sm-12 col-xs-12',
                                 widgets: [{key: 'SchemaWidget'}],
                             },
                             {
                                 className: 'col-md-12 col-sm-12 col-xs-12',
                                 widgets: [{key: 'VocabularyWidget'}],
-                            },
+                            },*/
                             {
                                  className: 'col-md-12 col-sm-12 col-xs-12',
                                  widgets: [{key: 'SpatialWidget'}],
-                            },
+                            }/*,
                             {
                                 className: 'col-md-12 col-sm-12 col-xs-12',
                                 widgets: [{key: 'ClassPartitionWidget'}, {key: 'PropertyPartitionWidget'}],
-                            }
+                            }*/
                         ]
                     }
                 ]

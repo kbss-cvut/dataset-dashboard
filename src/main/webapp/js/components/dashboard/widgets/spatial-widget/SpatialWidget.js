@@ -111,6 +111,10 @@ class SpatialWidget extends React.Component {
         // let popup = points[0].id;
 
         let markers = [];
+        let xmin = position[0];
+        let xmax = position[0];
+        let ymin = position[1];
+        let ymax = position[1];
         points.forEach((point) => {
             markers.push(
             <Marker key={point.id} position={point.position}>
@@ -118,11 +122,15 @@ class SpatialWidget extends React.Component {
                     <span>{point.name}</span>
                 </Popup>
             </Marker>);
-
+            if (point.position[0] < xmin) xmin = point.position[0];
+            if (point.position[1] < ymin) ymin = point.position[1];
+            if (point.position[0] > xmax) xmax = point.position[0];
+            if (point.position[1] > ymax) ymax = point.position[1];
         });
-
+        let bounds = L.polyline([[ymin,xmin],[ymax, xmax]]);
+        console.log(bounds.position);
         return (
-            <Map center={position} zoom={11} style={{height:500 }}>
+            <Map bounds={bounds} style={{height:500}}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
