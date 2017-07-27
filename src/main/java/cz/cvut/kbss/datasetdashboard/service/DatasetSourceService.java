@@ -8,6 +8,7 @@ import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.ddo.Vocabulary;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
@@ -92,9 +93,12 @@ public class DatasetSourceService {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    public RawJson getSparqlConstructResult(final String queryFile, final String datasetSourceId) {
+    public RawJson getSparqlConstructResult(
+        final String queryFile,
+        final String datasetSourceId,
+        final Map<String,String> bindings) {
         return new RawJson(toJsonLd(
-            datasetSourceDao.getSparqlConstructResult(queryFile, datasetSourceId)));
+            datasetSourceDao.getSparqlConstructResult(queryFile, datasetSourceId, bindings)));
     }
 
     private static String toJsonLd(String turtle) {

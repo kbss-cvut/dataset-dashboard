@@ -5,6 +5,7 @@ import jsonld from 'jsonld';
 import Actions from '../actions/Actions';
 import Ajax from '../utils/Ajax';
 import Logger from '../utils/Logger';
+import Utils from '../utils/Utils';
 
 const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
 
@@ -112,13 +113,15 @@ const DatasetSourceStore = Reflux.createStore({
         }.bind(this));
     },
 
-    onExecuteQueryForDatasetSource: function (datasetSourceId, queryName) {
-        Ajax.get(BASE_URL+"/"+datasetSourceId+"/executeQuery?queryFile="+queryName).end(function (data) {
+    onExecuteQueryForDatasetSource: function (datasetSourceId, queryName, params) {
+        const url = Utils.addParametersToUrl(BASE_URL+"/"+datasetSourceId+"/executeQuery?queryFile="+queryName, params)
+        Ajax.get(url).end(function (data) {
             const that = this;
             jsonld.flatten(data, function(err, canonical) {
                 that.trigger({
                     action: Actions.executeQueryForDatasetSource,
                     queryName: queryName,
+                    params: params,
                     datasetSourceId: datasetSourceId,
                     jsonLD: canonical
                 });
@@ -128,6 +131,7 @@ const DatasetSourceStore = Reflux.createStore({
             this.trigger({
                 action: Actions.executeQueryForDatasetSource,
                 queryName: queryName,
+                params: params,
                 datasetSourceId: datasetSourceId,
                 jsonLD: []
             });

@@ -76,7 +76,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
     private JsonArray getSparqlSelectResult(final String queryName,
                                             final String sparqlEndpointUrl) {
         final JsonParser jsonParser = new JsonParser();
-        String result = getSparqlResult(queryName,
+        String result = getSparqlResult(queryName, Collections.emptyMap(),
             sparqlEndpointUrl, null, "application/json");
         if (result != null) {
             final JsonElement jsonResult = jsonParser.parse(result);
@@ -125,13 +125,15 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
      * @throws IllegalArgumentException When the specified queryName is not known
      */
     public String getSparqlResult(final String queryFile,
+                                  final Map<String,String> bindings,
                                   final String repositoryUrl,
                                   final String graphIri,
                                   final String mediaType) {
-        return getSparqlResult(queryFile, repositoryUrl, graphIri, mediaType, entityManager());
+        return getSparqlResult(queryFile, bindings, repositoryUrl, graphIri, mediaType, entityManager());
     }
 
     private String getSparqlResult(final String queryFile,
+                                   final Map<String,String> bindings,
                                    final String repositoryUrl,
                                    final String graphIri,
                                    final String mediaType,
@@ -141,6 +143,20 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
+//            if (!bindings.isEmpty()) {
+//                query = query + " VALUES (";
+//                for (final String key : bindings.keySet()) {
+//                    query = query + " ?" + key;
+//                }
+//                query = query + " )";
+//
+//                query = query + " { (";
+//                for (final String key : bindings.keySet()) {
+//                    query = query + " <" + bindings.get(key) + ">";
+//                }
+//                query = query + ") }";
+//            }
+//
             if (graphIri != null) {
                 final Query q = QueryFactory.create(query);
                 q.addGraphURI(graphIri);
@@ -272,14 +288,17 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    public String getSparqlConstructResult(final String queryFile, final String datasetSourceId) {
+    public String getSparqlConstructResult(
+        final String queryFile,
+        final String datasetSourceId,
+        final Map<String,String> bindings) {
         final EntityManager em = entityManager();
         try {
             final URI datasetSourceIri
                 = URI.create(Vocabulary.s_c_dataset_source + "-" + datasetSourceId);
             Objects.requireNonNull(datasetSourceIri);
             dataset_source datasetSource = findByUri(datasetSourceIri, em);
-            return getSparqlConstructResult(datasetSource, queryFile, em);
+            return getSparqlConstructResult(datasetSource, queryFile, bindings, em);
         } catch (Exception e) {
             logger.error("Fetching data failed for queryFile {} and datasetSourceId {}",
                 queryFile, datasetSourceId, e);
@@ -291,6 +310,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
 
     private String getSparqlConstructResult(final dataset_source datasetSource,
                                             final String queryFile,
+                                            final Map<String,String> bindings,
                                             final EntityManager em) {
         if (EntityToOwlClassMapper.isOfType(datasetSource,
             Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
@@ -298,13 +318,13 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                 .get(Vocabulary.s_p_has_endpoint_url).iterator().next();
             final String graphIri = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_graph_id).iterator().next();
-            return getSparqlResult(queryFile, endpointUrl,
+            return getSparqlResult(queryFile, bindings, endpointUrl,
                 graphIri, "text/turtle", em);
         } else if (EntityToOwlClassMapper
             .isOfType(datasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
             final String endpointUrl = datasetSource.getProperties()
                 .get(Vocabulary.s_p_has_endpoint_url).iterator().next();
-            return getSparqlResult(queryFile, endpointUrl,
+            return getSparqlResult(queryFile, bindings, endpointUrl,
                 null, "text/turtle", em);
         } else {
             throw new IllegalStateException(MessageFormat.format(
@@ -377,7 +397,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                                                    final String queryFile,
                                                    final EntityManager em) {
         final dataset_source datasetSource = getSourceForDescriptor(datasetDescriptor, em);
-        return getSparqlConstructResult(datasetSource, queryFile, em);
+        return getSparqlConstructResult(datasetSource, queryFile, Collections.emptyMap(), em);
     }
 
     /**
