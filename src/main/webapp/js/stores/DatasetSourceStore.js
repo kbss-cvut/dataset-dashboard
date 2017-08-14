@@ -6,6 +6,9 @@ import Actions from '../actions/Actions';
 import Ajax from '../utils/Ajax';
 import Logger from '../utils/Logger';
 import Utils from '../utils/Utils';
+import NamedGraphSparqlEndpointDatasetSource from '../model/NamedGraphSparqlEndpointDatasetSource';
+import SparqlEndpointDatasetSource from '../model/SparqlEndpointDatasetSource';
+import UrlDatasetSource from '../model/UrlDatasetSource';
 
 const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
 
@@ -46,63 +49,80 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onRegisterDatasetSourceEndpoint: function (endpointUrl) {
+        const ds = new SparqlEndpointDatasetSource(endpointUrl);
         Ajax.put(BASE_URL+"/registerEndpoint?endpointUrl="+endpointUrl).end(function (data) {
+            ds.setId(data);
             this.trigger({
                 action: Actions.registerDatasetSourceEndpoint,
-                endpointUrl: data,
-                datasetSourceId: data
+                datasetSource: ds
             });
         }.bind(this), function () {
             Logger.error('Unable to register endpoint.');
             this.trigger({
                 action: Actions.registerDatasetSourceEndpoint,
-                endpointUrl: endpointUrl,
-                datasetSourceId: null
+                datasetSource: ds
             });
         }.bind(this));
     },
 
     onRegisterDatasetSourceNamedGraph: function (endpointUrl, graphIri) {
+        const ds = new NamedGraphSparqlEndpointDatasetSource(endpointUrl, graphIri);
         Ajax.put(BASE_URL+"/registerNamedGraph?endpointUrl="+endpointUrl+"&graphIri="+graphIri).end(function (data) {
+            ds.setId(data);
             this.trigger({
                 action: Actions.registerDatasetSourceNamedGraph,
-                endpointUrl: endpointUrl,
-                graphIri: graphIri,
-                datasetSourceId: data
+                datasetSource: ds
             });
         }.bind(this), function () {
             Logger.error('Unable to register endpoint.');
             this.trigger({
                 action: Actions.registerDatasetSourceNamedGraph,
-                endpointUrl: endpointUrl,
-                graphIri: graphIri,
-                datasetSourceId: null
+                datasetSource: ds
             });
         }.bind(this));
     },
 
     onRegisterDatasetSourceDownloadUrl: function (downloadUrl) {
+        const ds = new UrlDatasetSource(downloadUrl);
         Ajax.put(BASE_URL+"/registerUrl?downloadUrl="+downloadUrl).end(function (data) {
+            ds.setId(data);
             this.trigger({
                 action: Actions.registerDatasetUrl,
-                downloadUrl: downloadUrl,
-                datasetSourceId: data
+                datasetSource: ds
             });
         }.bind(this), function () {
             Logger.error('Unable to register endpoint.');
             this.trigger({
                 action: Actions.registerDatasetUrl,
-                downloadUrl: downloadUrl,
-                datasetSourceId: null
+                datasetSource: ds
             });
         }.bind(this));
+    },
+
+    _parseDatasetSource: function(ds) {
+        var datasetSource = null;
+        if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/named-graph-sparql-endpoint-dataset-source") {
+            datasetSource = new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
+        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/sparql-endpoint-dataset-source") {
+            datasetSource = new SparqlEndpointDatasetSource(ds.endpointUrl);
+        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/url-dataset-source") {
+            datasetSource = new UrlDatasetSource(ds.downloadUrl);
+        }
+
+        if ( datasetSource != null ) {
+            datasetSource.id = ds.id;
+            datasetSource.hash = ds.hash;
+        } else {
+            throw new Error("Unknown dataset source type - " + ds.type);
+        }
+        return datasetSource;
     },
 
     onGetAllDatasetSources: function () {
         Ajax.get(BASE_URL+"/all").end(function (data) {
             this.trigger({
                 action: Actions.getAllDatasetSources,
-                datasetSources: data,
+                datasetSources: data.map(this._parseDatasetSource),
             });
         }.bind(this), function () {
             Logger.error('Unable to get data.');

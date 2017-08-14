@@ -4,6 +4,7 @@ import React from "react";
 import {Grid, Row, Col} from "react-bootstrap";
 import DatasetSourceList from "./DatasetSourceList";
 import DatasetDashboard from "./DatasetDashboard";
+import DatasetSourceRegistration from "./DatasetSourceRegistration";
 
 class DashboardController extends React.Component {
     render() {
@@ -12,6 +13,7 @@ class DashboardController extends React.Component {
                 <Row>
                     <Col xs={6} md={4}>
                         <DatasetSourceList/>
+                        <DatasetSourceRegistration/>
                     </Col>
                     <Col xs={12} md={8}>
                         <DatasetDashboard/>

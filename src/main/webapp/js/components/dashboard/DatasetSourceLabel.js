@@ -15,7 +15,7 @@ class DatasetSourceLabel extends React.Component {
                     label = <span>{ds.endpointUrl}</span>
                 }
             } else {
-                label = <span>{ds.downloadId}</span>
+                label = <span>{ds.url}</span>
             }
         }
 
