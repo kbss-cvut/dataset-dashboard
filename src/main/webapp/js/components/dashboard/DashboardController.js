@@ -2,7 +2,7 @@
 
 import React from "react";
 import {Grid, Row, Col} from "react-bootstrap";
-import DatasetSourceList from "./DatasetSourceList";
+import DatasetSourceTree from "./DatasetSourceTree";
 import DatasetDashboard from "./DatasetDashboard";
 import DatasetSourceRegistration from "./DatasetSourceRegistration";
 
@@ -12,8 +12,8 @@ class DashboardController extends React.Component {
             <Grid fluid={true}>
                 <Row>
                     <Col xs={6} md={4}>
-                        <DatasetSourceList/>
-                        <DatasetSourceRegistration/>
+                        <div><DatasetSourceRegistration/></div>
+                        <div><DatasetSourceTree/></div>
                     </Col>
                     <Col xs={12} md={8}>
                         <DatasetDashboard/>

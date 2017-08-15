@@ -49,8 +49,9 @@ class DatasetSourceRegistration extends React.Component {
     // };
 
     render() {
+        let title = <div><Button onClick={ ()=> this.setState({ open: !this.state.open })}>Register a dataset source</Button></div>
         return (
-        <Panel header="Register a dataset source">
+        <Panel header={title} collapsible expanded={this.state.open}>
             <form>
                 <FormGroup
                     controlId="formGraph"

@@ -10,7 +10,7 @@ class DatasetSourceLabel extends React.Component {
         if (ds) {
             if (ds.endpointUrl) {
                 if (ds.graphId) {
-                    label = <span>{ds.endpointUrl}<br/><span style={{fontSize : '75%'}}>&#10148; {ds.graphId}</span></span>
+                    label = <span>{ds.graphId}<span style={{fontSize : '75%'}}>&#10148; {ds.endpointUrl}</span></span>
                 } else {
                     label = <span>{ds.endpointUrl}</span>
                 }
