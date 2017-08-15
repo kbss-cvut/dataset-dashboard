@@ -3,7 +3,7 @@
 import React from "react";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
-import {Table} from "react-bootstrap";
+import {Panel} from "react-bootstrap";
 import {BootstrapTable,TableHeaderColumn} from "react-bootstrap-table";
 import DatasetSourceLink from "./DatasetSourceLink";
 import LoadingWrapper from "../misc/LoadingWrapper";
@@ -69,7 +69,7 @@ class DatasetSourceList extends React.Component {
         });
 
         return (
-                <div><BootstrapTable
+                <Panel header="Search Dataset Source"><BootstrapTable
                     data={ this.state.datasetSources }
                     options={ options }
                     pagination={true}
@@ -80,7 +80,7 @@ class DatasetSourceList extends React.Component {
                                         dataFormat={ (cell, row) => {
                                             return ( <DatasetSourceLink datasetSource={row}/>);}
                                         }>Dataset Source</TableHeaderColumn>
-                    </BootstrapTable></div>
+                    </BootstrapTable></Panel>
         );
     }
 }
