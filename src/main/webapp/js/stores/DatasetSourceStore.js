@@ -14,6 +14,8 @@ const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json
 
 const BASE_URL = 'rest/dataset-source';
 
+const ONTOLOGY_BASE = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/";
+
 const DatasetSourceStore = Reflux.createStore({
 
     listenables: [Actions],
@@ -101,11 +103,11 @@ const DatasetSourceStore = Reflux.createStore({
 
     _parseDatasetSource: function(ds) {
         var datasetSource = null;
-        if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/named-graph-sparql-endpoint-dataset-source") {
+        if ( ds.type === ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
             datasetSource = new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
-        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/sparql-endpoint-dataset-source") {
+        } else if ( ds.type === ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
             datasetSource = new SparqlEndpointDatasetSource(ds.endpointUrl);
-        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/url-dataset-source") {
+        } else if ( ds.type === ONTOLOGY_BASE+"url-dataset-source") {
             datasetSource = new UrlDatasetSource(ds.downloadUrl);
         }
 
@@ -120,9 +122,32 @@ const DatasetSourceStore = Reflux.createStore({
 
     onGetAllDatasetSources: function () {
         Ajax.get(BASE_URL+"/all").end(function (data) {
+            let dss = data.map(this._parseDatasetSource);
+            let roots = {};
+            dss.forEach((ds) => {
+                if (ds.type == ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
+                    if ( roots[ds.endpointUrl] ) {
+                        console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
+                    }
+                    roots[ds.endpointUrl] = ds;
+                }
+            });
+            dss.forEach((ds) => {
+                if (ds.type == ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
+                    if (!roots[ds.endpointUrl]) {
+                        roots[ds.graphId]=ds;
+                    } else {
+                        console.log("PARTS " + ds.endpointUrl + " : " + ds)
+                        roots[ds.endpointUrl].parts.push(ds);
+                    }
+                }
+            });
+
+            console.log(Object.values(roots).length)
+
             this.trigger({
                 action: Actions.getAllDatasetSources,
-                datasetSources: data.map(this._parseDatasetSource),
+                datasetSources: Object.values(roots),
             });
         }.bind(this), function () {
             Logger.error('Unable to get data.');

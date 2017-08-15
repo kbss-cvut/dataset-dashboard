@@ -46,21 +46,6 @@ class DatasetSourceTree extends React.Component {
     };
 
 
-    onSelect(selectedKeys) {
-        console.log('selected: ', selectedKeys);
-    };
-
-    onExpand(expandedKeys) {
-        this.filterKeys = undefined;
-        console.log('onExpand', arguments);
-        // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-        // or, you can remove all expanded chilren keys.
-        this.setState({
-            expandedKeys,
-            autoExpandParent: false,
-        });
-    };
-
     // filterTreeNode(dsTree,treeNode) {
     //     if (this.state.inputValue && treeNode.props.eventKey.match(".*"+this.state.inputValue+".*")) {
     //         console.log("TRUE")
@@ -112,12 +97,14 @@ class DatasetSourceTree extends React.Component {
                         nodes.push(
                             <TreeNode
                                 key={key}
-                                title={title}>{parts}
+                                title={title}
+                                isLeaf={parts.length == 0}>{parts}
                             </TreeNode>);
                     } else {
                         nodes.push(<TreeNode
                             key={key}
                             title={title}
+                            isLeaf={true}
                         />);
                     }
                 }
@@ -127,13 +114,6 @@ class DatasetSourceTree extends React.Component {
 
         let tree = loop(this.state.datasetSources).data;
         console.log(tree.length);
-
-        let expandedKeys = this.state.expandedKeys;
-        let autoExpandParent = this.state.autoExpandParent;
-        if (this.filterKeys) {
-            expandedKeys = this.filterKeys;
-            autoExpandParent = true;
-        }
 
         return (<Panel header="Filter Dataset Source">
             <Grid>
@@ -160,13 +140,9 @@ class DatasetSourceTree extends React.Component {
                 horizontal={false}
             >
             <Tree
-                onExpand={() => {
-                    this.onExpand()
-                }}
-                expandedKeys={expandedKeys}
-                autoExpandParent={autoExpandParent}
                 filterTreeNode={(tree, node) => this.filterTreeNode(this, tree, node)}
                 selectable={false}
+                expandable={true}
                 notFoundContent="No data receivedX."
                 showIcon={false}
                 treeCheckable={false}>
