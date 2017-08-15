@@ -3,7 +3,7 @@
 import React from "react";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
-import {FormControl, Panel, Grid, Row, Col} from "react-bootstrap";
+import {FormControl, Panel} from "react-bootstrap";
 import LoadingWrapper from "../misc/LoadingWrapper";
 import Tree, {SHOW_PARENT, TreeNode} from "rc-tree";
 import DatasetSourceLink from "./DatasetSourceLink";
@@ -17,8 +17,6 @@ class DatasetSourceTree extends React.Component {
             datasetSources: [],
             inputValue: '',
             sel: '',
-            expandedKeys: [],
-            autoExpandParent: true,
         };
     };
 
@@ -113,42 +111,34 @@ class DatasetSourceTree extends React.Component {
         };
 
         let tree = loop(this.state.datasetSources).data;
-        console.log(tree.length);
 
-        return (<Panel header="Filter Dataset Source">
-            <Grid>
-                <Row>
-                    <Col xs={3} md={3}>
-                        <FormControl
-                            type="text"
-                            value={this.state.inputValue}
-                            placeholder="Filter ..."
-                            onChange={(e) => this.onChange(e)}
-                        />
-                    </Col>
-                    <Col xs={1} md={1}>
-                        <div>{this.state.inputValue ? ("("+tree.length)+")" : ""}</div>
-                    </Col>
-                </Row>
-            </Grid>
+        const header = <div>Filter Dataset Source {this.state.inputValue ? ("(" + tree.length) + ")" : ""}</div>;
+
+        return (<Panel header={header}>
+            <FormControl
+                type="text"
+                value={this.state.inputValue}
+                placeholder="Filter ..."
+                onChange={(e) => this.onChange(e)}
+            />
             <div>
-            <ScrollArea
-                style={{height: 400}}
-                speed={0.8}
-                className="area"
-                contentClassName="content"
-                horizontal={false}
-            >
-            <Tree
-                filterTreeNode={(tree, node) => this.filterTreeNode(this, tree, node)}
-                selectable={false}
-                expandable={true}
-                notFoundContent="No data receivedX."
-                showIcon={false}
-                treeCheckable={false}>
-                {tree}
-            </Tree>
-            </ScrollArea>
+                <ScrollArea
+                    style={{height: 400}}
+                    speed={0.8}
+                    className="area"
+                    contentClassName="content"
+                    horizontal={false}
+                >
+                    <Tree
+                        filterTreeNode={(tree, node) => this.filterTreeNode(this, tree, node)}
+                        selectable={false}
+                        expandable={true}
+                        notFoundContent="No data receivedX."
+                        showIcon={false}
+                        treeCheckable={false}>
+                        {tree}
+                    </Tree>
+                </ScrollArea>
             </div>
         </Panel>)
 

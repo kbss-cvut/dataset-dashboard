@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.slf4j.Logger;
@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
 
@@ -53,27 +52,7 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
     @Qualifier("localDataLoader")
     private DataLoader localLoader;
 
-    @Autowired
-    private Environment env;
-
-    /**
-     * Initializes the DAO - loads predefined dataset sources and stores them.
-     */
-    @PostConstruct
-    public void init() {
-        final String[] urls = env.getProperty("ckan.jackan.sparqlEndpoints").split(",");
-        for (final String ckanEndpoint : urls) {
-            if (!ckanEndpoint.isEmpty()) {
-                loadCkanDatasetSources(ckanEndpoint);
-            }
-        }
-    }
-
-    private String getStringValue(final JsonObject o, final String parameter) {
-        return o.get(parameter).getAsJsonObject().get("value").getAsString();
-    }
-
-    private JsonArray getSparqlSelectResult(final String queryName,
+    public JsonArray getSparqlSelectResult(final String queryName,
                                             final String sparqlEndpointUrl) {
         final JsonParser jsonParser = new JsonParser();
         String result = getSparqlResult(queryName, Collections.emptyMap(),
@@ -88,32 +67,19 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
         }
     }
 
-    private void loadCkanDatasetSources(final String sparqlEndpointUrl) {
-        try {
-            getSparqlSelectResult("query/get_ckan_datasetsources.rq", sparqlEndpointUrl)
-                .forEach((e) -> {
-                    final String type = getStringValue(e.getAsJsonObject(), "type");
-                    final String url = getStringValue(e.getAsJsonObject(), "url");
-
-                    if (Vocabulary.s_c_sparql_endpoint_dataset_source.equals(type)) {
-                        register(url, null);
-                        loadAllNamedGraphsFromEndpoint(url);
-                    } else if (Vocabulary.s_c_url_dataset_source.equals(type)) {
-                        register(url, null);
-                    }
-                });
-        } catch (final Exception e) {
-            logger.info("Unable to fetch dataset sources from {}", sparqlEndpointUrl, e);
-        }
+    private String getStringValue(final JsonObject o, final String parameter) {
+        return o.get(parameter).getAsJsonObject().get("value").getAsString();
     }
 
-    private void loadAllNamedGraphsFromEndpoint(final String sparqlEndpointUrl) {
+    public List<String> getAllNamedGraphsInEndpoint(final String sparqlEndpointUrl) {
+        List<String> all = new ArrayList<>();
         getSparqlSelectResult("query/get_sparql_endpoint_named_graph_datasetsources.rq",
             sparqlEndpointUrl).forEach((e) -> {
                 final String graph = getStringValue(e.getAsJsonObject(), "graph");
-                register(sparqlEndpointUrl, graph);
+                all.add(graph);
             }
         );
+        return all;
     }
 
     /**
@@ -265,6 +231,10 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                 // ds.getProperties().put(Vocabulary.s_p_has_, Collections.singleton(graphIri));
             } else {
                 ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
+                final List<String> graphIds = getAllNamedGraphsInEndpoint(endpointUrl);
+                for(final String graphId : graphIds) {
+                    register(endpointUrl, graphId);
+                }
             }
             ds.setOffers_dataset(Collections.singleton(dataset));
             dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
@@ -436,6 +406,5 @@ public class DatasetSourceDao extends DatasetSourceAbstractDao {
                 ), em
             );
         }
-
     }
 }
