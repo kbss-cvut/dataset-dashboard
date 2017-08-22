@@ -224,7 +224,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
                 ds.getProperties().put(Vocabulary.s_p_has_graph_id,
                     Collections.singleton(graphIri));
                 ds.getTypes().add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-                register(endpointUrl, null);
+//                register(endpointUrl, null);
                 // ds.getProperties().put(Vocabulary.s_p_has_, Collections.singleton(graphIri));
             } else {
                 ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
