@@ -120,30 +120,35 @@ const DatasetSourceStore = Reflux.createStore({
         return datasetSource;
     },
 
+    hierarchizeDS: function(dss) {
+        const roots = {}
+        dss.forEach((ds) => {
+            if (ds.type == ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
+                if ( roots[ds.endpointUrl] ) {
+                    if ( roots[ds.endpointUrl].generated ) {
+                        roots[ds.endpointUrl] = ds;
+                    } else {
+                        console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
+                    }
+                }
+                roots[ds.endpointUrl] = ds;
+            } else if (ds.type == ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
+                if ( !roots[ds.endpointUrl] ) {
+                    roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
+                    roots[ds.endpointUrl].generated = true;
+                }
+                roots[ds.endpointUrl].parts.push(ds);
+            }
+        });
+        return roots;
+    },
+
     onGetAllDatasetSources: function () {
         Ajax.get(BASE_URL+"/all").end(function (data) {
             let dss = data.map(this._parseDatasetSource);
-            let roots = {};
-            dss.forEach((ds) => {
-                if (ds.type == ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
-                    if ( roots[ds.endpointUrl] ) {
-                        console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
-                    }
-                    roots[ds.endpointUrl] = ds;
-                }
-            });
-            dss.forEach((ds) => {
-                if (ds.type == ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
-                    if (!roots[ds.endpointUrl]) {
-                        roots[ds.graphId]=ds;
-                    } else {
-                        console.log("PARTS " + ds.endpointUrl + " : " + ds)
-                        roots[ds.endpointUrl].parts.push(ds);
-                    }
-                }
-            });
+            let roots = this.hierarchizeDS(dss);
 
-            console.log(Object.values(roots).length)
+            console.log("Root objects: " + Object.values(roots).length);
 
             this.trigger({
                 action: Actions.getAllDatasetSources,
