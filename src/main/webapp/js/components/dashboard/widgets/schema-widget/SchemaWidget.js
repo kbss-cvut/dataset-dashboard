@@ -12,7 +12,6 @@ class SchemaWidget extends React.Component {
     
     constructor(props) {
         super(props);
-        Logger.log('SchemaWidget.constructor')
         this.state = {
             datasetSource : null,
             datasetSchema : null,
@@ -21,7 +20,6 @@ class SchemaWidget extends React.Component {
     };
 
     componentWillMount() {
-        Logger.log('componentWillMount')
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
     };
 
