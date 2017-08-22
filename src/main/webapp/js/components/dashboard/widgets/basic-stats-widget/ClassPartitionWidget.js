@@ -41,6 +41,9 @@ class BasicStatsWidget extends React.Component {
         this.unsubscribe();
     };
 
+    format(cell, row) {
+        return '<a href="'+cell+'" target="_blank">'+NamespaceStore.getShortForm(cell)+'</a> ';
+    };
 
     render() {
         if (this.state.data.length === 0) {
@@ -50,14 +53,14 @@ class BasicStatsWidget extends React.Component {
             .filter(r => (!r.hasOwnProperty('@type')))
             .map(r => {
                 return {
-                    'class': NamespaceStore.getShortForm(Utils.getJsonLdFirst(r[Void.CLASS],'@id')),
+                    'class': Utils.getJsonLdFirst(r[Void.CLASS],'@id'),
                     'entities': Utils.getJsonLdFirst(r[Void.ENTITIES], '@value')
                 }
             });
-        const numberColWidth = "200" ;
+        const numberColWidth = "150" ;
         return (
-        <BootstrapTable data={data} striped={true} hover={true}>
-            <TableHeaderColumn dataField="class" isKey={true} dataSort={true}>class</TableHeaderColumn>
+        <BootstrapTable data={data} striped={true} hover={true} condensed>
+            <TableHeaderColumn dataField="class" isKey={true} dataSort={true} dataFormat={this.format}>class</TableHeaderColumn>
             <TableHeaderColumn dataField="entities" dataSort={true} width={numberColWidth}>entities</TableHeaderColumn>
         </BootstrapTable>
         );

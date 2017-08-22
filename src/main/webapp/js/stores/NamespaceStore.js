@@ -8,11 +8,15 @@ const namespacesPrefixcc = require('../../resources/namespaces/prefix-cc.json');
 const NamespaceStore = Reflux.createStore({
 
     listenables: [Actions],
-    namespaces: [],
+    namespaces: {},
 
     init() {
         this.addFromResource(namespacesPrefixcc);
         this.addFromResource(namespacesAdHoc);
+    },
+
+    list() {
+        return this.namespaces;
     },
 
     addFromResource(data) {
