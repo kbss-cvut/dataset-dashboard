@@ -37,6 +37,12 @@ class DatasetSourceTree extends React.Component {
                 datasetSources: data.datasetSources,
             });
         }
+
+        if (( data.action == Actions.registerDatasetSourceEndpoint )
+            || ( data.action == Actions.registerDatasetSourceNamedGraph )
+            || ( data.action == Actions.registerDatasetUrl )) {
+            Actions.getAllDatasetSources();
+        }
     };
 
     componentWillUnmount() {
