@@ -4,11 +4,10 @@ import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
-import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class PropertyPartitionWidget extends React.Component {
     constructor(props) {
@@ -57,13 +56,15 @@ class PropertyPartitionWidget extends React.Component {
                 }
             });
 
+        const numberColWidth = "200";
         return (
-            <SimpleTable columns={[
-                {columnHeader: 'property', path: 'property'},
-                {columnHeader: 'triples', path: 'triples'},
-                {columnHeader: 'distinctSubjects', path: 'distinctSubjects'},
-                {columnHeader: 'distinctObjects', path: 'distinctObjects'}
-            ]} data={data}/>);
+            <BootstrapTable data={data} striped={true} hover={true} >
+                <TableHeaderColumn dataField="property" isKey={true} dataSort={true}>property</TableHeaderColumn>
+                <TableHeaderColumn dataField="triples" dataSort={true} width={numberColWidth}>triples</TableHeaderColumn>
+                <TableHeaderColumn dataField="distinctSubjects" dataSort={true} width={numberColWidth}>dist. subjs</TableHeaderColumn>
+                <TableHeaderColumn dataField="distinctObjects" dataSort={true} width={numberColWidth}>dist. objs</TableHeaderColumn>
+            </BootstrapTable>
+        );
     };
 }
 

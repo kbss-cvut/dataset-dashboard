@@ -4,10 +4,10 @@ import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
-import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 
 class BasicStatsWidget extends React.Component {
@@ -54,12 +54,13 @@ class BasicStatsWidget extends React.Component {
                     'entities': Utils.getJsonLdFirst(r[Void.ENTITIES], '@value')
                 }
             });
-
+        const numberColWidth = "200" ;
         return (
-            <SimpleTable columns={[
-                {columnHeader: 'class', path: 'class'},
-                {columnHeader: 'entities', path: 'entities'}
-            ]} data={data}/>);
+        <BootstrapTable data={data} striped={true} hover={true}>
+            <TableHeaderColumn dataField="class" isKey={true} dataSort={true}>class</TableHeaderColumn>
+            <TableHeaderColumn dataField="entities" dataSort={true} width={numberColWidth}>entities</TableHeaderColumn>
+        </BootstrapTable>
+        );
     };
 }
 
