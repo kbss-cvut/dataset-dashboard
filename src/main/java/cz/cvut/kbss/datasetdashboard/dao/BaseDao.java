@@ -12,6 +12,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base implementation of the generic DAO.
@@ -22,162 +23,96 @@ public abstract class BaseDao<T> implements GenericDao<T> {
 
     protected final Class<T> type;
     final URI typeUri;
+
     @Autowired
-    private EntityManagerFactory emf;
+    private EntityManager em;
 
     protected BaseDao(Class<T> type) {
         this.type = type;
         this.typeUri = URI.create(EntityToOwlClassMapper.getOwlClassForEntity(type));
     }
 
-    @Override
+    @Transactional("txManager")
     public T find(URI uri) {
         Objects.requireNonNull(uri);
-        final EntityManager em = entityManager();
-        try {
-            return findByUri(uri, em);
-        } finally {
-            em.close();
-        }
-    }
-
-    protected T findByUri(URI uri, EntityManager em) {
         return em.find(type, uri);
     }
 
-    @Override
+    @Transactional("txManager")
     public List<T> findAll() {
-        final EntityManager em = entityManager();
-        try {
-            return findAll(em);
-        } finally {
-            em.close();
-        }
-    }
-
-    protected List<T> findAll(EntityManager em) {
         return em.createNativeQuery("SELECT ?x WHERE { ?x a ?type . }", type)
             .setParameter("type", typeUri)
             .getResultList();
     }
 
-    @Override
+    @Transactional("txManager")
     public void persist(T entity) {
         Objects.requireNonNull(entity);
-        final EntityManager em = entityManager();
         try {
-            em.getTransaction().begin();
-            persist(entity, em);
-            em.getTransaction().commit();
+            em.persist(entity);
         } catch (Exception e) {
             LOG.error("Error when persisting entity.", e);
             throw new PersistenceException(e);
-        } finally {
-            em.close();
         }
     }
 
-    protected void persist(T entity, EntityManager em) {
-        em.persist(entity);
-    }
-
-    @Override
+    @Transactional("txManager")
     public void persist(Collection<T> entities) {
         Objects.requireNonNull(entities);
         if (entities.isEmpty()) {
             return;
         }
-        final EntityManager em = entityManager();
         try {
-            em.getTransaction().begin();
-            entities.forEach(e -> persist(e, em));
-            em.getTransaction().commit();
+            entities.forEach(e -> em.persist(e));
         } catch (Exception e) {
             LOG.error("Error when persisting entities.", e);
             throw new PersistenceException(e);
-        } finally {
-            em.close();
         }
     }
 
-    @Override
+    @Transactional("txManager")
     public void update(T entity) {
         Objects.requireNonNull(entity);
-        final EntityManager em = entityManager();
         try {
-            em.getTransaction().begin();
-            update(entity, em);
-            em.getTransaction().commit();
+            em.merge(entity);
         } catch (Exception e) {
             LOG.error("Error when updating entity.", e);
             throw new PersistenceException(e);
-        } finally {
-            em.close();
         }
     }
 
-    protected void update(T entity, EntityManager em) {
-        em.merge(entity);
-    }
-
-    @Override
+    @Transactional("txManager")
     public void remove(T entity) {
         Objects.requireNonNull(entity);
-        final EntityManager em = entityManager();
         try {
-            em.getTransaction().begin();
-            remove(entity, em);
-            em.getTransaction().commit();
+            final T toRemove = em.merge(entity);
+            assert toRemove != null;
+            em.remove(toRemove);
         } catch (Exception e) {
             LOG.error("Error when removing entity.", e);
             throw new PersistenceException(e);
-        } finally {
-            em.close();
         }
     }
 
-    protected void remove(T entity, EntityManager em) {
-        final T toRemove = em.merge(entity);
-        assert toRemove != null;
-        em.remove(toRemove);
-    }
-
-    @Override
+    @Transactional("txManager")
     public void remove(Collection<T> entities) {
         Objects.requireNonNull(entities);
         if (entities.isEmpty()) {
             return;
         }
-        final EntityManager em = entityManager();
         try {
-            em.getTransaction().begin();
             entities.forEach(entity -> {
                 final T toRemove = em.merge(entity);
                 em.remove(toRemove);
             });
-            em.getTransaction().commit();
         } catch (Exception e) {
             LOG.error("Error when removing entities.", e);
             throw new PersistenceException(e);
-        } finally {
-            em.close();
         }
     }
 
-    @Override
+    @Transactional("txManager")
     public boolean exists(URI uri) {
-        if (uri == null) {
-            return false;
-        }
-        final EntityManager em = entityManager();
-        try {
-            return exists(uri, em);
-        } finally {
-            em.close();
-        }
-    }
-
-    protected boolean exists(URI uri, EntityManager em) {
         if (uri == null) {
             return false;
         }
@@ -185,9 +120,5 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         return em.createNativeQuery("ASK { ?individual a ?type . }", Boolean.class)
             .setParameter("individual", uri)
             .setParameter("type", URI.create(owlClass)).getSingleResult();
-    }
-
-    EntityManager entityManager() {
-        return emf.createEntityManager();
     }
 }
