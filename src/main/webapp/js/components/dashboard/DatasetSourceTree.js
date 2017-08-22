@@ -7,7 +7,7 @@ import {FormControl, Panel} from "react-bootstrap";
 import LoadingWrapper from "../misc/LoadingWrapper";
 import Tree, {SHOW_PARENT, TreeNode} from "rc-tree";
 import DatasetSourceLink from "./DatasetSourceLink";
-import ScrollArea from "react-scrollbar";
+import { Scrollbars } from 'react-custom-scrollbars';
 
 class DatasetSourceTree extends React.Component {
 
@@ -122,13 +122,7 @@ class DatasetSourceTree extends React.Component {
                 onChange={(e) => this.onChange(e)}
             />
             <div>
-                <ScrollArea
-                    style={{height: 400}}
-                    speed={0.8}
-                    className="area"
-                    contentClassName="content"
-                    horizontal={false}
-                >
+                <Scrollbars style={{ height: 400 }}>
                     <Tree
                         filterTreeNode={(tree, node) => this.filterTreeNode(this, tree, node)}
                         selectable={false}
@@ -138,7 +132,7 @@ class DatasetSourceTree extends React.Component {
                         treeCheckable={false}>
                         {tree}
                     </Tree>
-                </ScrollArea>
+                </Scrollbars>
             </div>
         </Panel>)
 
