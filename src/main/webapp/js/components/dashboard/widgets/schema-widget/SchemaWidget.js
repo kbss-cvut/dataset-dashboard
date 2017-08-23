@@ -3,19 +3,55 @@
 import React from "react";
 import Graph from "react-graph-vis";
 import Actions from "../../../../actions/Actions";
-import Logger from "../../../../utils/Logger";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
+import {Checkbox} from "react-bootstrap";
+
+const nodeTemplate = {
+    size: 150,
+    color: "#FFCFCF",
+    shape: 'box',
+    font: {
+        face: 'monospace',
+        align: 'left'
+    }
+};
+
+const edgeTemplate = {
+    font: {align: 'middle'},
+    arrows: 'to',
+    physics: false,
+    smooth: {
+        'type': 'curvedCW',
+    }
+};
+
+const graphOptions = {
+    layout: {
+        hierarchical: {
+            direction: 'LR',
+            levelSeparation: 400,
+            nodeSpacing: 100,
+            treeSpacing: 200,
+
+        }
+    },
+    edges: {
+        color: "#000000"
+    }
+};
+
 
 class SchemaWidget extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.state = {
-            datasetSource : null,
-            datasetSchema : null,
-            namespaces: {}
+            datasetSource: null,
+            datasetSchema: null,
+            namespaces: {},
+            showAttributes: true
         };
     };
 
@@ -35,154 +71,103 @@ class SchemaWidget extends React.Component {
             this.props.loadingOn();
             Actions.getDescriptorForLastSnapshotOfDatasetSource(data.datasetSource.hash, descriptorTypeId);
         } else {
-            if (data.descriptorTypeId == descriptorTypeId ) {
+            if (data.descriptorTypeId == descriptorTypeId) {
                 this.props.loadingOff();
                 this.setState({
                         datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
-                        datasetSchema: _constructGraphData(data.jsonLD)
+                        datasetSchema: data.jsonLD
                     }
                 );
             }
         }
     };
 
-    render(){
-        if(!this.state.datasetSource){
-            return <div style={{ textAlign: "center", verticalAlign:"center"}}>No Graph Available. Select an Event Type.</div>;
-        }else{
-            var options = {
-                layout: {
-                    hierarchical: {
-                        direction: 'LR',
-                        levelSeparation: 400,
-                        nodeSpacing: 100,
-                        treeSpacing: 200,
+    ensureNodeCreated(nodeMap, uri) {
+        // let nodeId = mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
+        // get the node for the uri, or create a new one if the node does not exist yet
+        let nodeId = uri;
+        let n = nodeMap[nodeId];
+        if (!n) { // the node is not created yet
+            n = JSON.parse(JSON.stringify(nodeTemplate));
+            n.id = nodeId;
+            n.label = NamespaceStore.getShortForm(uri) + '\n';
+            nodeMap[nodeId] = n;
+        }
+        return n;
+    };
 
-                    }
-                },
-                edges: {
-                    color: "#000000"
+    createEdge(srcNode, tgtNode, prp, fromToCount) {
+        const edge = JSON.parse(JSON.stringify(edgeTemplate));
+        edge.from = srcNode.id;
+        edge.to = tgtNode.id;
+        edge.label = NamespaceStore.getShortForm(prp);
+        let count = fromToCount[srcNode.id + tgtNode.id];
+        if (!count) count = 0;
+        edge.smooth.roundness = getRoundnessForIthEdge(count, 10);
+        fromToCount[srcNode.id + tgtNode.id] = count + 1;
+        return edge;
+    };
+
+    // transform data to be used with vis js
+    _constructGraphData(results) {
+        const nodeMap = {};
+        const edges = [];
+        const fromToCount = {};
+        // transform triples to visjs nodes and edges
+        results.forEach(function (b) {
+            const srcNode = this.ensureNodeCreated(nodeMap, b['@id']);
+            Object.keys(b).forEach((prp) => {
+                if (prp == '@id') {
+                    return;
                 }
-            };
+                const range = b[prp][0]['@id'];
+                if (isDataType(range)) {
+                    if (this.state.showAttributes) {
+                        srcNode['label'] =
+                            srcNode['label']
+                            + "\n"
+                            + NamespaceStore.getShortForm(prp)
+                            + " ► "
+                            + NamespaceStore.getShortForm(range);
+                    }
+                } else {
+                    const tgtNode = this.ensureNodeCreated(nodeMap, range);
+                    const edge = this.createEdge(srcNode, tgtNode, prp,fromToCount);
+                    edges.push(edge);
+                }
+            });
+        }.bind(this));
+        return {'nodes': Object.values(nodeMap), 'edges': edges};
+    };
 
-            var events = {
-                select: function(event) {
-                    var { nodes, edges } = event;
-                },
-            }
-
-            return <div><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'400px'}}/></div>;
+    render() {
+        if (!this.state.datasetSource) {
+            return <div style={{textAlign: "center", verticalAlign: "center"}}>
+                No Graph Available.
+            </div>;
+        } else {
+            return <div>
+                <Checkbox checked={this.state.showAttributes}
+                          onChange={(e) => {this.setState({showAttributes: e.target.checked});}}>
+                    Show attributes
+                </Checkbox>
+                <Graph graph={this._constructGraphData(this.state.datasetSchema)}
+                       options={graphOptions}
+                       style={{width: '100%', height: '400px'}}/>
+            </div>;
         }
     };
 }
 
-// transform data to be used with vis js
-function _constructGraphData(results){
+// i - index of the edge
+// max - number of edges
+function getRoundnessForIthEdge(i, max) {
+    return ( ( i == 0 ) ? i : ( ( i % max ) * ( ( i % 2 ) - 0.5 ) / max ) )
+};
 
-    var dataTypeUris = [];
-    var nodeUris = [];
-    var nodeMap = {};
-    var nodes = [];
-    var edges = [];
-
-
-    // check whether the uri is a datatype
-    var isDataType = function (uri){
-        return uri.startsWith('http://www.w3.org/2001/XMLSchema#') || uri.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns#langString');
-    };
-
-    // calculate an id based on the uri
-    var getNodeId = function(uri){
-//        return mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
-        return uri;
-    };
-
-    // get the node for the uri, or create a new one if the node does not exist yet
-    var ensureNodeCreated = function(uri){
-            var nodeId = getNodeId(uri);
-            var n = nodeMap[nodeId];
-            if(!n){ // the node is not created yet
-                    n = {
-                        id: nodeId,
-                        size: 150,
-                        label: NamespaceStore.getShortForm(uri)+'\n',
-                        color: "#FFCFCF",
-                        shape: 'box',
-                        font: {
-                            face: 'monospace',
-                            align: 'left'
-                        }
-                    },
-                    nodes.push(n);
-                    nodeMap[nodeId] = n;
-            }
-            return n;
-    };
-    let fromToCount={};
-    // transform triples to vsijs nodes and edges
-    results.forEach(function (b){
-        let sourceNode = ensureNodeCreated(b['@id']);
-        Object.keys(b).forEach((po) => {
-            if ( po == '@id' ) {
-                return;
-            }
-            if(isDataType(b[po][0]['@id'])){
-                // do nothing for now
-                //var targetNode = ensureNodeCreated(b.o.value);
-                sourceNode['label'] =
-                    sourceNode['label']
-                    + "\n"
-                    + NamespaceStore.getShortForm(po)
-                    + " ► "
-                    + NamespaceStore.getShortForm(b[po][0]['@id']);
-            }else{
-                // create the two nodes and the
-                var targetNode = ensureNodeCreated(b[po][0]['@id']);
-
-                let x = fromToCount[sourceNode.id+targetNode.id];
-                if (!x) {x = 0};
-                const max = 10;
-                let y = ( ( x == 0 ) ? x :( ( x % max ) * ( ( x % 2 ) - 0.5 ) / max ) );
-                var edge =  {
-                    from: sourceNode.id,
-                    to: targetNode.id,
-                    label: NamespaceStore.getShortForm(po),
-                    font: {align: 'middle'},
-                    arrows: 'to',
-                    physics: false,
-                    smooth: {
-                        'type': 'curvedCW',
-                        'roundness': y
-                    }
-                };
-                fromToCount[sourceNode.id+targetNode.id] = x+1;
-                edges.push(edge);
-            }
-        });
-
-    });
-    return {'nodes' : nodes, 'edges': edges};
-}
-
-
-function _fetchMockSchemaData(selectedDataSource){
-    return {
-            nodes: [
-                {id: 1, label: 'Node 1\nasdf', shape:'database'},
-                {id: 2, label: 'Node 2', shape:'database'},
-                {id: 3, label: 'Node 3', shape:'database'},
-                {id: 4, label: 'Node 4\nasdf', shape:'circleEndpoint'},
-                {id: 5, label: 'Node 5\nttt', shape:'box', style:'align:left;'}
-              ],
-            edges: [
-                {from: 1, to: 2},
-                {from: 1, to: 3},
-                {from: 2, to: 4},
-                {from: 2, to: 5}
-              ]
-          };
-}
-
-
+function isDataType(uri) {
+    return uri.startsWith('http://www.w3.org/2001/XMLSchema#')
+        || uri.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns#langString');
+};
 
 export default  LoadingWrapper(SchemaWidget, {maskClass: 'mask-container'});
