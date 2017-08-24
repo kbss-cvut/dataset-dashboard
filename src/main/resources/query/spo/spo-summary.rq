@@ -1,10 +1,14 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 CONSTRUCT {
- ?s ?p ?o
+    ?t rdf:subject ?s;
+       rdf:predicate ?p;
+       rdf:object ?o;
+       <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary/hasWeight> ?w .
 } WHERE {
     ?t rdf:subject ?_s;
       rdf:predicate ?p;
-      rdf:object ?_o.
+      rdf:object ?_o;
+      <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary/hasWeight> ?w .
     ?_s a ?s.
     ?_o a ?o.
 }

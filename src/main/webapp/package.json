@@ -35,7 +35,8 @@
     "proj4": "2.4.3",
     "reflux": "~6.4.1",
     "remarkable": "~1.6.2",
-    "superagent": "~1.8.3"
+    "superagent": "~1.8.3",
+    "react-rangeslider" : "2.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.7.5",
