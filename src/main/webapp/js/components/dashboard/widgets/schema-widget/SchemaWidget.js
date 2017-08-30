@@ -3,15 +3,15 @@
 import React from "react";
 import Graph from "react-graph-vis";
 import {Checkbox} from "react-bootstrap";
-import Slider from 'react-rangeslider'
+import Slider from "react-rangeslider";
 
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import Actions from "../../../../actions/Actions";
-import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 
-import Utils from '../../Utils'
-import Rdf from '../../../../vocabulary/Rdf'
+import Utils from "../../Utils";
+import Rdf from "../../../../vocabulary/Rdf";
+
+import DescriptorWidgetWrapper from "../DescriptorWidgetWrapper";
 
 const DD_NS = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/";
 
@@ -57,7 +57,7 @@ function getRoundnessForIthEdge(i, max) {
 
 function isDataType(uri) {
     return uri.startsWith('http://www.w3.org/2001/XMLSchema#')
-        || uri.startsWith(Rdf.NS+'langString');
+        || uri.startsWith(Rdf.NS + 'langString');
 };
 
 class SchemaWidget extends React.Component {
@@ -65,8 +65,6 @@ class SchemaWidget extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            datasetSource: null,
-            datasetSchema: null,
             namespaces: {},
             /**
              * Whether to show attributes in nodes
@@ -87,43 +85,17 @@ class SchemaWidget extends React.Component {
         };
     };
 
-    componentWillMount() {
-        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
-    };
-
-    componentWillUnmount() {
-        this.unsubscribe();
-    };
-
     computeMax(data) {
         let max = 0;
-        data.forEach((edge) => {
-            const weight = edge[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
-            if (weight > max) {
-                max = weight;
-            }
-        });
-        return max;
-    };
-
-    _onDataLoaded = (data) => {
-        const descriptorTypeId = DD_NS + "spo-summary-descriptor";
-
-        if (data.action === Actions.selectDatasetSource) {
-            this.setState({loadedQueries: []})
-            this.props.loadingOn();
-            Actions.getDescriptorForLastSnapshotOfDatasetSource(data.datasetSource.hash, descriptorTypeId);
-        } else {
-            if (data.descriptorTypeId == descriptorTypeId) {
-                this.props.loadingOff();
-                this.setState({
-                        datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
-                        datasetSchema: data.jsonLD,
-                        maxLimitWeight: this.computeMax(data.jsonLD)
-                    }
-                );
-            }
+        if ( data ) {
+            data.forEach((edge) => {
+                const weight = edge[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
+                if (weight > max) {
+                    max = weight;
+                }
+            });
         }
+        return max;
     };
 
     // creates a new node with given uri or reuses an existing if present in nodeMap.
@@ -149,8 +121,8 @@ class SchemaWidget extends React.Component {
         edge.from = srcNode.id;
         edge.to = tgtNode.id;
         edge.label = NamespaceStore.getShortForm(prp);
-        if ( this.state.showWeight ) {
-            edge.width = Math.round(Math.log(weight)/Math.log(5));
+        if (this.state.showWeight) {
+            edge.width = Math.round(Math.log(weight) / Math.log(5));
             edge.title = weight;
         }
         let count = fromToCount[srcNode.id + tgtNode.id];
@@ -168,9 +140,9 @@ class SchemaWidget extends React.Component {
         // transform triples to visjs nodes and edges
         const nodesWithEdge = [];
         results.forEach(function (b) {
-            const srcNode = this.ensureNodeCreated(nodeMap, b[Rdf.NS+'subject'][0]['@id']);
-            const prp = b[Rdf.NS+'predicate'][0]['@id'];
-            const tgt = b[Rdf.NS+'object'][0]['@id'];
+            const srcNode = this.ensureNodeCreated(nodeMap, b[Rdf.NS + 'subject'][0]['@id']);
+            const prp = b[Rdf.NS + 'predicate'][0]['@id'];
+            const tgt = b[Rdf.NS + 'object'][0]['@id'];
             const weight = b[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
             if (isDataType(tgt)) {
                 if (this.state.showAttributes) {
@@ -179,9 +151,10 @@ class SchemaWidget extends React.Component {
                             + NamespaceStore.getShortForm(prp)
                             + " ► "
                             + NamespaceStore.getShortForm(tgt);
-                        if ( this.state.showWeight ) {
-                            srcNode['label'] += " ("+weight+")";
+                        if (this.state.showWeight) {
+                            srcNode['label'] += " (" + weight + ")";
                         }
+                        nodesWithEdge.push(srcNode);
                     }
                 }
             } else {
@@ -202,34 +175,33 @@ class SchemaWidget extends React.Component {
     }
 
     render() {
-        if (!this.state.datasetSource) {
-            return <div style={{textAlign: "center", verticalAlign: "center"}}>
-                No Graph Available.
-            </div>;
-        } else {
-            return <div>
-                <Checkbox checked={this.state.showAttributes}
-                          onChange={(e) => {this.setState({showAttributes: e.target.checked});}}>
-                    Show attributes
-                </Checkbox>
-                <Checkbox checked={this.state.showWeight}
-                          onChange={(e) => {this.setState({showWeight: e.target.checked});}}>
-                    Show weight
-                </Checkbox>
-                {this.state.showWeight ?
-                    <Slider
-                        min={0}
-                        max={this.state.maxLimitWeight}
-                        value={this.state.minWeight}
-                        onChange={(value) => this.handleChange(value)}
-                    />
-                 : <div/>}
-                <Graph graph={this._constructGraphData(this.state.datasetSchema)}
-                       options={graphOptions}
-                       style={{width: '100%', height: '400px'}}/>
-            </div>;
-        }
+        const maxLimitWeight = this.computeMax(this.props.descriptorContent)
+        return <div>
+            <Checkbox checked={this.state.showAttributes}
+                      onChange={(e) => {
+                          this.setState({showAttributes: e.target.checked});
+                      }}>
+                Show attributes
+            </Checkbox>
+            <Checkbox checked={this.state.showWeight}
+                      onChange={(e) => {
+                          this.setState({showWeight: e.target.checked});
+                      }}>
+                Show weight
+            </Checkbox>
+            {this.state.showWeight ?
+                <Slider
+                    min={0}
+                    max={maxLimitWeight}
+                    value={this.state.minWeight}
+                    onChange={(value) => this.handleChange(value)}
+                />
+                : <div/>}
+            <Graph graph={this._constructGraphData(this.props.descriptorContent)}
+                   options={graphOptions}
+                   style={{width: '100%', height: '400px'}}/>
+        </div>;
     };
 }
-
-export default  LoadingWrapper(SchemaWidget, {maskClass: 'mask-container'});
+export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, DD_NS + "spo-summary-descriptor"),
+    {maskClass: 'mask-container'});

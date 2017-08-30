@@ -23,17 +23,6 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
 public class dataset_snapshot
     extends Thing
 {
-
-    @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
-    protected String name;
-    @OWLAnnotationProperty(iri = CommonVocabulary.DC_DESCRIPTION)
-    protected String description;
-    @Types
-    protected Set<String> types;
-    @Id(generated = true)
-    protected String id;
-    @Properties
-    protected Map<String, Set<String>> properties;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_dataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset, min = 1, max = 1)

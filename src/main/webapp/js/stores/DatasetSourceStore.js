@@ -208,6 +208,50 @@ const DatasetSourceStore = Reflux.createStore({
                 jsonLD: []
             });
         }.bind(this));
+    },
+
+    onComputeDescriptorForDatasetSource: function (datasetSourceId, descriptorTypeId) {
+        Ajax.get(BASE_URL+"/"+datasetSourceId+"/computeDescriptor?descriptorType="+descriptorTypeId).end(function (data) {
+            const that = this;
+            jsonld.flatten(data, function(err, canonical) {
+                that.trigger({
+                    action: Actions.computeDescriptorForDatasetSource,
+                    descriptorTypeId: descriptorTypeId,
+                    datasetSourceId: datasetSourceId,
+                    jsonLD: canonical
+                });
+            });
+        }.bind(this), function () {
+            Logger.error('Unable to compute descriptors of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
+            this.trigger({
+                action: Actions.computeDescriptorForDatasetSource,
+                descriptorTypeId: descriptorTypeId,
+                datasetSourceId: datasetSourceId,
+                jsonLD: []
+            });
+        }.bind(this));
+    },
+
+    onGetDescriptorsForDatasetSource: function (datasetSourceId, descriptorTypeId) {
+        Ajax.get(BASE_URL+"/"+datasetSourceId+"/descriptor?descriptorType="+descriptorTypeId).end(function (data) {
+            const that = this;
+            jsonld.flatten(data, function(err, canonical) {
+                that.trigger({
+                    action: Actions.getDescriptorsForDatasetSource,
+                    descriptorTypeId: descriptorTypeId,
+                    datasetSourceId: datasetSourceId,
+                    jsonLD: canonical
+                });
+            });
+        }.bind(this), function () {
+            Logger.error('Unable to fetch descriptors of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
+            this.trigger({
+                action: Actions.getDescriptorsForDatasetSource,
+                descriptorTypeId: descriptorTypeId,
+                datasetSourceId: datasetSourceId,
+                jsonLD: []
+            });
+        }.bind(this));
     }
 });
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
+import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.service.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.util.Constants;
 import cz.cvut.kbss.ddo.Vocabulary;
@@ -14,8 +15,13 @@ import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
 import cz.cvut.kbss.ddo.model.spo_summary_descriptor;
 import cz.cvut.kbss.jopa.model.EntityManager;
+import cz.cvut.kbss.jopa.model.query.TypedQuery;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -25,15 +31,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
+import static org.apache.jena.riot.web.HttpNames.charset;
+import static org.apache.jena.vocabulary.RSS.url;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,7 +134,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
 //                }
 //                query = query + ") }";
 //            }
-//
+
             if (graphIri != null) {
                 final Query q = QueryFactory.create(query);
                 q.addGraphURI(graphIri);
@@ -137,8 +148,8 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             }
             return remoteLoader.loadData(repositoryUrl, params);
         } catch (WebServiceIntegrationException e) {
-            logger.warn("Error during query execution {} to endpoint {} and graphIri {}",
-                queryFile, repositoryUrl, graphIri);
+            logger.warn("Error during query execution {} to endpoint {} and graphIri {}, exception {}",
+                queryFile, repositoryUrl, graphIri, e);
             return null;
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("Unable to find encoding "
@@ -303,16 +314,20 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      */
     private List<dataset_descriptor> getDescriptors(final String datasetSourceIri,
                                                     final String descriptorType) {
-        List<dataset_descriptor> result = em.createNativeQuery(
+        TypedQuery q = em.createNativeQuery(
             "SELECT DISTINCT ?datasetDescriptor { ?vocDescriptionInstance a ?vocDescription ; ?vocHasSource ?datasetSource . ?datasetDescriptor ?vocInvHasDatasetDescriptor ?vocDescriptionInstance. ?datasetDescriptor a ?datasetDescriptorType }",
             dataset_descriptor.class
-        )
-            .setParameter("vocDescription", URI.create(Vocabulary.s_c_description))
+        );
+
+        q = q.setParameter("vocDescription", URI.create(Vocabulary.s_c_description))
             .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
             .setParameter("vocInvHasDatasetDescriptor",
                 URI.create(Vocabulary.s_p_inv_dot_has_dataset_descriptor))
-            .setParameter("datasetSource", URI.create(datasetSourceIri))
-            .setParameter("datasetDescriptorType", URI.create(descriptorType)).getResultList();
+            .setParameter("datasetSource", URI.create(datasetSourceIri));
+        if ( descriptorType != null ) {
+            q = q.setParameter("datasetDescriptorType", URI.create(descriptorType));
+        }
+        final List<dataset_descriptor> result = q.getResultList();
         result.forEach((r) -> {
             r.getTypes();
             r.getProperties();
@@ -327,7 +342,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * @return content of the descriptor
      */
     private String getDescriptorContent(final dataset_descriptor datasetDescriptor) {
-        if (spo_summary_descriptor.class.equals(datasetDescriptor.getClass())
+        if (EntityToOwlClassMapper.isOfType(datasetDescriptor,Vocabulary.s_c_spo_summary_descriptor)
             || (datasetDescriptor.getTypes() != null && datasetDescriptor.getTypes()
             .contains(Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/s-p-o-summary-descriptor"))
             ) {
@@ -357,6 +372,17 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         return getSparqlConstructResult(datasetSource, queryFile, Collections.emptyMap());
     }
 
+
+//    /**
+//     * Retrieves all descriptors for the given dataset source id.
+//     *
+//     * @param datasetSourceIri iri of the dataset source
+//     * @return content of the descriptor
+//     */
+//    public List<dataset_descriptor> getDescriptorsForDatasetSource(final String datasetSourceIri) {
+//        return getDescriptors(datasetSourceIri, null);
+//    }
+
     /**
      * Retrieves the last descriptor of given type for the given dataset source id.
      *
@@ -370,28 +396,26 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             = getDescriptors(Vocabulary.s_c_dataset_source + "-" + datasetSourceId,
             descriptorType);
 
-        if (datasetDescriptors.isEmpty()) {
-            return "";
-        } else {
-            return getDescriptorContent(
-                Collections.max(datasetDescriptors, Comparator.comparing(
-                    c -> {
-                        final Map<String, Set<String>> props
-                            = c.getProperties();
+        Function<dataset_descriptor,String> fReturnCreationDate = c -> {
+            final Map<String, Set<String>> props = c.getProperties();
+            if (props == null) {
+                return "";
+            }
+            final Set<String> creationDates = props.get(Vocabulary.s_p_has_creation_date);
+            if (creationDates == null || creationDates.isEmpty()) {
+                return "";
+            } else {
+                return creationDates.iterator().next();
+            }
+        };
 
-                        if (props == null) {
-                            return "";
-                        }
-                        final Set<String> creationDates =
-                            props.get(Vocabulary.s_p_has_creation_date);
-                        if (creationDates == null || creationDates.isEmpty()) {
-                            return "";
-                        } else {
-                            return creationDates.iterator().next();
-                        }
-                    })
-                )
-            );
+        try {
+            final dataset_descriptor lastDescriptorOfGivenType = Collections.max(
+                datasetDescriptors,
+                Comparator.comparing(fReturnCreationDate));
+            return getDescriptorContent(lastDescriptorOfGivenType);
+        } catch(NoSuchElementException e) {
+            return "";
         }
     }
 }

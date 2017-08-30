@@ -2,5 +2,6 @@
   "ovm-pravni-forma": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/PravniForma/",
   "ovm-stav-datove-schranky'": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/StavDatoveSchranky/",
   "voc": "http://onto.fel.cvut.cz/ontologies/vocabulary/",
-  "czso": "http://data.czso.cz/ontology/sex"
+  "czso": "http://data.czso.cz/ontology/",
+  "onto": "	http://onto.fel.cvut.cz/ontologies/"
 }

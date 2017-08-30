@@ -2,8 +2,9 @@ package cz.cvut.kbss.datasetdashboard.model.util;
 
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.Types;
-import java.lang.reflect.Field;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Utility class for getting information about the entity - OWL class mapping.
@@ -40,17 +41,14 @@ public class EntityToOwlClassMapper {
         if (typeIri.equals(owlClass)) {
             return true;
         }
-        ;
-        for (final Field f : entity.getClass().getDeclaredFields()) {
-            f.setAccessible(true);
-            if (f.getDeclaredAnnotation(Types.class) != null) {
-                try {
-                    return ((Set) (f.get(entity))).contains(typeIri);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+        final AtomicBoolean result = new AtomicBoolean(false);
+        ReflectionUtils.doWithFields(entity.getClass(), field -> {
+            ReflectionUtils.makeAccessible(field);
+            if (((Set) (field.get(entity))).contains(typeIri)) {
+                result.set(true);
             }
-        }
-        return false;
+        }, field -> field.getDeclaredAnnotation(Types.class) != null);
+
+        return result.get();
     }
 }

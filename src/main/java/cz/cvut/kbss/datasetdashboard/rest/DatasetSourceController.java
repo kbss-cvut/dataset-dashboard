@@ -64,4 +64,12 @@ public class DatasetSourceController {
         @RequestParam String descriptorType) {
         return datasetSourceService.getLastDescriptor(id, descriptorType);
     }
+
+    @RequestMapping(path = "/{id}/computeDescriptor", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public void computeDescriptor(
+        @PathVariable String id,
+        @RequestParam String descriptorType) {
+        datasetSourceService.computeDescriptorForDatasetSource(id, descriptorType);
+    }
 }

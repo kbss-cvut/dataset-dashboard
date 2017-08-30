@@ -23,17 +23,6 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
 public class dataset
     extends Thing
 {
-
-    @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
-    protected String name;
-    @OWLAnnotationProperty(iri = CommonVocabulary.DC_DESCRIPTION)
-    protected String description;
-    @Types
-    protected Set<String> types;
-    @Id(generated = true)
-    protected String id;
-    @Properties
-    protected Map<String, Set<String>> properties;
     @OWLObjectProperty(iri = Vocabulary.s_p_inv_dot_offers_dataset)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_source, min = 1)
@@ -44,46 +33,6 @@ public class dataset
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_complex_dataset, max = 1)
     })
     protected complex_dataset inv_dot_has_subdataset;
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setTypes(Set<String> types) {
-        this.types = types;
-    }
-
-    public Set<String> getTypes() {
-        return types;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setProperties(Map<String, Set<String>> properties) {
-        this.properties = properties;
-    }
-
-    public Map<String, Set<String>> getProperties() {
-        return properties;
-    }
 
     public void setInv_dot_offers_dataset(Set<dataset_source> inv_dot_offers_dataset) {
         this.inv_dot_offers_dataset = inv_dot_offers_dataset;
