@@ -91,7 +91,8 @@ class VocabularyWidget extends React.Component {
         if ( languages ) {
             Object.keys(languages).forEach((language) => {
                 langs.push(
-                    <Button bsSize="small"
+                    <Button key={language}
+                            bsSize="small"
                             active={languages[language]}
                             onClick={() => this.onLanguageSelect(language)}>{NamespaceStore.getShortForm(language)}
                     </Button>);

@@ -1,6 +1,7 @@
 'use strict';
 
 import React from "react";
+import NamespaceStore from "../../stores/NamespaceStore";
 
 class DatasetSourceLabel extends React.Component {
 
@@ -10,12 +11,12 @@ class DatasetSourceLabel extends React.Component {
         if (ds) {
             if (ds.endpointUrl) {
                 if (ds.graphId) {
-                    label = <span>{ds.endpointUrl}<br/><span style={{fontSize : '75%'}}>&#10148; {ds.graphId}</span></span>
+                    label = <span>{NamespaceStore.getShortForm(ds.graphId)}<span style={{fontSize : '75%'}}>&#10148; {NamespaceStore.getShortForm(ds.endpointUrl)}</span></span>
                 } else {
-                    label = <span>{ds.endpointUrl}</span>
+                    label = <span>{NamespaceStore.getShortForm(ds.endpointUrl)}</span>
                 }
             } else {
-                label = <span>{ds.downloadId}</span>
+                label = <span>{NamespaceStore.getShortForm(ds.url)}</span>
             }
         }
 

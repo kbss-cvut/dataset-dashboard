@@ -21,19 +21,14 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
  */
 @OWLClass(iri = Vocabulary.s_c_dataset_publication)
 public class dataset_publication
-    extends Nothing
+    extends Thing
 {
 
-    @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
-    protected String name;
-    @OWLAnnotationProperty(iri = CommonVocabulary.DC_DESCRIPTION)
-    protected String description;
-    @Types
-    protected Set<String> types;
-    @Id(generated = true)
-    protected String id;
-    @Properties
-    protected Map<String, Set<String>> properties;
+    @OWLObjectProperty(iri = Vocabulary.s_p_has_source)
+    @ParticipationConstraints({
+        @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_source, min = 1, max = 1)
+    })
+    protected Set<Thing> has_source;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_publisher)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_publisher, min = 1, max = 1)
@@ -45,44 +40,12 @@ public class dataset_publication
     })
     protected dataset_snapshot has_published_dataset_snapshot;
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHas_source(Set<Thing> has_source) {
+        this.has_source = has_source;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setTypes(Set<String> types) {
-        this.types = types;
-    }
-
-    public Set<String> getTypes() {
-        return types;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setProperties(Map<String, Set<String>> properties) {
-        this.properties = properties;
-    }
-
-    public Map<String, Set<String>> getProperties() {
-        return properties;
+    public Set<Thing> getHas_source() {
+        return has_source;
     }
 
     public void setHas_publisher(Set<Thing> has_publisher) {

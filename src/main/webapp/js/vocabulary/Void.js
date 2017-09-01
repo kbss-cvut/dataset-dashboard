@@ -3,38 +3,33 @@
  */
 'use strict';
 
-const VOID_NS = 'http://rdfs.org/ns/void#',
-    ENTITIES = VOID_NS  + 'entities',
-    CLASS = VOID_NS  + 'class',
-    PROPERTY = VOID_NS  + 'property',
-    TRIPLES = VOID_NS  + 'triples',
-    DISTINCT_OBJECTS = VOID_NS  + 'distinctSubjects',
-    DISTINCT_SUBJECTS = VOID_NS  + 'distinctObjects';
-
-
 export default class Void {
+
+    static get NS() {
+        return 'http://rdfs.org/ns/void#';
+    }
+
     static get ENTITIES() {
-        return ENTITIES;
+        return this.NS + 'entities';
     }
 
     static get CLASS() {
-        return CLASS;
+        return this.NS + 'class';
     }
 
     static get PROPERTY() {
-        return PROPERTY;
+        return this.NS + 'property';
     }
 
     static get TRIPLES() {
-        return TRIPLES;
+        return this.NS + 'triples';
     }
 
     static get DISTINCT_OBJECTS() {
-        return DISTINCT_OBJECTS;
+        return this.NS + 'distinctSubjects';
     }
 
     static get DISTINCT_SUBJECTS() {
-        return DISTINCT_SUBJECTS;
+        return this.NS + 'distinctObjects';
     }
-
 }

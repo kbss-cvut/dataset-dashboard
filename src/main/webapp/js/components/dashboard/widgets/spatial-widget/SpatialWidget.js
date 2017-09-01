@@ -36,7 +36,7 @@ class SpatialWidget extends React.Component {
         }
         if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry");
+            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry",{object_type:'http://onto.fel.cvut.cz/ontologies'});
         } else if (data.queryName === "spatial/get_feature_geometry") {
 
             // if (data.jsonLD) {

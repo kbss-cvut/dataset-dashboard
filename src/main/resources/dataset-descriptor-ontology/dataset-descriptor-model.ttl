@@ -862,6 +862,11 @@
                                                                                               owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger
                                                                                             ] ,
                                                                                             [ rdf:type owl:Restriction ;
+                                                                                              owl:onProperty <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/has-source> ;
+                                                                                              owl:onClass <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/dataset-source> ;
+                                                                                              owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger
+                                                                                            ] ,
+                                                                                            [ rdf:type owl:Restriction ;
                                                                                               owl:onProperty <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/has-published-dataset-snapshot> ;
                                                                                               owl:onClass <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/dataset-snapshot> ;
                                                                                               owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger

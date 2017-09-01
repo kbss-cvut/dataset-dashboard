@@ -24,16 +24,6 @@ public class description
     extends Thing
 {
 
-    @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
-    protected String name;
-    @OWLAnnotationProperty(iri = CommonVocabulary.DC_DESCRIPTION)
-    protected String description;
-    @Types
-    protected Set<String> types;
-    @Id(generated = true)
-    protected String id;
-    @Properties
-    protected Map<String, Set<String>> properties;
     @OWLObjectProperty(iri = Vocabulary.s_p_has_dataset_descriptor)
     @ParticipationConstraints({
         @ParticipationConstraint(owlObjectIRI = Vocabulary.s_c_dataset_descriptor, min = 1, max = 1)
@@ -113,5 +103,4 @@ public class description
     public described_data_artifact getIs_description_of() {
         return is_description_of;
     }
-
 }

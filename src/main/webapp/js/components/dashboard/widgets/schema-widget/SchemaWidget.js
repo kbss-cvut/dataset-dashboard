@@ -2,189 +2,206 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import Actions from "../../../../actions/Actions";
-import Logger from "../../../../utils/Logger";
-import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
-import NamespaceStore from "../../../../stores/NamespaceStore";
+import {Checkbox} from "react-bootstrap";
+import Slider from "react-rangeslider";
+
 import LoadingWrapper from "../../../misc/LoadingWrapper";
+import NamespaceStore from "../../../../stores/NamespaceStore";
+
+import Utils from "../../Utils";
+import Rdf from "../../../../vocabulary/Rdf";
+
+import DescriptorWidgetWrapper from "../DescriptorWidgetWrapper";
+
+const DD_NS = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/";
+
+const nodeTemplate = {
+    size: 150,
+    color: "#f3ffc2",
+    shape: 'box',
+    font: {
+        face: 'monospace',
+        align: 'left'
+    }
+};
+
+const edgeTemplate = {
+    font: {align: 'middle'},
+    arrows: 'to',
+    physics: false,
+    smooth: {
+        'type': 'curvedCW',
+    }
+};
+
+const graphOptions = {
+    layout: {
+        hierarchical: {
+            direction: 'LR',
+            levelSeparation: 400,
+            nodeSpacing: 100,
+            treeSpacing: 200,
+        }
+    },
+    edges: {
+        color: "#000000"
+    }
+};
+
+
+// i - index of the edge
+// max - number of edges
+function getRoundnessForIthEdge(i, max) {
+    return ( ( i == 0 ) ? i : ( ( i % max ) * ( ( i % 2 ) - 0.5 ) / max ) )
+};
+
+function isDataType(uri) {
+    return uri.startsWith('http://www.w3.org/2001/XMLSchema#')
+        || uri.startsWith(Rdf.NS + 'langString');
+};
 
 class SchemaWidget extends React.Component {
-    
+
     constructor(props) {
         super(props);
-        Logger.log('SchemaWidget.constructor')
         this.state = {
-            datasetSource : null,
-            datasetSchema : null,
-            namespaces: {}
+            namespaces: {},
+            /**
+             * Whether to show attributes in nodes
+             */
+            showAttributes: true,
+            /**
+             * Whether to show weight of edges
+             */
+            showWeight: true,
+            /**
+             * Minimal weight - edges below this weight will be discarded from the graph
+             */
+            minWeight: 0,
+            /**
+             * Maximal Limit Weight - computed as a maximum of edge frequencies.
+             */
+            maxLimitWeight: 0,
         };
     };
 
-    componentWillMount() {
-        Logger.log('componentWillMount')
-        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
-    };
-
-    componentWillUnmount() {
-        this.unsubscribe();
-    };
-
-    _onDataLoaded = (data) => {
-        const descriptorTypeId = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/spo-summary-descriptor";
-
-        if (data.action === Actions.selectDatasetSource) {
-            this.setState({loadedQueries: []})
-            this.props.loadingOn();
-            Actions.getDescriptorForLastSnapshotOfDatasetSource(data.datasetSource.hash, descriptorTypeId);
-        } else {
-            if (data.descriptorTypeId == descriptorTypeId ) {
-                this.props.loadingOff();
-                this.setState({
-                        datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
-                        datasetSchema: _constructGraphData(data.jsonLD)
-                    }
-                );
-            }
-        }
-    };
-
-    render(){
-        if(!this.state.datasetSource){
-            return <div style={{ textAlign: "center", verticalAlign:"center"}}>No Graph Available. Select an Event Type.</div>;
-        }else{
-            var options = {
-                layout: {
-                    hierarchical: {
-                        direction: 'LR',
-                        levelSeparation: 400,
-                        nodeSpacing: 100,
-                        treeSpacing: 200,
-
-                    }
-                },
-                edges: {
-                    color: "#000000"
+    computeMax(data) {
+        let max = 0;
+        if ( data ) {
+            data.forEach((edge) => {
+                const weight = edge[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
+                if (weight > max) {
+                    max = weight;
                 }
-            };
-
-            var events = {
-                select: function(event) {
-                    var { nodes, edges } = event;
-                },
-            }
-
-            return <div><Graph graph={this.state.datasetSchema} options={options} events={events} style={{ width : '100%', height:'400px'}}/></div>;
+            });
         }
-    };
-}
-
-// transform data to be used with vis js
-function _constructGraphData(results){
-
-    var dataTypeUris = [];
-    var nodeUris = [];
-    var nodeMap = {};
-    var nodes = [];
-    var edges = [];
-
-
-    // check whether the uri is a datatype
-    var isDataType = function (uri){
-        return uri.startsWith('http://www.w3.org/2001/XMLSchema#') || uri.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns#langString');
+        return max;
     };
 
-    // calculate an id based on the uri
-    var getNodeId = function(uri){
-//        return mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
-        return uri;
+    // creates a new node with given uri or reuses an existing if present in nodeMap.
+    ensureNodeCreated(nodeMap, uri) {
+        // let nodeId = mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
+        // get the node for the uri, or create a new one if the node does not exist yet
+        let nodeId = uri;
+        let n = nodeMap[nodeId];
+        if (!n) { // the node is not created yet
+            n = JSON.parse(JSON.stringify(nodeTemplate));
+            n.id = nodeId;
+            n.label = NamespaceStore.getShortForm(uri) + '\n';
+            nodeMap[nodeId] = n;
+        }
+        return n;
     };
 
-    // get the node for the uri, or create a new one if the node does not exist yet
-    var ensureNodeCreated = function(uri){
-            var nodeId = getNodeId(uri);
-            var n = nodeMap[nodeId];
-            if(!n){ // the node is not created yet
-                    n = {
-                        id: nodeId,
-                        size: 150,
-                        label: NamespaceStore.getShortForm(uri)+'\n',
-                        color: "#FFCFCF",
-                        shape: 'box',
-                        font: {
-                            face: 'monospace',
-                            align: 'left'
+    // creates a new edge from srcNode to tgtNode using label prp.
+    // fromToCount counts number of parallel edges srcNode to tgtNode and is
+    // used to compute roundness of these edges
+    createEdge(srcNode, tgtNode, prp, fromToCount, weight) {
+        const edge = JSON.parse(JSON.stringify(edgeTemplate));
+        edge.from = srcNode.id;
+        edge.to = tgtNode.id;
+        edge.label = NamespaceStore.getShortForm(prp);
+        if (this.state.showWeight) {
+            edge.width = Math.round(Math.log(weight) / Math.log(5));
+            edge.title = weight;
+        }
+        let count = fromToCount[srcNode.id + tgtNode.id];
+        if (!count) count = 0;
+        edge.smooth.roundness = getRoundnessForIthEdge(count, 10);
+        fromToCount[srcNode.id + tgtNode.id] = count + 1;
+        return edge;
+    };
+
+    // transform data to be used with vis js
+    _constructGraphData(results) {
+        const nodeMap = {};
+        const edges = [];
+        const fromToCount = {};
+        // transform triples to visjs nodes and edges
+        const nodesWithEdge = [];
+        results.forEach(function (b) {
+            const srcNode = this.ensureNodeCreated(nodeMap, b[Rdf.NS + 'subject'][0]['@id']);
+            const prp = b[Rdf.NS + 'predicate'][0]['@id'];
+            const tgt = b[Rdf.NS + 'object'][0]['@id'];
+            const weight = b[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
+            if (isDataType(tgt)) {
+                if (this.state.showAttributes) {
+                    if (weight >= this.state.minWeight) {
+                        srcNode['label'] += "\n"
+                            + NamespaceStore.getShortForm(prp)
+                            + " ► "
+                            + NamespaceStore.getShortForm(tgt);
+                        if (this.state.showWeight) {
+                            srcNode['label'] += " (" + weight + ")";
                         }
-                    },
-                    nodes.push(n);
-                    nodeMap[nodeId] = n;
-            }
-            return n;
-    };
-    let fromToCount={};
-    // transform triples to vsijs nodes and edges
-    results.forEach(function (b){
-        let sourceNode = ensureNodeCreated(b['@id']);
-        Object.keys(b).forEach((po) => {
-            if ( po == '@id' ) {
-                return;
-            }
-            if(isDataType(b[po][0]['@id'])){
-                // do nothing for now
-                //var targetNode = ensureNodeCreated(b.o.value);
-                sourceNode['label'] =
-                    sourceNode['label']
-                    + "\n"
-                    + NamespaceStore.getShortForm(po)
-                    + " ► "
-                    + NamespaceStore.getShortForm(b[po][0]['@id']);
-            }else{
-                // create the two nodes and the
-                var targetNode = ensureNodeCreated(b[po][0]['@id']);
-
-                let x = fromToCount[sourceNode.id+targetNode.id];
-                if (!x) {x = 0};
-                const max = 10;
-                let y = ( ( x == 0 ) ? x :( ( x % max ) * ( ( x % 2 ) - 0.5 ) / max ) );
-                var edge =  {
-                    from: sourceNode.id,
-                    to: targetNode.id,
-                    label: NamespaceStore.getShortForm(po),
-                    font: {align: 'middle'},
-                    arrows: 'to',
-                    physics: false,
-                    smooth: {
-                        'type': 'curvedCW',
-                        'roundness': y
+                        nodesWithEdge.push(srcNode);
                     }
-                };
-                fromToCount[sourceNode.id+targetNode.id] = x+1;
-                edges.push(edge);
+                }
+            } else {
+                const tgtNode = this.ensureNodeCreated(nodeMap, tgt);
+                const edge = this.createEdge(srcNode, tgtNode, prp, fromToCount, weight);
+                if (weight >= this.state.minWeight) {
+                    edges.push(edge);
+                    nodesWithEdge.push(srcNode);
+                    nodesWithEdge.push(tgtNode);
+                }
             }
-        });
+        }.bind(this));
+        return {'nodes': Utils.unique(nodesWithEdge), 'edges': edges};
+    };
 
-    });
-    return {'nodes' : nodes, 'edges': edges};
+    handleChange(value) {
+        this.setState({minWeight: value})
+    }
+
+    render() {
+        const maxLimitWeight = this.computeMax(this.props.descriptorContent)
+        return <div>
+            <Checkbox checked={this.state.showAttributes}
+                      onChange={(e) => {
+                          this.setState({showAttributes: e.target.checked});
+                      }}>
+                Show attributes
+            </Checkbox>
+            <Checkbox checked={this.state.showWeight}
+                      onChange={(e) => {
+                          this.setState({showWeight: e.target.checked});
+                      }}>
+                Show weight
+            </Checkbox>
+            {this.state.showWeight ?
+                <Slider
+                    min={0}
+                    max={maxLimitWeight}
+                    value={this.state.minWeight}
+                    onChange={(value) => this.handleChange(value)}
+                />
+                : <div/>}
+            <Graph graph={this._constructGraphData(this.props.descriptorContent)}
+                   options={graphOptions}
+                   style={{width: '100%', height: '400px'}}/>
+        </div>;
+    };
 }
-
-
-function _fetchMockSchemaData(selectedDataSource){
-    return {
-            nodes: [
-                {id: 1, label: 'Node 1\nasdf', shape:'database'},
-                {id: 2, label: 'Node 2', shape:'database'},
-                {id: 3, label: 'Node 3', shape:'database'},
-                {id: 4, label: 'Node 4\nasdf', shape:'circleEndpoint'},
-                {id: 5, label: 'Node 5\nttt', shape:'box', style:'align:left;'}
-              ],
-            edges: [
-                {from: 1, to: 2},
-                {from: 1, to: 3},
-                {from: 2, to: 4},
-                {from: 2, to: 5}
-              ]
-          };
-}
-
-
-
-export default  LoadingWrapper(SchemaWidget, {maskClass: 'mask-container'});
+export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, DD_NS + "spo-summary-descriptor"),
+    {maskClass: 'mask-container'});

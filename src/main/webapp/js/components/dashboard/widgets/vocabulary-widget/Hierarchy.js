@@ -86,7 +86,7 @@ class Hierarchy extends React.Component {
         if (jsonLD.length) {
             jsonLD.forEach((item) => {
                 let type = item['@type'];
-                if (type[0]) {
+                if (type && type[0]) {
                     type = type[0];
                 }
                 if (type == skosPrefix + "ConceptScheme") {
@@ -151,7 +151,7 @@ class Hierarchy extends React.Component {
         if (jsonLD.length) {
             jsonLD.forEach((item) => {
                 let type = item['@type'];
-                if (type[0]) {
+                if (type && type[0]) {
                     type = type[0];
                 }
                 if (type == owlPrefix + "Class") {

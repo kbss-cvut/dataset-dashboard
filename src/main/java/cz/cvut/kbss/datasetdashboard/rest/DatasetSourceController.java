@@ -2,6 +2,7 @@ package cz.cvut.kbss.datasetdashboard.rest;
 
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.service.DatasetSourceService;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,8 +44,11 @@ public class DatasetSourceController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public RawJson executeQuery(
         @PathVariable String id,
-        @RequestParam String queryFile) {
-        return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id);
+        @RequestParam Map<String,String> bindings) {
+        String queryFile  = bindings.remove("queryFile");
+
+        return datasetSourceService.getSparqlConstructResult(
+            "/query/" + queryFile + ".rq", id, bindings);
     }
 
     @RequestMapping(path = "/all", method = RequestMethod.GET,
@@ -59,5 +63,13 @@ public class DatasetSourceController {
         @PathVariable String id,
         @RequestParam String descriptorType) {
         return datasetSourceService.getLastDescriptor(id, descriptorType);
+    }
+
+    @RequestMapping(path = "/{id}/computeDescriptor", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public void computeDescriptor(
+        @PathVariable String id,
+        @RequestParam String descriptorType) {
+        datasetSourceService.computeDescriptorForDatasetSource(id, descriptorType);
     }
 }

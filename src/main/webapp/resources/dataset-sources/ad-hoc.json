@@ -3,9 +3,9 @@
 //    "endpointUrl": "http://localhost:48080/rdf4j-server/repositories/test-skos",
 //  },
 //  {
-//    "endpointUrl": "http://localhost:48080/rdf4j-server/repositories/test-skos",
-//    "graphId": "http://onto.fel.cvut.cz/ontologies/test-skos"
-//  },
+//    "endpointUrl": "https://ruian.linked.opendata.cz/sparql",
+//    "graphId": "http://ruian.linked.opendata.cz/resource/dataset"
+//  }
 //  {
 //    "endpointUrl": "http://localhost:48080/rdf4j-server/repositories/test-skos",
 //    "graphId": "http://onto.fel.cvut.cz/ontologies/test-skos-2"

@@ -4,10 +4,10 @@ import React from "react";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
-import SimpleTable from 'react-simple-table';
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 
 class BasicStatsWidget extends React.Component {
@@ -41,6 +41,9 @@ class BasicStatsWidget extends React.Component {
         this.unsubscribe();
     };
 
+    format(cell, row) {
+        return '<a href="'+cell+'" target="_blank">'+NamespaceStore.getShortForm(cell)+'</a> ';
+    };
 
     render() {
         if (this.state.data.length === 0) {
@@ -50,16 +53,17 @@ class BasicStatsWidget extends React.Component {
             .filter(r => (!r.hasOwnProperty('@type')))
             .map(r => {
                 return {
-                    'class': NamespaceStore.getShortForm(Utils.getJsonLdFirst(r[Void.CLASS],'@id')),
+                    'class': Utils.getJsonLdFirst(r[Void.CLASS],'@id'),
                     'entities': Utils.getJsonLdFirst(r[Void.ENTITIES], '@value')
                 }
             });
-
+        const numberColWidth = "150" ;
         return (
-            <SimpleTable columns={[
-                {columnHeader: 'class', path: 'class'},
-                {columnHeader: 'entities', path: 'entities'}
-            ]} data={data}/>);
+        <BootstrapTable data={data} striped={true} hover={true} condensed>
+            <TableHeaderColumn dataField="class" isKey={true} dataSort={true} dataFormat={this.format}>class</TableHeaderColumn>
+            <TableHeaderColumn dataField="entities" dataSort={true} width={numberColWidth}>entities</TableHeaderColumn>
+        </BootstrapTable>
+        );
     };
 }
 
