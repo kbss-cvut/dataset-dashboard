@@ -71,7 +71,6 @@ class SpatialWidget extends React.Component {
         var data = this.state.data;
         var i = 0;
         data.forEach((point) => {
-            // vymysli lepsi dadovy model
             var xmlDoc;
             if (window.DOMParser){
                 var parser = new DOMParser();
