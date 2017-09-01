@@ -1,4 +1,4 @@
-package cz.cvut.kbss.datasetdashboard.service.data;
+package cz.cvut.kbss.datasetdashboard.dao.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,12 +7,13 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 /**
  * Classpath-based file content loader.
  */
-@Service("localDataLoader")
+@Repository("localDataLoader")
 public class FileDataLoader implements DataLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileDataLoader.class);

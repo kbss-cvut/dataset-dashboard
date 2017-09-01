@@ -1,79 +1,121 @@
 'use strict';
 
 import React from "react";
-import {Button} from "react-bootstrap";
+import {Button, FormControl} from "react-bootstrap";
 
 import Actions from "../../../actions/Actions";
 import PropTypes from "prop-types";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
+import DatasetDescriptorStore from "../../../stores/DatasetDescriptorStore";
 
-export default function DescriptorWidgetWrapper(Widget,datasetDescriptorTypeIri) {
+export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri, descriptorQuery) {
 
     class DescriptorWidget extends React.Component {
 
-        constructor(props){
+        constructor(props) {
             super(props)
-            this.state={
-                descriptorTypeIri : datasetDescriptorTypeIri
+            this.state = {
+                descriptorTypeIri: datasetDescriptorTypeIri,
+                descriptorQuery: descriptorQuery,
+                descriptors: []
             };
         }
 
         componentWillMount() {
-            this.unsubscribe = DatasetSourceStore.listen(this._onDescriptorsLoaded.bind(this));
+            this.unsubscribe1 = DatasetSourceStore.listen(this._onDescriptorsLoaded.bind(this));
+            this.unsubscribe2 = DatasetDescriptorStore.listen(this._onDescriptorsLoaded.bind(this));
         };
 
         componentWillUnmount() {
-            this.unsubscribe();
+            this.unsubscribe1();
+            this.unsubscribe2();
         };
 
         _onDescriptorsLoaded = (data) => {
             if (data.action === Actions.selectDatasetSource) {
                 this.props.loadingOn();
-                // TODO all descriptors
-                Actions.getDescriptorForLastSnapshotOfDatasetSource(
+                Actions.getDescriptorsForDatasetSource(
                     data.datasetSource.hash,
                     this.state.descriptorTypeIri);
-            } else {
+                this.setState({
+                    datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
+                    descriptorContent: null
+                });
+            } else if (data.action === Actions.getDescriptorsForDatasetSource) {
+                this.props.loadingOn();
                 if (data.descriptorTypeId == this.state.descriptorTypeIri) {
                     this.props.loadingOff();
+                    const state = {
+                        descriptors: data.descriptors,
+                        descriptorContent: null
+                    }
+                    if ( data.descriptors && data.descriptors[0] ) {
+                        const id = data.descriptors[0].hash;
+                        Actions.getDescriptorContent(id, this.state.descriptorQuery);
+                        state.selectedDescriptorId = id;
+                    }
+                    this.setState(state);
+                }
+            } else if (data.action === Actions.getDescriptorContent) {
+                this.props.loadingOn();
+                if (data.descriptorId == this.state.selectedDescriptorId) {
+                    this.props.loadingOff();
+
                     this.setState({
-                            datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
-                            descriptorContent: data.jsonLD,
-                        }
-                    );
+                        descriptorId : data.descriptorId,
+                        descriptorContent: data.jsonLD,
+                    });
                 }
             }
         };
 
+        handleChange(event) {
+            const id = event.target.value;
+            Actions.getDescriptorContent(id, this.state.descriptorQuery);
+            this.setState({
+                selectedDescriptorId: id
+            });
+        }
+
         render() {
             // Filter out extra props that are specific to this HOC and shouldn't be
             // passed through
-            if (!this.state.datasetSource) {
-                return <div style={{textAlign: "center", verticalAlign: "center"}}>
-                    No Descriptors Available.
-                </div>;
-            } else {
-                return <div>
-                    <Button onClick={(e) => {
-                        Actions.computeDescriptorForDatasetSource(
-                            this.state.datasetSource.hash,
-                            this.state.descriptorTypeIri
-                        );
-                    }}>
-                        Compute
-                    </Button>
-                    <Widget {...this.props}
-                            datasetSource={this.state.datasetSource}
-                            descriptorContent={this.state.descriptorContent}
-                    />
-                </div>;
-            }
+            const descriptors = [];
+            this.state.descriptors.forEach((d) => {
+                descriptors.push(<option value={d.hash} key={d.hash}>{d.id}</option>);
+            });
+
+            return <div>
+                <Button onClick={(e) => {
+                    Actions.computeDescriptorForDatasetSource(
+                        this.state.datasetSource.hash,
+                        this.state.descriptorTypeIri
+                    );
+                }}>
+                    Compute
+                </Button>
+                <FormControl
+                    componentClass="select"
+                    placeholder="No descriptor selected"
+                    onChange={this.handleChange.bind(this)}>
+                    {descriptors}
+                </FormControl>
+                {
+                    (!this.state.descriptorContent) ? <div style={{textAlign: "center", verticalAlign: "center"}}>
+                        No Dataset Descriptor Selected
+                    </div> :
+                        <Widget {...this.props}
+                                datasetSource={this.state.datasetSource}
+                                descriptorContent={this.state.descriptorContent}
+                        />
+                }
+            </div>;
         };
 
     }
 
     DescriptorWidget.propTypes = {
-        descriptorTypeIri : PropTypes.string
+        descriptorTypeIri: PropTypes.string
     };
 
     return DescriptorWidget

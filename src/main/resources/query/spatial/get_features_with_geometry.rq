@@ -1,9 +1,9 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIC rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ogcgs: <http://www.opengis.net/ont/geosparql#>
 PREFIX ogcgml: <http://www.opengis.net/ont/gml#>
 PREFIX schema: <http://schema.org/>
-PREFIX ruian: <https://ruian.linked.opendata.cz/slovník/>
-select distinct ?typ
+construct {?typ rdfs:subClassOf ogcgs:Geometry}
 where
     {
         ?s ?p ?geometry.

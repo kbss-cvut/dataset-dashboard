@@ -1,4 +1,4 @@
-package cz.cvut.kbss.datasetdashboard.service.data;
+package cz.cvut.kbss.datasetdashboard.dao.data;
 
 import java.util.Map;
 

@@ -12,5 +12,6 @@ module.exports = Reflux.createActions([
     'computeDescriptorForDatasetSource',
     'getDescriptorsForDatasetSource',
     'getDescriptorForLastSnapshotOfDatasetSource',
-    'registerNamespace'
+    'registerNamespace',
+    'getDescriptorContent'
 ]);

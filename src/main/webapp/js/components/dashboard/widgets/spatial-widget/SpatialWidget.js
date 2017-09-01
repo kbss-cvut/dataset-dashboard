@@ -16,7 +16,7 @@ import ClusterLayer from 'react-leaflet-cluster-layer';
 //     Map, Layers, Overlay, Util    //objects
 // } from "react-openlayers";
 
-proj4.defs("http://www.opengis.net/def/crs/EPSG/0/5514","+proj=krovak +lat_0=49.5 +lon_0=24.83333333333333 +alpha=30.28813972222222 +k=0.9999 +x_0=0 +y_0=0 +ellps=bessel +towgs84=589,76,480,0,0,0,0 +units=m +no_defs");
+proj4.defs("http://www.opengis.net/def/crs/EPSG/0/5514", "+proj=krovak +lat_0=49.5 +lon_0=24.83333333333333 +alpha=30.28813972222222 +k=0.9999 +x_0=0 +y_0=0 +ellps=bessel +towgs84=589,76,480,0,0,0,0 +units=m +no_defs");
 
 class SpatialWidget extends React.Component {
     constructor(props) {
@@ -34,29 +34,42 @@ class SpatialWidget extends React.Component {
         if (data === undefined) {
             return
         }
-        if (data.action === Actions.selectDatasetSource) {
+        if (data.action === Actions.executeQueryForDatasetSource) {
+            if (data.queryName === "spatial/get_feature_geometry") {
+
+                // if (data.jsonLD) {
+                //     data.jsonLD.forEach((point) => {
+                //         console.log(point['@id']);
+                //         console.log(point["http://www.opengis.net/ont/gml#id"][0]['@value']);
+                //         console.log(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
+                //     });
+                // }
+
+                this.setState({
+                    data: data.jsonLD
+                });
+                this.props.loadingOff();
+            } else if (data.queryName === "spatial/get_features_with_geometry") {
+                let featuresWithGeometry = data.jsonld;
+                this.setState({featuresWithGeometry: featuresWithGeometry});
+            }
+        } else if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry",{object_type:'http://onto.fel.cvut.cz/ontologies'});
-        } else if (data.queryName === "spatial/get_feature_geometry") {
+            // do promenne ulozim typy co maji geometrii
+            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_features_with_geometry");
 
-            // if (data.jsonLD) {
-            //     data.jsonLD.forEach((point) => {
-            //         console.log(point['@id']);
-            //         console.log(point["http://www.opengis.net/ont/gml#id"][0]['@value']);
-            //         console.log(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
-            //     });
-            // }
-
-            this.setState({
-                data: data.jsonLD
-            });
-            this.props.loadingOff();
         }
     };
 
+    featureTypeSelect(event) {
+        Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry", {object_type: event.target.value});
+    }
+    ;
+
     componentWillUnmount() {
         this.unsubscribe();
-    };
+    }
+    ;
 
     render() {
         if (this.state.data.length === 0) {
@@ -69,32 +82,44 @@ class SpatialWidget extends React.Component {
 
         var points = [];
         var data = this.state.data;
+
+
+        // TODO: rozsekej jsonld na list s typem
+        // select menu options
+        var listOfselectOptions = this.state.featuresWithGeometry;
+
+        //create rollout menu
+        var selectOptions = [];
+        listOfselectOptions.forEach((value) => {
+            selectOptions.push(<option value={value}>{value}</option>)
+        });
+
         var i = 0;
         data.forEach((point) => {
             var xmlDoc;
-            if (window.DOMParser){
+            if (window.DOMParser) {
                 var parser = new DOMParser();
-                xmlDoc = parser.parseFromString(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'],'text/xml');
+                xmlDoc = parser.parseFromString(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
             }
             else // Internet Explorer
             {
-                xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-                xmlDoc.async=false;
+                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async = false;
                 xmlDoc.loadXML(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
             }
             var coords = xmlDoc.getElementsByTagName("Point")[0].getElementsByTagName('pos')[0].textContent;
             var lng = Number(coords.split(' ')[0]);
             var lat = Number(coords.split(' ')[1]);
-            if (xmlDoc.getElementsByTagName("Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514"){
+            if (xmlDoc.getElementsByTagName("Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514") {
                 let pos = [lng, lat];
                 pos = proj4('http://www.opengis.net/def/crs/EPSG/0/5514', 'EPSG:4326', pos);
                 lng = pos[0];
                 lat = pos[1];
             }
             points.push({
-                id    :   point["http://www.opengis.net/ont/gml#id"][0]['@value'],
+                id: point["http://www.opengis.net/ont/gml#id"][0]['@value'],
                 position: {lng: lng, lat: lat},
-                name  :   point["http://schema.org/name"][0]['@value']
+                name: point["http://schema.org/name"][0]['@value']
             });
 
 
@@ -116,28 +141,41 @@ class SpatialWidget extends React.Component {
         let ymax = position[1];
         points.forEach((point) => {
             markers.push(
-            <Marker key={point.id} position={point.position}>
-                <Popup>
-                    <span>{point.name}</span>
-                </Popup>
-            </Marker>);
+                <Marker key={point.id} position={point.position}>
+                    <Popup>
+                        <span>{point.name}</span>
+                    </Popup>
+                </Marker>);
             if (point.position[0] < xmin) xmin = point.position[0];
             if (point.position[1] < ymin) ymin = point.position[1];
             if (point.position[0] > xmax) xmax = point.position[0];
             if (point.position[1] > ymax) ymax = point.position[1];
         });
-        let bounds = L.polyline([[ymin,xmin],[ymax, xmax]]);
+        let bounds = L.polyline([[ymin, xmin], [ymax, xmax]]);
         console.log(bounds.position);
-        return (
-            <Map bounds={bounds} style={{height:500}}>
-                <TileLayer
-                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-                />
-                {markers}
-            </Map>
 
-        );
+        if (this.state.featuresWithGeometry.length === 0)
+
+            return (
+                <div>
+                    <FormGroup controlId="formControlsSelect">
+                        <ControlLabel>Select</ControlLabel>
+                        <FormControl componentClass="select" placeholder="Select type"
+                                     onChange={this.featureTypeSelect}>
+                            <option value="select">Select type</option>
+                            {selectOptions}
+                        </FormControl>
+                    </FormGroup>
+
+                    <Map bounds={bounds} style={{height: 500}}>
+                        <TileLayer
+                            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                        />
+                        {markers}
+                    </Map>
+                </div>
+            );
     }
 }
 //window.ReactDOM.render(<SimpleExample />, document.getElementById('mask-container'));
