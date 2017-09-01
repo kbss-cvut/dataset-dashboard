@@ -2,19 +2,16 @@ package cz.cvut.kbss.datasetdashboard.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import cz.cvut.kbss.datasetdashboard.dao.DatasetDescriptorDao;
 import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
+import cz.cvut.kbss.datasetdashboard.util.JsonLD;
 import cz.cvut.kbss.ddo.Vocabulary;
+import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.RDFDataMgr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +21,14 @@ public class DatasetSourceService {
     @Autowired
     private DatasetSourceDao datasetSourceDao;
 
-    @Autowired
-    private DatasetDescriptorDao datasetDescriptorDao;
     /**
      * Registers a dataset source defined by an URL.
      *
      * @param url to store as a dataset source
      * @return an identifier of the registered dataset source.
      */
-    public int register(final String url) {
-        return datasetSourceDao.register(url);
+    public String register(final String url) {
+        return datasetSourceDao.register(url).getId();
     }
 
     /**
@@ -43,8 +38,8 @@ public class DatasetSourceService {
      * @param graphIri    IRI of the context within the SPARQL endpoint
      * @return an identifier of the registered dataset source
      */
-    public int register(final String endpointUrl, final String graphIri) {
-        return datasetSourceDao.register(endpointUrl, graphIri);
+    public String register(final String endpointUrl, final String graphIri) {
+        return datasetSourceDao.register(endpointUrl, graphIri).getId();
     }
 
     /**
@@ -53,7 +48,8 @@ public class DatasetSourceService {
      * @return a list of data sources.
      */
     public RawJson getDataSources() {
-        return getDataSources(datasetSourceDao.getAll());
+        return new RawJson(outputSources(
+            datasetSourceDao.getAll()).toString());
     }
 
     /**
@@ -61,7 +57,7 @@ public class DatasetSourceService {
      *
      * @return a list of data sources.
      */
-    private RawJson getDataSources(final List<dataset_source> dataset_sources) {
+    private JsonArray outputSources(final List<dataset_source> dataset_sources) {
         final JsonArray result = new JsonArray();
         dataset_sources.forEach((v) -> {
             try {
@@ -83,10 +79,37 @@ public class DatasetSourceService {
                 }
                 result.add(ds);
             } catch(Exception e) {
+                e.printStackTrace();
                 System.out.println("Invalid source " + v.getId() + " , skipping");
             }
         });
-        return new RawJson(result.toString());
+        return result;
+    }
+
+    public RawJson getDescriptorsForDatasetSource(
+        final String sourceId,
+        final String descriptorTypeIri
+    ) {
+        return new RawJson(outputDescriptors(
+            datasetSourceDao.getDescriptors(
+            sourceId,
+            descriptorTypeIri)).toString());
+    }
+
+    private JsonArray outputDescriptors( List<dataset_descriptor> data ) {
+        final JsonArray result = new JsonArray();
+        data.forEach((v) -> {
+            try {
+                final JsonObject ds = new JsonObject();
+                ds.addProperty("hash", v.getId().substring(Vocabulary.s_c_dataset_descriptor.length() + 1));
+                ds.addProperty("id", v.getId());
+                ds.addProperty("type", Vocabulary.s_c_dataset_descriptor);
+                result.add(ds);
+            } catch(Exception e) {
+                System.out.println("Invalid source " + v.getId() + " , skipping");
+            }
+        });
+        return result;
     }
 
     /**
@@ -100,34 +123,14 @@ public class DatasetSourceService {
      */
     public RawJson getSparqlConstructResult(
         final String queryFile,
-        final String datasetSourceId,
+        final String id,
         final Map<String,String> bindings) {
-        return new RawJson(toJsonLd(
-            datasetSourceDao.getSparqlConstructResult(queryFile, datasetSourceId, bindings)));
-    }
 
-    private static String toJsonLd(String turtle) {
-        Model m = ModelFactory.createDefaultModel();
-        if (turtle != null) {
-            m.read(new StringReader(turtle), null, "TURTLE");
-        }
-        final StringWriter w = new StringWriter();
-        RDFDataMgr.write(w, m, org.apache.jena.riot.RDFLanguages.JSONLD);
-        return w.toString();
+        return new RawJson(JsonLD.toJsonLd(
+            datasetSourceDao.getSparqlConstructResult(
+                datasetSourceDao.find(URI.create(datasetSourceDao.getIri(id))),
+                queryFile,
+                bindings))
+        );
     }
-
-    public RawJson getLastDescriptor(final String datasetSourceId, final String descriptorType) {
-        return new RawJson(toJsonLd(datasetSourceDao
-            .getLastDescriptor(datasetSourceId, descriptorType)));
-    }
-
-    public void computeDescriptorForDatasetSource(final String datasetSourceId, final String descriptorType) {
-        datasetDescriptorDao
-            .computeDescriptorForDatasetSource(datasetSourceId, descriptorType);
-    }
-
-//    public RawJson getDescriptorsForDatasetSource(final String datasetSourceId) {
-//        return new RawJson(toJsonLd(datasetSourceDao
-//            .getDescriptorsForDatasetSource(datasetSourceId)));
-//    }
 }

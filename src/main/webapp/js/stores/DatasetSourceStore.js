@@ -1,36 +1,35 @@
 'use strict';
 
-import Reflux from 'reflux';
-import jsonld from 'jsonld';
-import Actions from '../actions/Actions';
-import Ajax from '../utils/Ajax';
-import Logger from '../utils/Logger';
-import Utils from '../utils/Utils';
-import NamedGraphSparqlEndpointDatasetSource from '../model/NamedGraphSparqlEndpointDatasetSource';
-import SparqlEndpointDatasetSource from '../model/SparqlEndpointDatasetSource';
-import UrlDatasetSource from '../model/UrlDatasetSource';
+import Reflux from "reflux";
+import jsonld from "jsonld";
+import Actions from "../actions/Actions";
+import Ajax from "../utils/Ajax";
+import Logger from "../utils/Logger";
+import Utils from "../utils/Utils";
+import NamedGraphSparqlEndpointDatasetSource from "../model/NamedGraphSparqlEndpointDatasetSource";
+import SparqlEndpointDatasetSource from "../model/SparqlEndpointDatasetSource";
+import UrlDatasetSource from "../model/UrlDatasetSource";
+import Ddo from "../vocabulary/Ddo";
 
 const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
 
-const BASE_URL = 'rest/dataset-source';
-
-const ONTOLOGY_BASE = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/";
-
 const DatasetSourceStore = Reflux.createStore({
+
+    base: 'rest/dataset-source',
 
     listenables: [Actions],
 
     selectDatasetSource: null,
 
     init() {
-      this.addFromResource(datasetSourcesAdHoc);
+        this.addFromResource(datasetSourcesAdHoc);
     },
 
     addFromResource(data) {
         for (var key in data) {
-            if ( data[key]['endpointUrl'] ) {
-                if ( data[key]['graphId'] ) {
-                    this.onRegisterDatasetSourceNamedGraph([data[key]['endpointUrl']],[data[key]['graphId']]);
+            if (data[key]['endpointUrl']) {
+                if (data[key]['graphId']) {
+                    this.onRegisterDatasetSourceNamedGraph([data[key]['endpointUrl']], [data[key]['graphId']]);
                 } else {
                     this.onRegisterDatasetSourceEndpoint([data[key]['endpointUrl']]);
                 }
@@ -38,7 +37,12 @@ const DatasetSourceStore = Reflux.createStore({
         }
     },
 
-    getSelectedDatasetSource: function() {
+    /**
+     * Returns dataset source that is currently selected in the app
+     *
+     * @returns {DatasetSource}
+     */
+    getSelectedDatasetSource: function () {
         return this.selectDatasetSource;
     },
 
@@ -51,67 +55,59 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onRegisterDatasetSourceEndpoint: function (endpointUrl) {
-        const ds = new SparqlEndpointDatasetSource(endpointUrl);
-        Ajax.put(BASE_URL+"/registerEndpoint?endpointUrl="+endpointUrl).end(function (data) {
-            ds.id = data;
-            this.trigger({
-                action: Actions.registerDatasetSourceEndpoint,
-                datasetSource: ds
-            });
-        }.bind(this), function () {
-            Logger.error('Unable to register endpoint.');
-            this.trigger({
-                action: Actions.registerDatasetSourceEndpoint,
-                datasetSource: ds
-            });
-        }.bind(this));
+        const toSend = {
+            action: Actions.registerDatasetSourceEndpoint,
+            datasetSource: new SparqlEndpointDatasetSource(endpointUrl)
+        };
+        Ajax.put(this.base + "/?endpointUrl=" + endpointUrl).end(
+            this._registerDatasetSourceSuccess(toSend, data).bind(this),
+            this._registerDatasetSourceFail.bind(this));
     },
 
     onRegisterDatasetSourceNamedGraph: function (endpointUrl, graphIri) {
-        const ds = new NamedGraphSparqlEndpointDatasetSource(endpointUrl, graphIri);
-        Ajax.put(BASE_URL+"/registerNamedGraph?endpointUrl="+endpointUrl+"&graphIri="+graphIri).end(function (data) {
-            ds.id = data;
-            this.trigger({
-                action: Actions.registerDatasetSourceNamedGraph,
-                datasetSource: ds
-            });
-        }.bind(this), function () {
-            Logger.error('Unable to register endpoint.');
-            this.trigger({
-                action: Actions.registerDatasetSourceNamedGraph,
-                datasetSource: ds
-            });
-        }.bind(this));
+        const toSend = {
+            action: Actions.registerDatasetSourceNamedGraph,
+            datasetSource: new NamedGraphSparqlEndpointDatasetSource(endpointUrl, graphIri)
+        };
+        Ajax.put(this.base + "/?endpointUrl=" + endpointUrl + "&graphIri=" + graphIri).end(
+            this._registerDatasetSourceSuccess(toSend, data).bind(this),
+            this._registerDatasetSourceFail.bind(this));
     },
 
     onRegisterDatasetSourceDownloadUrl: function (downloadUrl) {
+        const toSend = {
+            action: Actions.registerDatasetUrl,
+            datasetSource: new UrlDatasetSource(downloadUrl)
+        };
         const ds = new UrlDatasetSource(downloadUrl);
-        Ajax.put(BASE_URL+"/registerUrl?downloadUrl="+downloadUrl).end(function (data) {
-            ds.id = data;
-            this.trigger({
-                action: Actions.registerDatasetUrl,
-                datasetSource: ds
-            });
-        }.bind(this), function () {
-            Logger.error('Unable to register endpoint.');
-            this.trigger({
-                action: Actions.registerDatasetUrl,
-                datasetSource: ds
-            });
-        }.bind(this));
+        Ajax.put(this.base + "/?downloadUrl=" + downloadUrl).end(
+            this._registerDatasetSourceSuccess(toSend, data).bind(this),
+            this._registerDatasetSourceFail.bind(this));
     },
 
-    _parseDatasetSource: function(ds) {
+    _registerDatasetSourceSuccess(toSend, data) {
+        Logger.log('Endpoint ' + data + ' registered.');
+        toSend.datasetSource.id = data;
+        this.trigger(toSend);
+    },
+
+    _registerDatasetSourceFail(toSend) {
+        Logger.error('Unable to register endpoint.');
+        toSend.datasetSource = null;
+        this.trigger(toSend);
+    },
+
+    _parseDatasetSource: function (ds) {
         var datasetSource = null;
-        if ( ds.type === ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
+        if (ds.type === Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
             datasetSource = new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
-        } else if ( ds.type === ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
+        } else if (ds.type === Ddo.NS + "sparql-endpoint-dataset-source") {
             datasetSource = new SparqlEndpointDatasetSource(ds.endpointUrl);
-        } else if ( ds.type === ONTOLOGY_BASE+"url-dataset-source") {
+        } else if (ds.type === Ddo.NS + "url-dataset-source") {
             datasetSource = new UrlDatasetSource(ds.downloadUrl);
         }
 
-        if ( datasetSource != null ) {
+        if (datasetSource != null) {
             datasetSource.id = ds.id;
             datasetSource.hash = ds.hash;
         } else {
@@ -120,22 +116,24 @@ const DatasetSourceStore = Reflux.createStore({
         return datasetSource;
     },
 
-    hierarchizeDS: function(dss) {
+    hierarchizeDS: function (dss) {
         const roots = {}
         dss.forEach((ds) => {
-            if (ds.type == ONTOLOGY_BASE+"sparql-endpoint-dataset-source") {
-                if ( roots[ds.endpointUrl] ) {
-                    if ( roots[ds.endpointUrl].generated ) {
+            if (ds.type == Ddo.NS + "sparql-endpoint-dataset-source") {
+                if (roots[ds.endpointUrl]) {
+                    if (roots[ds.endpointUrl].generated) {
                         roots[ds.endpointUrl] = ds;
                     } else {
                         console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
                     }
+                } else {
+                    roots[ds.endpointUrl] = ds;
                 }
-                roots[ds.endpointUrl] = ds;
-            } else if (ds.type == ONTOLOGY_BASE+"named-graph-sparql-endpoint-dataset-source") {
-                if ( !roots[ds.endpointUrl] ) {
+            } else if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
+                if (!roots[ds.endpointUrl]) {
                     roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
                     roots[ds.endpointUrl].generated = true;
+                    roots[ds.endpointUrl]._id = ds.endpointUrl;
                 }
                 roots[ds.endpointUrl].parts.push(ds);
             }
@@ -144,113 +142,64 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onGetAllDatasetSources: function () {
-        Ajax.get(BASE_URL+"/all").end(function (data) {
+        const toSend = {
+            action: Actions.getAllDatasetSources,
+        };
+
+        Ajax.get(this.base + "/").end(function (data) {
             let dss = data.map(this._parseDatasetSource);
             let roots = this.hierarchizeDS(dss);
 
             console.log("Root objects: " + Object.values(roots).length);
-
-            this.trigger({
-                action: Actions.getAllDatasetSources,
-                datasetSources: Object.values(roots),
-            });
+            toSend.datasetSources = Object.values(roots)
+            this.trigger(toSend);
         }.bind(this), function () {
             Logger.error('Unable to get data.');
-            this.trigger({
-                action: Actions.getAllDatasetSources,
-                datasetSources: null
-            });
+            this.datasetSources = null;
+            this.trigger(toSend);
         }.bind(this));
     },
 
     onExecuteQueryForDatasetSource: function (datasetSourceId, queryName, params) {
-        const url = Utils.addParametersToUrl(BASE_URL+"/"+datasetSourceId+"/executeQuery?queryFile="+queryName, params)
+        const _executeQueryFail = function(toSend) {
+            Logger.error('Unable to execute query.');
+            toSend.jsonLD = []
+            this.trigger(toSend);
+        }.bind(this);
+        const toSend = {
+            action: Actions.executeQueryForDatasetSource,
+            queryName: queryName,
+            params: params,
+            datasetSourceId: datasetSourceId
+        };
+        const url = Utils.addParametersToUrl(this.base + "/" + datasetSourceId + "/actions/query?queryFile=" + queryName, params)
         Ajax.get(url).end(function (data) {
             const that = this;
-            jsonld.flatten(data, function(err, canonical) {
-                that.trigger({
-                    action: Actions.executeQueryForDatasetSource,
-                    queryName: queryName,
-                    params: params,
-                    datasetSourceId: datasetSourceId,
-                    jsonLD: canonical
-                });
+            jsonld.flatten(data, function (err, canonical) {
+                if (err) {
+                    toSend.error=err
+                    _executeQueryFail(toSend)
+                } else {
+                    toSend.jsonLD = canonical;
+                    that.trigger(toSend);
+                }
             });
-        }.bind(this), function () {
-            Logger.error('Unable to execute query.');
-            this.trigger({
-                action: Actions.executeQueryForDatasetSource,
-                queryName: queryName,
-                params: params,
-                datasetSourceId: datasetSourceId,
-                jsonLD: []
-            });
-        }.bind(this));
-    },
-
-    onGetDescriptorForLastSnapshotOfDatasetSource: function (datasetSourceId, descriptorTypeId) {
-        Ajax.get(BASE_URL+"/"+datasetSourceId+"/lastDescriptor?descriptorType="+descriptorTypeId).end(function (data) {
-            const that = this;
-            jsonld.flatten(data, function(err, canonical) {
-                that.trigger({
-                    action: Actions.getDescriptorForLastSnapshotOfDatasetSource,
-                    descriptorTypeId: descriptorTypeId,
-                    datasetSourceId: datasetSourceId,
-                    jsonLD: canonical
-                });
-            });
-        }.bind(this), function () {
-            Logger.error('Unable to fetch last descriptor of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
-            this.trigger({
-                action: Actions.getDescriptorForLastSnapshotOfDatasetSource,
-                descriptorTypeId: descriptorTypeId,
-                datasetSourceId: datasetSourceId,
-                jsonLD: []
-            });
-        }.bind(this));
-    },
-
-    onComputeDescriptorForDatasetSource: function (datasetSourceId, descriptorTypeId) {
-        Ajax.get(BASE_URL+"/"+datasetSourceId+"/computeDescriptor?descriptorType="+descriptorTypeId).end(function (data) {
-            const that = this;
-            jsonld.flatten(data, function(err, canonical) {
-                that.trigger({
-                    action: Actions.computeDescriptorForDatasetSource,
-                    descriptorTypeId: descriptorTypeId,
-                    datasetSourceId: datasetSourceId,
-                    jsonLD: canonical
-                });
-            });
-        }.bind(this), function () {
-            Logger.error('Unable to compute descriptors of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
-            this.trigger({
-                action: Actions.computeDescriptorForDatasetSource,
-                descriptorTypeId: descriptorTypeId,
-                datasetSourceId: datasetSourceId,
-                jsonLD: []
-            });
-        }.bind(this));
+        }.bind(this),() => _executeQueryFail(toSend));
     },
 
     onGetDescriptorsForDatasetSource: function (datasetSourceId, descriptorTypeId) {
-        Ajax.get(BASE_URL+"/"+datasetSourceId+"/descriptor?descriptorType="+descriptorTypeId).end(function (data) {
-            const that = this;
-            jsonld.flatten(data, function(err, canonical) {
-                that.trigger({
-                    action: Actions.getDescriptorsForDatasetSource,
-                    descriptorTypeId: descriptorTypeId,
-                    datasetSourceId: datasetSourceId,
-                    jsonLD: canonical
-                });
-            });
+        const toSend = {
+            action: Actions.getDescriptorsForDatasetSource,
+            descriptorTypeId: descriptorTypeId,
+            datasetSourceId: datasetSourceId
+        };
+        Ajax.get(this.base + "/" + datasetSourceId + "/descriptor?descriptorTypeIri=" + descriptorTypeId).end(function (data) {
+            toSend.descriptors = data;
+            this.trigger(toSend);
         }.bind(this), function () {
-            Logger.error('Unable to fetch descriptors of type '+ descriptorTypeId+' for the dataset source id ' + datasetSourceId);
-            this.trigger({
-                action: Actions.getDescriptorsForDatasetSource,
-                descriptorTypeId: descriptorTypeId,
-                datasetSourceId: datasetSourceId,
-                jsonLD: []
-            });
+            Logger.error('Unable to fetch descriptors of type ' + descriptorTypeId + ' for the dataset source id ' + datasetSourceId);
+            toSend.descriptors = [];
+            this.trigger(toSend);
         }.bind(this));
     }
 });

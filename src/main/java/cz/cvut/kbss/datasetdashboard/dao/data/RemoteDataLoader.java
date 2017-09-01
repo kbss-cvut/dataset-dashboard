@@ -1,4 +1,4 @@
-package cz.cvut.kbss.datasetdashboard.service.data;
+package cz.cvut.kbss.datasetdashboard.dao.data;
 
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.util.Constants;
@@ -22,11 +22,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-@Service("remoteDataLoader")
+@Repository("remoteDataLoader")
 public class RemoteDataLoader implements DataLoader {
 
     /**

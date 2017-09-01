@@ -203,5 +203,5 @@ class SchemaWidget extends React.Component {
         </div>;
     };
 }
-export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, DD_NS + "spo-summary-descriptor"),
+export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, DD_NS + "spo-summary-descriptor", "spo/spo-summary"),
     {maskClass: 'mask-container'});

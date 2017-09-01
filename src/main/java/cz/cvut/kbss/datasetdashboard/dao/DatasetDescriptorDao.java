@@ -1,7 +1,7 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
+import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
-import cz.cvut.kbss.datasetdashboard.service.data.DataLoader;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -43,6 +43,9 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
     private DataLoader remoteLoader;
 
     @Autowired
+    private DatasetSourceDao datasetSourceDao;
+
+    @Autowired
     private EntityManager em;
 
     @Autowired
@@ -59,14 +62,9 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     private void setId(final dataset_source ds) {
         if (ds.getTypes().contains(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            ds.setId(Vocabulary.s_c_dataset_source + "-" + (
-                ds.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
-                    + ds.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next()
-            ).hashCode());
+            ds.setId(Vocabulary.s_c_dataset_source + "-" + (ds.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next() + ds.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next()).hashCode());
         } else if (ds.getTypes().contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            ds.setId(Vocabulary.s_c_dataset_source + "-" + (
-                ds.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
-            ).hashCode());
+            ds.setId(Vocabulary.s_c_dataset_source + "-" + (ds.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()).hashCode());
         }
     }
 
@@ -77,7 +75,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         iDataset.setInv_dot_offers_dataset(Collections.singleton(iDescriptionDS));
 
         final dataset_descriptor iDescriptor = new dataset_descriptor();
-        iDescriptor.setId(Vocabulary.s_c_dataset_descriptor +"-"+time);
+        iDescriptor.setId(Vocabulary.s_c_dataset_descriptor + "-" + time);
         iDescriptor.setHas_dataset(Collections.singleton(iDataset));
         final Set<String> types = new HashSet<>();
         types.add(Vocabulary.s_c_dataset_descriptor);
@@ -87,7 +85,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         iDescriptor.setProperties(properties);
 
         final description iDescription = new description();
-        iDescription.setId(Vocabulary.s_c_description +"-"+time);
+        iDescription.setId(Vocabulary.s_c_description + "-" + time);
         iDescription.setHas_dataset_descriptor(iDescriptor);
         iDescriptor.setInv_dot_has_dataset_descriptor(iDescription);
         iDescription.setHas_source(Collections.singleton(iDescriptionDS));
@@ -95,7 +93,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         iDescriptionDS.setOffers_dataset(Collections.singleton(iDataset));
 
         final described_data_artifact iArtifact = new described_data_artifact();
-        iArtifact.setId(Vocabulary.s_c_dataset_snapshot +"-"+time);
+        iArtifact.setId(Vocabulary.s_c_dataset_snapshot + "-" + time);
         iArtifact.setTypes(Collections.singleton(Vocabulary.s_c_dataset_snapshot));
         iArtifact.setInv_dot_is_description_of(Collections.singleton(iDescription));
         iArtifact.setInv_dot_describes(Collections.singleton(iDescriptor));
@@ -115,8 +113,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         final dataset_source iPublicationDS = new dataset_source();
         final Map<String, Set<String>> propertiesDS = new HashMap<>();
-        propertiesDS.put(Vocabulary.s_p_has_endpoint_url,
-            Collections.singleton(environment.getProperty("descriptorsEndpoint")));
+        propertiesDS.put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(environment.getProperty("descriptorsEndpoint")));
         propertiesDS.put(Vocabulary.s_p_has_graph_id, Collections.singleton(descriptor.getId()));
         iPublicationDS.setProperties(propertiesDS);
         final Set<String> typesDS = new HashSet<>();
@@ -131,7 +128,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         iPublication.setHas_source(Collections.singleton(iPublicationDS));
         publisher iPublisher = new publisher();
-        iPublisher.setId(Vocabulary.ONTOLOGY_IRI_dataset_descriptor+"/ctu");
+        iPublisher.setId(Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/ctu");
         iPublisher.setInv_dot_has_publisher(Collections.singleton(iPublication));
 
         iPublication.setHas_publisher(Collections.singleton(iPublisher));
@@ -161,9 +158,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     @Transactional("txManager")
     public dataset_descriptor computeDescriptorForDatasetSource(final String datasetSourceId, final String descriptorType) {
-        final URI datasetSourceIri
-            = URI.create(Vocabulary.s_c_dataset_source + "-" + datasetSourceId);
-        if ( Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
+        final URI datasetSourceIri = URI.create(Vocabulary.s_c_dataset_source + "-" + datasetSourceId);
+        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
             final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
             String url = environment.getProperty("spipes.service");
@@ -176,7 +172,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 url += "&snapshotGraphId=" + ds.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next();
             }
 
-            dataset_publication p = storeMetadata(ds,descriptorType);
+            dataset_publication p = storeMetadata(ds, descriptorType);
 
             final dataset_source publishedDatasetSource = (dataset_source) p.getHas_source().iterator().next();
             LOG.info("Computing SPO: {}", url);
@@ -185,19 +181,17 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
             final HttpHeaders headers = new HttpHeaders();
 
-            final String uri =    publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
-                + "/statements";
+            final String uri = publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next() + "/statements";
 
             final String graphIri = "<" + publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next() + ">";
 
             System.out.println(graphIri);
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri)
-                .queryParam("context", graphIri);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri).queryParam("context", graphIri);
             String uriBuilder = builder.build().encode().toUriString();
 
             System.out.println(uriBuilder);
 
-            headers.put("Content-type",Collections.singletonList("application/ld+json"));
+            headers.put("Content-type", Collections.singletonList("application/ld+json"));
 
             final URI urlWithQuery = URI.create(uriBuilder);
             try {
@@ -205,11 +199,9 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("Putting remote data using {}", urlWithQuery.toString());
                 }
-                final ResponseEntity<String> result = restTemplate.exchange(urlWithQuery,
-                    HttpMethod.POST, entity, String.class);
+                final ResponseEntity<String> result = restTemplate.exchange(urlWithQuery, HttpMethod.POST, entity, String.class);
             } catch (HttpServerErrorException e) {
-                LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, Body:",
-                    urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());
+                LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, Body:", urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());
                 throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
             } catch (Exception e) {
                 LOG.error("Error when putting remote data, url: {}.", urlWithQuery.toString(), e);
@@ -221,5 +213,73 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
             LOG.error("Unknown descriptor type {}, not computing", descriptorType);
             return null;
         }
+    }
+
+//    /**
+//     * Retrieves the last descriptor of given type for the given dataset source id.
+//     *
+//     * @param datasetSourceId id of the dataset source
+//     * @param descriptorType  IRI of the class of the descriptor
+//     * @return content of the descriptor
+//     */
+//    @Transactional("txManager")
+//    public String getLastDescriptor(final String datasetSourceId, final String descriptorType) {
+//        final List<dataset_descriptor> datasetDescriptors
+//            = getDescriptors(Vocabulary.s_c_dataset_source + "-" + datasetSourceId,
+//            descriptorType);
+//
+//        Function<dataset_descriptor,String> fReturnCreationDate = c -> {
+//            final Map<String, Set<String>> props = c.getProperties();
+//            if (props == null) {
+//                return "";
+//            }
+//            final Set<String> creationDates = props.get(Vocabulary.s_p_has_creation_date);
+//            if (creationDates == null || creationDates.isEmpty()) {
+//                return "";
+//            } else {
+//                return creationDates.iterator().next();
+//            }
+//        };
+//
+//        try {
+//            final dataset_descriptor lastDescriptorOfGivenType = Collections.max(
+//                datasetDescriptors,
+//                Comparator.comparing(fReturnCreationDate));
+//            return getDescriptorContent(lastDescriptorOfGivenType);
+//        } catch(NoSuchElementException e) {
+//            return "";
+//        }
+//    }
+
+    /**
+     * Retrieves the last descriptor of given type for the given dataset source id.
+     *
+     * @param datasetDescriptorId id of the dataset Descriptor
+     * @return content of the descriptor
+     */
+    @Transactional("txManager")
+    public String getDescriptorContent(final String datasetDescriptorId, final String fileName) {
+        final URI datasetDescriptorIri = URI.create(Vocabulary.s_c_dataset_descriptor + "-" + datasetDescriptorId);
+        final dataset_descriptor datasetDescriptor = em.find(dataset_descriptor.class, datasetDescriptorIri);
+        final dataset_source datasetSource = getSourceForDescriptor(datasetDescriptor);
+
+        if (fileName != null) {
+            return datasetSourceDao.getSparqlConstructResult(datasetSource,
+                "query/"+fileName+".rq",
+                Collections.emptyMap());
+        } else {
+            return datasetSourceDao.getSparqlConstructResult(datasetSource,
+                "query/get_full_endpoint.rq",
+                Collections.emptyMap());
+        }
+    }
+
+    private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor) {
+        return em.createNativeQuery(
+            "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource ?datasetSource. }"
+            , dataset_source.class).setParameter("vocHasSource"
+            , URI.create(Vocabulary.s_p_has_source)).setParameter("publication"
+            , URI.create(datasetDescriptor.getInv_dot_has_published_dataset_snapshot().getId()))
+            .getSingleResult();
     }
 }

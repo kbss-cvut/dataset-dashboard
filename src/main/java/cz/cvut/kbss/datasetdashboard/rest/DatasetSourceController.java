@@ -18,29 +18,39 @@ public class DatasetSourceController {
     @Autowired
     private DatasetSourceService datasetSourceService;
 
-    @RequestMapping(path = "/registerEndpoint", method = RequestMethod.PUT,
+    @RequestMapping(path = "/", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public Integer registerEndpoint(
-        @RequestParam String endpointUrl) {
-        return datasetSourceService.register(endpointUrl, null);
+    public RawJson getAll() {
+        return datasetSourceService.getDataSources();
     }
 
-    @RequestMapping(path = "/registerNamedGraph", method = RequestMethod.PUT,
+    @RequestMapping(path = "/", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public Integer registerNamedGraph(
-        @RequestParam String endpointUrl,
-        @RequestParam String graphIri) {
-        return datasetSourceService.register(endpointUrl, graphIri);
+    public String registerNamedGraph(
+        @RequestParam(required = false) String downloadUrl,
+        @RequestParam(required = false)  String endpointUrl,
+        @RequestParam(required = false)  String graphIri) {
+        if (graphIri != null && endpointUrl != null) {
+            return datasetSourceService.register(endpointUrl, graphIri);
+        } else if (endpointUrl != null) {
+            return datasetSourceService.register(endpointUrl, null);
+        } else if (downloadUrl != null) {
+            return datasetSourceService.register(downloadUrl);
+        }
+        throw new RuntimeException("Insufficient data provided " +
+            "endpoint="+endpointUrl+", " +
+            "graph="+graphIri+", " +
+            "download="+ downloadUrl
+        );
     }
 
-    @RequestMapping(path = "/registerUrl", method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    public Integer registerUrl(
-        @RequestParam String downloadUrl) {
-        return datasetSourceService.register(downloadUrl);
-    }
-
-    @RequestMapping(path = "/{id}/executeQuery", method = RequestMethod.GET,
+    /**
+     * Return JSON-LD represetnation of the SPARQL construct query.
+     * @param id
+     * @param bindings
+     * @return
+     */
+    @RequestMapping(path = "/{id}/actions/query", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public RawJson executeQuery(
         @PathVariable String id,
@@ -51,25 +61,17 @@ public class DatasetSourceController {
             "/query/" + queryFile + ".rq", id, bindings);
     }
 
-    @RequestMapping(path = "/all", method = RequestMethod.GET,
+    /**
+     * Return a list of descriptor ids.
+     * @param id
+     * @param descriptorTypeIri
+     * @return
+     */
+    @RequestMapping(path = "/{id}/descriptor", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public RawJson executeQuery() {
-        return datasetSourceService.getDataSources();
-    }
-
-    @RequestMapping(path = "/{id}/lastDescriptor", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    public RawJson getLastDescriptor(
+    public RawJson getDescriptorsForDatasetSource (
         @PathVariable String id,
-        @RequestParam String descriptorType) {
-        return datasetSourceService.getLastDescriptor(id, descriptorType);
-    }
-
-    @RequestMapping(path = "/{id}/computeDescriptor", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    public void computeDescriptor(
-        @PathVariable String id,
-        @RequestParam String descriptorType) {
-        datasetSourceService.computeDescriptorForDatasetSource(id, descriptorType);
+        @RequestParam String descriptorTypeIri) {
+        return datasetSourceService.getDescriptorsForDatasetSource(id, descriptorTypeIri);
     }
 }
