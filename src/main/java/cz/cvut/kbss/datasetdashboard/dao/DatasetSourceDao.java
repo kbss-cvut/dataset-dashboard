@@ -68,7 +68,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
 
     @Transactional("txManager")
     public List<dataset_source> getAll() {
-        final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/> SELECT * WHERE { ?x a ?type ; ddo:has-endpoint-url ?endpoint . OPTIONAL {?x  ddo:has-graph-id ?graphId}}")
+        final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/> SELECT DISTINCT ?x ?endpoint ?graphId WHERE { ?x a ?type ; ddo:has-endpoint-url ?endpoint . OPTIONAL {?x  ddo:has-graph-id ?graphId}}")
             .setParameter("type", typeUri)
             .getResultList();
         final List<dataset_source> datasetSources = new ArrayList<>();
