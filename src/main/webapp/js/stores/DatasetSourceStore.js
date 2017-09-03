@@ -60,8 +60,8 @@ const DatasetSourceStore = Reflux.createStore({
             datasetSource: new SparqlEndpointDatasetSource(endpointUrl)
         };
         Ajax.put(this.base + "/?endpointUrl=" + endpointUrl).end(
-            this._registerDatasetSourceSuccess(toSend, data).bind(this),
-            this._registerDatasetSourceFail.bind(this));
+            (data) => this._registerDatasetSourceSuccess(toSend,data),
+            () => this._registerDatasetSourceFail);
     },
 
     onRegisterDatasetSourceNamedGraph: function (endpointUrl, graphIri) {
@@ -70,8 +70,8 @@ const DatasetSourceStore = Reflux.createStore({
             datasetSource: new NamedGraphSparqlEndpointDatasetSource(endpointUrl, graphIri)
         };
         Ajax.put(this.base + "/?endpointUrl=" + endpointUrl + "&graphIri=" + graphIri).end(
-            this._registerDatasetSourceSuccess(toSend, data).bind(this),
-            this._registerDatasetSourceFail.bind(this));
+            (data) => this._registerDatasetSourceSuccess(toSend, data),
+            () => this._registerDatasetSourceFail);
     },
 
     onRegisterDatasetSourceDownloadUrl: function (downloadUrl) {
@@ -81,8 +81,8 @@ const DatasetSourceStore = Reflux.createStore({
         };
         const ds = new UrlDatasetSource(downloadUrl);
         Ajax.put(this.base + "/?downloadUrl=" + downloadUrl).end(
-            this._registerDatasetSourceSuccess(toSend, data).bind(this),
-            this._registerDatasetSourceFail.bind(this));
+            (data) => this._registerDatasetSourceSuccess(toSend, data),
+            () => this._registerDatasetSourceFail);
     },
 
     _registerDatasetSourceSuccess(toSend, data) {
