@@ -1,13 +1,19 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIC rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ogcgs: <http://www.opengis.net/ont/geosparql#>
 PREFIX ogcgml: <http://www.opengis.net/ont/gml#>
 PREFIX schema: <http://schema.org/>
-construct {?typ rdfs:subClassOf ogcgs:Geometry}
+PREFIX own: <http://own.schema.org/>
+construct {?typ own:haveNumberOfInstances ?c}
 where
     {
-        ?s ?p ?geometry.
+      SELECT ?typ (count(?s) as ?c) {
+        {
+        ?s  ogcgs:asGML ?geometry.
+} UNION {
+?s ogcgs:asWKT ?geometry.
+}
         ?s rdf:type ogcgs:Geometry.
         ?s rdf:type ?typ
-        FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT)
+      } GROUP BY ?typ
     }
