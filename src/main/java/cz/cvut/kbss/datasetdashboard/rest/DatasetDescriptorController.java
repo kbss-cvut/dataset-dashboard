@@ -19,7 +19,7 @@ public class DatasetDescriptorController {
 
     @RequestMapping(path = "/actions/content", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public RawJson getDescriptorContent (
+    public RawJson getDescriptorContent(
         @RequestParam String id,
         @RequestParam(required = false) String fileName) {
         return service.getDescriptorContent(id, fileName);

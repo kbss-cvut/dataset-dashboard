@@ -12,21 +12,14 @@ public class DatasetDescriptorService {
     @Autowired
     private DatasetDescriptorDao datasetDescriptorDao;
 
-    public RawJson getDescriptorContent(
-        final String descriptorId,
-        final String fileName
-    ) {
-        return new RawJson(JsonLD.toJsonLd(
-            datasetDescriptorDao.getDescriptorContent(descriptorId, fileName)
-        ));
+    public RawJson getDescriptorContent(final String descriptorId, final String fileName) {
+        return new RawJson(JsonLD.toJsonLd(datasetDescriptorDao.getDescriptorContent(descriptorId,
+            fileName)));
     }
 
-    public String computeDescriptorForDatasetSource(
-        final String datasetSourceId,
-        final String descriptorType) {
-        return datasetDescriptorDao.computeDescriptorForDatasetSource(
-            datasetSourceId,
-            descriptorType
-        ).getId();
+    public String computeDescriptorForDatasetSource(final String datasetSourceId, final String
+        descriptorType) {
+        return datasetDescriptorDao.computeDescriptorForDatasetSource(datasetSourceId,
+            descriptorType).getId();
     }
 }

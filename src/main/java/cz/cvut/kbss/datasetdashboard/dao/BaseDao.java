@@ -38,6 +38,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         return em.find(type, uri);
     }
 
+    /**
+     * Finds all objects of the base type.
+     *
+     * @return a list of objects
+     */
     @Transactional("txManager")
     public List<T> findAll() {
         return em.createNativeQuery("SELECT ?x WHERE { ?x a ?type . }", type)
@@ -45,6 +50,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
             .getResultList();
     }
 
+    /**
+     * Persists a new entity.
+     *
+     * @param entity Entity to persist
+     */
     @Transactional("txManager")
     public void persist(T entity) {
         Objects.requireNonNull(entity);
@@ -56,6 +66,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
     }
 
+    /**
+     * Persists a collection of new entities.
+     *
+     * @param entities multiple entities to persist
+     */
     @Transactional("txManager")
     public void persist(Collection<T> entities) {
         Objects.requireNonNull(entities);
@@ -70,6 +85,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
     }
 
+    /**
+     * Updates an entity.
+     *
+     * @param entity Entity to update
+     */
     @Transactional("txManager")
     public void update(T entity) {
         Objects.requireNonNull(entity);
@@ -81,6 +101,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
     }
 
+    /**
+     * Removes an entity.
+     *
+     * @param entity Entity to remove
+     */
     @Transactional("txManager")
     public void remove(T entity) {
         Objects.requireNonNull(entity);
@@ -94,6 +119,11 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
     }
 
+    /**
+     * Removes multiple entities.
+     *
+     * @param entities entities to remove
+     */
     @Transactional("txManager")
     public void remove(Collection<T> entities) {
         Objects.requireNonNull(entities);
@@ -111,6 +141,12 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
     }
 
+    /**
+     * Checks whether an object with the uri exists.
+     *
+     * @param uri Entity identifier
+     * @return true, if exists, false otherwise
+     */
     @Transactional("txManager")
     public boolean exists(URI uri) {
         if (uri == null) {

@@ -45,7 +45,7 @@ public class EntityToOwlClassMapper {
         ReflectionUtils.doWithFields(entity.getClass(), field -> {
             ReflectionUtils.makeAccessible(field);
             Object f = field.get(entity);
-            if ( ( f != null) && (((Set) f).contains(typeIri))) {
+            if ((f != null) && (((Set) f).contains(typeIri))) {
                 result.set(true);
             }
         }, field -> field.getDeclaredAnnotation(Types.class) != null);
