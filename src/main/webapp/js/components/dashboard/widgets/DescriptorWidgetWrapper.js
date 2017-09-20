@@ -35,7 +35,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             if (data.action === Actions.selectDatasetSource) {
                 this.props.loadingOn();
                 Actions.getDescriptorsForDatasetSource(
-                    data.datasetSource.hash,
+                    data.datasetSource.id,
                     this.state.descriptorTypeIri);
                 this.setState({
                     datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
@@ -50,7 +50,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
                         descriptorContent: null
                     }
                     if ( data.descriptors && data.descriptors[0] ) {
-                        const id = data.descriptors[0].hash;
+                        const id = data.descriptors[0].id;
                         Actions.getDescriptorContent(id, this.state.descriptorQuery);
                         state.selectedDescriptorId = id;
                     }
@@ -82,13 +82,13 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             // passed through
             const descriptors = [];
             this.state.descriptors.forEach((d) => {
-                descriptors.push(<option value={d.hash} key={d.hash}>{d.id}</option>);
+                descriptors.push(<option value={d.id} key={d.id}>{d.id}</option>);
             });
 
             return <div>
                 <Button onClick={(e) => {
                     Actions.computeDescriptorForDatasetSource(
-                        this.state.datasetSource.hash,
+                        this.state.datasetSource.id,
                         this.state.descriptorTypeIri
                     );
                 }}>

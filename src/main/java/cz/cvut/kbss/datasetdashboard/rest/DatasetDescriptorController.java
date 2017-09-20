@@ -17,10 +17,10 @@ public class DatasetDescriptorController {
     @Autowired
     private DatasetDescriptorService service;
 
-    @RequestMapping(path = "/{id}/actions/content", method = RequestMethod.GET,
+    @RequestMapping(path = "/actions/content", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public RawJson getDescriptorContent (
-        @PathVariable String id,
+        @RequestParam String id,
         @RequestParam(required = false) String fileName) {
         return service.getDescriptorContent(id, fileName);
     }

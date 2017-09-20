@@ -59,11 +59,9 @@ public class DatasetSourceService {
      */
     private JsonArray outputSources(final List<dataset_source> dataset_sources) {
         final JsonArray result = new JsonArray();
-        int datasetSourceLength = Vocabulary.s_c_dataset_source.length() + 1;
         dataset_sources.forEach((v) -> {
             try {
                 final JsonObject ds = new JsonObject();
-                ds.addProperty("hash", v.getId().substring(Math.min(v.getId().length(),datasetSourceLength)));
                 ds.addProperty("id", v.getId());
                 if (EntityToOwlClassMapper.isOfType(v, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
                     ds.addProperty("type", Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
@@ -102,7 +100,6 @@ public class DatasetSourceService {
         data.forEach((v) -> {
             try {
                 final JsonObject ds = new JsonObject();
-                ds.addProperty("hash", v.getId().substring(Vocabulary.s_c_dataset_descriptor.length() + 1));
                 ds.addProperty("id", v.getId());
                 ds.addProperty("type", Vocabulary.s_c_dataset_descriptor);
                 result.add(ds);
@@ -129,7 +126,7 @@ public class DatasetSourceService {
 
         return new RawJson(JsonLD.toJsonLd(
             datasetSourceDao.getSparqlConstructResult(
-                datasetSourceDao.find(URI.create(datasetSourceDao.getIri(id))),
+                datasetSourceDao.find(URI.create(id)),
                 queryFile,
                 bindings))
         );

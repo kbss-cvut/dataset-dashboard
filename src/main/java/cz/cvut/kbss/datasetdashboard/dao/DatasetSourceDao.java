@@ -12,6 +12,7 @@ import cz.cvut.kbss.ddo.model.dataset_source;
 import cz.cvut.kbss.ddo.model.named_graph_sparql_endpoint_dataset_source;
 import cz.cvut.kbss.ddo.model.sparql_endpoint_dataset_source;
 import cz.cvut.kbss.jopa.model.EntityManager;
+import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
 import cz.cvut.kbss.jopa.model.query.TypedQuery;
 import java.net.URI;
 import java.text.MessageFormat;
@@ -92,7 +93,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
 
     private dataset_source createDatasetSource(int id) {
         final dataset_source datasetSource = new dataset_source();
-        datasetSource.setId(getIri(id+""));
+        datasetSource.setId(id + "");
         final Set<String> types = new HashSet<>();
         types.add(Vocabulary.s_c_dataset_source);
         datasetSource.setTypes(types);
@@ -121,7 +122,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     @Transactional("txManager")
     public dataset_source register(final String url) {
         int id = url.hashCode();
-        dataset_source ds = em.find(dataset_source.class, getIri(id+""));
+        dataset_source ds = em.find(dataset_source.class, id + "");
 
         if (ds == null) {
             final dataset dataset = createDataset(id);
@@ -130,16 +131,15 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             ds.getProperties().put(Vocabulary.s_p_has_download_url, Collections.singleton(url));
             ds.setOffers_dataset(Collections.singleton(dataset));
             dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
-            em.persist(dataset);
-            em.persist(ds);
+            EntityDescriptor d = new EntityDescriptor(
+                URI.create("http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources")
+            );
+            em.persist(dataset, d);
+            em.persist(ds, d);
         } else {
             LOG.warn("The datasource {} has already been registered.", id);
         }
         return ds;
-    }
-
-    public String getIri(final String id) {
-        return Vocabulary.s_c_dataset_source + "-" + id;
     }
 
     /**
@@ -152,8 +152,15 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     @Transactional("txManager")
     public dataset_source register(final String endpointUrl, final String graphIri) {
         int id = (endpointUrl + graphIri).hashCode();
-        dataset_source ds = em.find(dataset_source.class, getIri(id+""));
-        if (ds == null) {
+        TypedQuery q = em.createNativeQuery("SELECT DISTINCT ?datasetSource { ?datasetSource ?hasEndpointUrl ?endpointUrl ; ?hasGraphId ?graphId }", dataset_descriptor.class)
+            .setParameter("hasEndpointUrl", Vocabulary.s_p_has_endpoint_url)
+            .setParameter("hasGraphId", Vocabulary.s_p_has_graph_id)
+            .setParameter("endpointUrl", endpointUrl)
+            .setParameter("graphId", graphIri);
+
+        List<dataset_source> datasetSources = q.getResultList();
+        dataset_source ds;
+        if (datasetSources.isEmpty()) {
             final dataset dataset = createDataset(id);
             ds = createDatasetSource(id);
             ds.getProperties().put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(endpointUrl));
@@ -172,9 +179,13 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             }
             ds.setOffers_dataset(Collections.singleton(dataset));
             dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
-            em.persist(dataset);
-            em.persist(ds);
+            EntityDescriptor d = new EntityDescriptor(
+                URI.create("http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources")
+            );
+            em.persist(dataset, d);
+            em.persist(ds, d);
         } else {
+            ds = datasetSources.iterator().next();
             LOG.warn("The datasource {} has already been registered.", id);
         }
         return ds;
@@ -195,7 +206,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             .setParameter("vocDescription", URI.create(Vocabulary.s_c_description))
             .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
             .setParameter("vocInvHasDatasetDescriptor", URI.create(Vocabulary.s_p_inv_dot_has_dataset_descriptor))
-            .setParameter("datasetSource", URI.create(getIri(datasetSourceId)));
+            .setParameter("datasetSource", URI.create(datasetSourceId));
         if (descriptorType != null) {
             q = q.setParameter("datasetDescriptorType", URI.create(descriptorType));
         }

@@ -5,7 +5,7 @@ import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import {Badge,Button} from "react-bootstrap";
+import {Button, Col, Grid, Row} from "react-bootstrap";
 import Tree, {TreeNode} from "rc-tree";
 import Vocabulary from "./model/Vocabulary";
 import Concept from "./model/Concept";
@@ -35,8 +35,8 @@ class Hierarchy extends React.Component {
         if (data.action === Actions.selectDatasetSource) {
             this.setState({loadedQueries: [], iriToVocabularyMap: {}, vocabularyIriActiveMap: {}})
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryHierarchy);
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryHierarchy2);
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryHierarchy);
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryHierarchy2);
         } else {
             if (data.queryName === queryHierarchy) {
                 this.constructSkosTree(data.jsonLD)
@@ -60,7 +60,7 @@ class Hierarchy extends React.Component {
 
     createActiveMap(iriToVocabularyMap) {
         const vocabularyIriActiveMap = {};
-        Object.keys(iriToVocabularyMap).forEach((iri)=>{
+        Object.keys(iriToVocabularyMap).forEach((iri) => {
             vocabularyIriActiveMap[iri] = true;
         });
         return vocabularyIriActiveMap;
@@ -74,13 +74,13 @@ class Hierarchy extends React.Component {
 
         const skosPrefix = "http://www.w3.org/2004/02/skos/core#";
         const defaultVocabulary = this.createDefaultVocabulary("http://onto.fel.cvut.cz/ontologies/vocabulary/skos/default",
-        skosPrefix);
+            skosPrefix);
         const iriToVocabularyMap = this.state.iriToVocabularyMap;
         iriToVocabularyMap[defaultVocabulary.iri] = defaultVocabulary;
 
         // if (conceptSchemes.indexOf(defaultVocabulary) < 0) {
         conceptSchemes.push(defaultVocabulary);
-        conceptSchemeIriToConceptsMap[defaultVocabulary.iri]=[];
+        conceptSchemeIriToConceptsMap[defaultVocabulary.iri] = [];
         // }
 
         if (jsonLD.length) {
@@ -93,18 +93,15 @@ class Hierarchy extends React.Component {
                     const vocabulary = Vocabulary.loadFromJsonLd(item)
                     vocabulary.parentIri = skosPrefix;
                     conceptSchemes.push(vocabulary);
-                    // return this.renderConceptScheme(item)
                 } else if (type == skosPrefix + "Concept") {
                     const concept = Concept.loadFromJsonLd(item, skosPrefix + "broader");
-                    concept.children=[];
+                    concept.children = [];
                     conceptIriToConceptMap[concept.iri] = concept;
 
                     const conceptSchemeIris = item[skosPrefix + "inScheme"];
-                    let conceptSchemeIri = null;
+                    let conceptSchemeIri = defaultVocabulary.iri;
                     if (conceptSchemeIris) {
                         conceptSchemeIri = conceptSchemeIris[0]['@id'];
-                    } else {
-                        conceptSchemeIri = defaultVocabulary.iri;
                     }
                     let concepts = conceptSchemeIriToConceptsMap[conceptSchemeIri];
                     if (!concepts) {
@@ -142,7 +139,7 @@ class Hierarchy extends React.Component {
         const owlPrefix = "http://www.w3.org/2002/07/owl#";
         const rdfsPrefix = "http://www.w3.org/2000/01/rdf-schema#";
 
-        const defaultVocabulary = this.createDefaultVocabulary("http://onto.fel.cvut.cz/ontologies/vocabulary/owl/default",owlPrefix);
+        const defaultVocabulary = this.createDefaultVocabulary("http://onto.fel.cvut.cz/ontologies/vocabulary/owl/default", owlPrefix);
         defaultVocabulary.childrenIris = [];
 
         const iriToVocabularyMap = this.state.iriToVocabularyMap;
@@ -157,7 +154,7 @@ class Hierarchy extends React.Component {
                 if (type == owlPrefix + "Class") {
                     const concept = Concept.loadFromJsonLd(item, rdfsPrefix + "subClassOf");
                     conceptIriToConceptMap[concept.iri] = concept;
-                    concept.children=[];
+                    concept.children = [];
                 }
             });
             Object.values(conceptIriToConceptMap).forEach((concept) => {
@@ -194,9 +191,9 @@ class Hierarchy extends React.Component {
     onVocabularySelect(iri) {
         const l = this.state.vocabularyIriActiveMap;
         Object.keys(l).filter((vocabulary) => {
-            return vocabulary == iri}).
-        forEach((vocabulary) => {
-            if ( !l[vocabulary]) {
+            return vocabulary == iri
+        }).forEach((vocabulary) => {
+            if (!l[vocabulary]) {
                 l[vocabulary] = false;
             }
             l[vocabulary] = !l[vocabulary];
@@ -209,35 +206,52 @@ class Hierarchy extends React.Component {
     render() {
         const topVocabularies = this.props.vocabularies;
         const iriToVocabularyMap = this.state.iriToVocabularyMap;
-        let vocabularyIriActiveMap = this.state.vocabularyIriActiveMap;
-        const subVocabularyIris = Object.keys(iriToVocabularyMap).filter((vocabularyIri)=> {
+        const subVocabularyIris = Object.keys(iriToVocabularyMap).filter((vocabularyIri) => {
             return (topVocabularies.indexOf(iriToVocabularyMap[vocabularyIri].parentIri) > -1);
         });
-        Object.keys(vocabularyIriActiveMap).forEach((vocabularyIri)=> {
-            if ( subVocabularyIris.indexOf(vocabularyIri) < 0 ) {
+        let vocabularyIriActiveMap = this.state.vocabularyIriActiveMap;
+        Object.keys(vocabularyIriActiveMap).forEach((vocabularyIri) => {
+            if (subVocabularyIris.indexOf(vocabularyIri) < 0) {
                 vocabularyIriActiveMap[vocabularyIri] = false;
             }
         });
         const rootsWithActiveVocabularies = this.state.tree.filter((node) => {
             return (Object.keys(iriToVocabularyMap).filter((vocabularyIri) => {
                 const active = vocabularyIriActiveMap[vocabularyIri]
-                return active && iriToVocabularyMap[vocabularyIri].childrenIris.indexOf(node.iri) > -1}).length > 0);
+                return active && iriToVocabularyMap[vocabularyIri].childrenIris.indexOf(node.iri) > -1
+            }).length > 0);
         });
-        const children = rootsWithActiveVocabularies.map((node) => { return this._renderTree(node); });
+        const children = rootsWithActiveVocabularies.map((node) => {
+            return this._renderTree(node);
+        });
+        // const subVocabulariesComponents = subVocabularyIris.map((iri) => {
+        //     return <Button key={iri} onClick={() => {
+        //         return this.onVocabularySelect(iri)
+        //     }} active={vocabularyIriActiveMap[iri]}>
+        //         {NamespaceStore.getShortForm(iri)}
+        //     </Button>;
+        // });
         const subVocabulariesComponents = subVocabularyIris.map((iri) => {
-            return <Button key={iri} onClick={()=>{return this.onVocabularySelect(iri)}} active={vocabularyIriActiveMap[iri]}>
-                {NamespaceStore.getShortForm(iri)}
-            </Button>;
+            return { id: iri };
         });
         return (<div>
-            {subVocabulariesComponents}
-            <Tree
-                showLine
-                showIcon={false}
-                defaultExpandAll
-                autoExpandParent={true}>
-                {children}
-            </Tree>
+            <Grid>
+                <Row className="show-grid">
+                    <Col xs={6} md={4}>
+                        <BootstrapTable data={subVocabulariesComponents} striped={true} hover={true} condensed>
+                            <TableHeaderColumn dataField="id" isKey={true} dataSort={true}></TableHeaderColumn>
+                        </BootstrapTable>
+                    </Col>
+                    <Col xs={12} md={8}><Tree
+                        showLine
+                        showIcon={false}
+                        defaultExpandAll
+                        autoExpandParent={true}>
+                        {children}
+                    </Tree></Col>
+                </Row>
+            </Grid>
+
         </div>);
     };
 }

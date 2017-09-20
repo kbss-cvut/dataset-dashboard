@@ -11,6 +11,7 @@ import cz.cvut.kbss.ddo.model.described_data_artifact;
 import cz.cvut.kbss.ddo.model.description;
 import cz.cvut.kbss.ddo.model.publisher;
 import cz.cvut.kbss.jopa.model.EntityManager;
+import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -142,16 +143,20 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         final dataset_publication iPublication = createPublication(iDescription.getHas_dataset_descriptor());
 
-        em.merge(iDescription.getIs_description_of());
-        em.merge(iDescription.getHas_dataset_descriptor());
-        em.merge(iDescription.getHas_source().iterator().next());
-        em.merge(((dataset_source) iDescription.getHas_source().iterator().next()).getOffers_dataset().iterator().next());
-        em.merge(iDescription);
+        EntityDescriptor d = new EntityDescriptor(
+            URI.create(iPublication.getId())
+        );
 
-        em.merge(iPublication.getHas_publisher().iterator().next());
-        em.merge(iPublication.getHas_source().iterator().next());
-        em.merge(((dataset_source) iPublication.getHas_source().iterator().next()).getOffers_dataset().iterator().next());
-        em.merge(iPublication);
+        em.merge(iDescription.getIs_description_of(), d);
+        em.merge(iDescription.getHas_dataset_descriptor(), d);
+        em.merge(iDescription.getHas_source().iterator().next(), d);
+        em.merge(((dataset_source) iDescription.getHas_source().iterator().next()).getOffers_dataset().iterator().next(), d);
+        em.merge(iDescription, d);
+
+        em.merge(iPublication.getHas_publisher().iterator().next(), d);
+        em.merge(iPublication.getHas_source().iterator().next(), d);
+        em.merge(((dataset_source) iPublication.getHas_source().iterator().next()).getOffers_dataset().iterator().next(), d);
+        em.merge(iPublication, d);
 
         return iPublication;
     }
@@ -259,7 +264,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
      */
     @Transactional("txManager")
     public String getDescriptorContent(final String datasetDescriptorId, final String fileName) {
-        final URI datasetDescriptorIri = URI.create(Vocabulary.s_c_dataset_descriptor + "-" + datasetDescriptorId);
+        final URI datasetDescriptorIri = URI.create(datasetDescriptorId);//URI.create(Vocabulary.s_c_dataset_descriptor + "-" + datasetDescriptorId);
         final dataset_descriptor datasetDescriptor = em.find(dataset_descriptor.class, datasetDescriptorIri);
         final dataset_source datasetSource = getSourceForDescriptor(datasetDescriptor);
 

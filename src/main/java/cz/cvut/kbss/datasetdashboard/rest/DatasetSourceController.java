@@ -50,10 +50,10 @@ public class DatasetSourceController {
      * @param bindings
      * @return
      */
-    @RequestMapping(path = "/{id}/actions/query", method = RequestMethod.GET,
+    @RequestMapping(path = "/actions/query", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public RawJson executeQuery(
-        @PathVariable String id,
+        @RequestParam String id,
         @RequestParam Map<String,String> bindings) {
         String queryFile  = bindings.remove("queryFile");
 
@@ -67,10 +67,10 @@ public class DatasetSourceController {
      * @param descriptorTypeIri
      * @return
      */
-    @RequestMapping(path = "/{id}/descriptor", method = RequestMethod.GET,
+    @RequestMapping(path = "/descriptor", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public RawJson getDescriptorsForDatasetSource (
-        @PathVariable String id,
+        @RequestParam String id,
         @RequestParam String descriptorTypeIri) {
         return datasetSourceService.getDescriptorsForDatasetSource(id, descriptorTypeIri);
     }

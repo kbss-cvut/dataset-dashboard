@@ -34,8 +34,8 @@ class VocabularyWidget extends React.Component {
 
         if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryType);
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, queryLanguage);
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryType);
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryLanguage);
         } else {
             if (data.queryName === queryType) {
                 this.setState({

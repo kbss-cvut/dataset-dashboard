@@ -19,9 +19,9 @@ const DatasetDescriptorStore = Reflux.createStore({
             fileName: fileName
         };
 
-        let url = BASE_URL+"/"+descriptorId+"/actions/content";
+        let url = BASE_URL+"/actions/content?id="+descriptorId;
         if (fileName) {
-            url = url + "?fileName=" + fileName;
+            url = url + "&fileName=" + fileName;
         }
         Ajax.get(url).end(function (data) {
             const that = this;
