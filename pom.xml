@@ -26,7 +26,7 @@
         <org.springframework.version>4.3.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>4.2.1.RELEASE</org.springframework.security.version>
         <ch.qos.logback.version>1.1.6</ch.qos.logback.version>
-        <org.aspectj.version>1.8.10</org.aspectj.version>
+        <org.aspectj.version>1.8.9</org.aspectj.version>
     </properties>
 
     <repositories>

@@ -49,7 +49,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * @param sparqlEndpointUrl URL of the SPARQL endpoint to execute the query on
      * @return a JSON array of results
      */
-    @Transactional("txManager")
     public JsonArray getSparqlSelectResult(final String queryName, final String sparqlEndpointUrl) {
         final JsonParser jsonParser = new JsonParser();
         String result = sparqlAccessor.getSparqlResult(queryName, Collections.emptyMap(),
@@ -89,7 +88,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      *
      * @return all registered dataset sources.
      */
-    @Transactional("txManager")
     public List<dataset_source> getAll() {
         final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut"
             + ".cz/ontologies/dataset-descriptor/> SELECT DISTINCT ?x ?endpoint ?graphId WHERE { "
@@ -142,7 +140,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * @param url to store as a dataset source
      * @return an identifier of the registered dataset source.
      */
-    @Transactional("txManager")
     public dataset_source register(final String url) {
         int id = url.hashCode();
         dataset_source ds = em.find(dataset_source.class, id + "");
@@ -171,7 +168,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * @param graphIri    IRI of the context within the SPARQL endpoint
      * @return an identifier of the registered dataset source
      */
-    @Transactional("txManager")
     public dataset_source register(final String endpointUrl, final String graphIri) {
         int id = (endpointUrl + graphIri).hashCode();
         TypedQuery q = em.createNativeQuery("SELECT DISTINCT ?datasetSource { ?datasetSource "
@@ -220,7 +216,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * @param descriptorType  IRI of the class of the descriptor
      * @return content of the descriptor
      */
-    @Transactional("txManager")
     public List<dataset_descriptor> getDescriptors(final String datasetSourceId, final String
         descriptorType) {
         TypedQuery q = em.createNativeQuery("SELECT DISTINCT ?datasetDescriptor { "
@@ -253,11 +248,9 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    @Transactional("txManager")
     public String getSparqlConstructResult(dataset_source ds, final String queryFile,
         final Map<String, String> bindings) {
         dataset_source datasetSource = this.find(URI.create(ds.getId()));
-        datasetSource.getProperties();
 
         if (EntityToOwlClassMapper.isOfType(datasetSource, Vocabulary
             .s_c_named_graph_sparql_endpoint_dataset_source)) {

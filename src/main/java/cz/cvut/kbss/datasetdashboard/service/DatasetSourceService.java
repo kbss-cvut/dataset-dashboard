@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DatasetSourceService {
@@ -27,6 +28,7 @@ public class DatasetSourceService {
      * @param url to store as a dataset source
      * @return an identifier of the registered dataset source.
      */
+    @Transactional
     public String register(final String url) {
         return datasetSourceDao.register(url).getId();
     }
@@ -38,6 +40,7 @@ public class DatasetSourceService {
      * @param graphIri    IRI of the context within the SPARQL endpoint
      * @return an identifier of the registered dataset source
      */
+    @Transactional
     public String register(final String endpointUrl, final String graphIri) {
         return datasetSourceDao.register(endpointUrl, graphIri).getId();
     }
@@ -47,6 +50,7 @@ public class DatasetSourceService {
      *
      * @return a list of data sources.
      */
+    @Transactional
     public RawJson getDataSources() {
         return new RawJson(outputSources(datasetSourceDao.getAll()).toString());
     }
@@ -91,6 +95,7 @@ public class DatasetSourceService {
         return result;
     }
 
+    @Transactional
     public RawJson getDescriptorsForDatasetSource(final String sourceId, final String
         descriptorTypeIri) {
         return new RawJson(outputDescriptors(datasetSourceDao.getDescriptors(sourceId,
@@ -121,6 +126,7 @@ public class DatasetSourceService {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
+    @Transactional
     public RawJson getSparqlConstructResult(final String queryFile, final String id,
         final Map<String, String> bindings) {
 

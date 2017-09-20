@@ -3,7 +3,6 @@ package cz.cvut.kbss.datasetdashboard.dao;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.datasetdashboard.persistence.PersistenceException;
 import cz.cvut.kbss.jopa.model.EntityManager;
-import cz.cvut.kbss.jopa.model.EntityManagerFactory;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import java.net.URI;
 import java.util.Collection;
@@ -12,7 +11,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base implementation of the generic DAO.
@@ -32,7 +30,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         this.typeUri = URI.create(EntityToOwlClassMapper.getOwlClassForEntity(type));
     }
 
-    @Transactional("txManager")
     public T find(URI uri) {
         Objects.requireNonNull(uri);
         return em.find(type, uri);
@@ -43,7 +40,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @return a list of objects
      */
-    @Transactional("txManager")
     public List<T> findAll() {
         return em.createNativeQuery("SELECT ?x WHERE { ?x a ?type . }", type)
             .setParameter("type", typeUri)
@@ -55,7 +51,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @param entity Entity to persist
      */
-    @Transactional("txManager")
     public void persist(T entity) {
         Objects.requireNonNull(entity);
         try {
@@ -71,7 +66,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @param entities multiple entities to persist
      */
-    @Transactional("txManager")
     public void persist(Collection<T> entities) {
         Objects.requireNonNull(entities);
         if (entities.isEmpty()) {
@@ -90,7 +84,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @param entity Entity to update
      */
-    @Transactional("txManager")
     public void update(T entity) {
         Objects.requireNonNull(entity);
         try {
@@ -106,7 +99,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @param entity Entity to remove
      */
-    @Transactional("txManager")
     public void remove(T entity) {
         Objects.requireNonNull(entity);
         try {
@@ -124,7 +116,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      *
      * @param entities entities to remove
      */
-    @Transactional("txManager")
     public void remove(Collection<T> entities) {
         Objects.requireNonNull(entities);
         if (entities.isEmpty()) {
@@ -147,7 +138,6 @@ public abstract class BaseDao<T> implements GenericDao<T> {
      * @param uri Entity identifier
      * @return true, if exists, false otherwise
      */
-    @Transactional("txManager")
     public boolean exists(URI uri) {
         if (uri == null) {
             return false;

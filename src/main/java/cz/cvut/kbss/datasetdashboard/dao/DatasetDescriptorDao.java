@@ -2,6 +2,7 @@ package cz.cvut.kbss.datasetdashboard.dao;
 
 import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
+import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -30,7 +31,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -118,8 +118,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         final dataset_source indDatasetSource = new dataset_source();
         final Map<String, Set<String>> datasetSourceProperties = new HashMap<>();
-        datasetSourceProperties.put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(
-            environment.getProperty("descriptorsEndpoint")));
+        datasetSourceProperties.put(Vocabulary.s_p_has_endpoint_url, Collections.singleton
+            (environment.getProperty("descriptorsEndpoint")));
         datasetSourceProperties.put(Vocabulary.s_p_has_graph_id, Collections.singleton(descriptor
             .getId()));
         indDatasetSource.setProperties(datasetSourceProperties);
@@ -173,24 +173,22 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
      * Computes a new descriptor of given type for the given dataset source.
      *
      * @param datasetSourceId IRI of the dataset source to compute
-     * @param descriptorType IRI of the descriptor type
+     * @param descriptorType  IRI of the descriptor type
      * @return new dataset descriptor
      */
-    @Transactional("txManager")
     public dataset_descriptor computeDescriptorForDatasetSource(final String datasetSourceId,
         final String descriptorType) {
-        final URI datasetSourceIri = URI.create(Vocabulary.s_c_dataset_source + "-"
-            + datasetSourceId);
+        final URI datasetSourceIri = URI.create(datasetSourceId);
         if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
             final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
             String url = environment.getProperty("spipes.service");
             // not using params - order is important
             url += "?id=" + "compute-spo-summary-descriptor";
-            if (ds.getTypes().contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+            if (EntityToOwlClassMapper.isOfType(ds,Vocabulary.s_c_sparql_endpoint_dataset_source)) {
                 url += "&datasetEndpointUrl=" + ds.getProperties().get(Vocabulary
                     .s_p_has_endpoint_url).iterator().next();
-            } else if (ds.getTypes().contains(Vocabulary
+            } else if (EntityToOwlClassMapper.isOfType(ds,Vocabulary
                 .s_c_named_graph_sparql_endpoint_dataset_source)) {
                 url += "&datasetEndpointUrl=" + ds.getProperties().get(Vocabulary
                     .s_p_has_endpoint_url).iterator().next();
@@ -215,8 +213,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 .s_p_has_graph_id).iterator().next() + ">";
 
             System.out.println(graphIri);
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri).queryParam(
-                "context", graphIri);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uri).queryParam
+                ("context", graphIri);
             String uriBuilder = builder.build().encode().toUriString();
 
             System.out.println(uriBuilder);
@@ -232,8 +230,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 final ResponseEntity<String> result = restTemplate.exchange(urlWithQuery,
                     HttpMethod.POST, entity, String.class);
             } catch (HttpServerErrorException e) {
-                LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, "
-                    + "Body:", urlWithQuery.toString(), e.getStatusCode(), e
+                LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, " +
+                    "Body:", urlWithQuery.toString(), e.getStatusCode(), e
                     .getResponseBodyAsString());
                 throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
             } catch (Exception e) {
@@ -254,7 +252,6 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
      * @param datasetDescriptorId id of the dataset Descriptor
      * @return content of the descriptor
      */
-    @Transactional("txManager")
     public String getDescriptorContent(final String datasetDescriptorId, final String fileName) {
         final URI datasetDescriptorIri = URI.create(datasetDescriptorId);//URI.create(Vocabulary
         // .s_c_dataset_descriptor + "-" + datasetDescriptorId);
@@ -263,8 +260,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         final dataset_source datasetSource = getSourceForDescriptor(datasetDescriptor);
 
         if (fileName != null) {
-            return datasetSourceDao.getSparqlConstructResult(datasetSource, "query/"
-                + fileName + ".rq", Collections.emptyMap());
+            return datasetSourceDao.getSparqlConstructResult(datasetSource, "query/" + fileName +
+                ".rq", Collections.emptyMap());
         } else {
             return datasetSourceDao.getSparqlConstructResult(datasetSource,
                 "query/get_full_endpoint.rq", Collections.emptyMap());
@@ -273,9 +270,9 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor) {
         return em.createNativeQuery("SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource "
-            + "" + "" + "?datasetSource. }", dataset_source.class).setParameter("vocHasSource",
-            URI.create(Vocabulary.s_p_has_source)).setParameter("publication", URI.create(
-            datasetDescriptor.getInv_dot_has_published_dataset_snapshot().getId()))
+            + "" + "" + "" + "?datasetSource. }", dataset_source.class).setParameter
+            ("vocHasSource", URI.create(Vocabulary.s_p_has_source)).setParameter("publication",
+            URI.create(datasetDescriptor.getInv_dot_has_published_dataset_snapshot().getId()))
             .getSingleResult();
     }
 }

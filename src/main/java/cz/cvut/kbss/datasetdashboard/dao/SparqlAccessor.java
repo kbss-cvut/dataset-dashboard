@@ -69,7 +69,6 @@ public class SparqlAccessor {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    @Transactional("txManager")
     public String getSparqlResult(final String queryFile, final Map<String, String> bindings,
         final String repositoryUrl, final String graphIri, final String mediaType) {
         if (repositoryUrl.isEmpty()) {
