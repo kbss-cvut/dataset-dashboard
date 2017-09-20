@@ -6,7 +6,14 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
 
-public class JsonLD {
+public class JsonLd {
+
+    /**
+     * Transforms TTL into JSON-LD.
+     *
+     * @param turtle TTL string
+     * @return JSON-LD string
+     */
     public static String toJsonLd(String turtle) {
         final Model m = ModelFactory.createDefaultModel();
         if (turtle != null) {

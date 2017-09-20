@@ -26,7 +26,7 @@ public class CkanInitializer {
     private Environment env;
 
     /**
-     * Loads predefined SPARQL endpoints from CKAN
+     * Loads predefined SPARQL endpoints from CKAN.
      */
     @PostConstruct
     public void init() {
@@ -44,8 +44,8 @@ public class CkanInitializer {
 
     private void loadCkanDatasetSources(final String sparqlEndpointUrl) {
         try {
-            datasetSourceDao.getSparqlSelectResult("query/get_ckan_datasetsources.rq", sparqlEndpointUrl)
-                .forEach((e) -> {
+            datasetSourceDao.getSparqlSelectResult("query/get_ckan_datasetsources.rq",
+                sparqlEndpointUrl).forEach((e) -> {
                     final String type = getStringValue(e.getAsJsonObject(), "type");
                     final String url = getStringValue(e.getAsJsonObject(), "url");
 
@@ -57,7 +57,8 @@ public class CkanInitializer {
                     } else if (Vocabulary.s_c_url_dataset_source.equals(type)) {
                         datasetSourceDao.register(url, null);
                     }
-                });
+                }
+            );
         } catch (final Exception e) {
             logger.info("Unable to fetch dataset sources from {}", sparqlEndpointUrl, e);
         }

@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
-import cz.cvut.kbss.datasetdashboard.util.JsonLD;
+import cz.cvut.kbss.datasetdashboard.util.JsonLd;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
@@ -124,7 +124,7 @@ public class DatasetSourceService {
     public RawJson getSparqlConstructResult(final String queryFile, final String id,
         final Map<String, String> bindings) {
 
-        return new RawJson(JsonLD.toJsonLd(datasetSourceDao.getSparqlConstructResult(
+        return new RawJson(JsonLd.toJsonLd(datasetSourceDao.getSparqlConstructResult(
             datasetSourceDao.find(URI.create(id)), queryFile, bindings))
         );
     }
