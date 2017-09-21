@@ -26,7 +26,7 @@ const nodeTemplate = {
 };
 
 const edgeTemplate = {
-    font: {align: 'middle'},
+    font: {align: 'top',multi:'html'},
     arrows: 'to',
     physics: false,
     smooth: {
@@ -37,11 +37,15 @@ const edgeTemplate = {
 const graphOptions = {
     layout: {
         hierarchical: {
-            direction: 'LR',
-            levelSeparation: 400,
-            nodeSpacing: 100,
+            direction: 'UD',
+            edgeMinimization: true,
+            levelSeparation: 100,
+            nodeSpacing: 400,
             treeSpacing: 200,
         }
+    },
+    interaction: {
+        hover: true,
     },
     edges: {
         color: "#000000"
@@ -123,7 +127,7 @@ class SchemaWidget extends React.Component {
         edge.label = NamespaceStore.getShortForm(prp);
         if (this.state.showWeight) {
             edge.width = Math.round(Math.log(weight) / Math.log(5));
-            edge.title = weight;
+            edge.title = ""+weight;
         }
         let count = fromToCount[srcNode.id + tgtNode.id];
         if (!count) count = 0;
@@ -199,7 +203,7 @@ class SchemaWidget extends React.Component {
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
                    options={graphOptions}
-                   style={{width: '100%', height: '400px'}}/>
+                   style={{width: '100%', height: '600px'}}/>
         </div>;
     };
 }
