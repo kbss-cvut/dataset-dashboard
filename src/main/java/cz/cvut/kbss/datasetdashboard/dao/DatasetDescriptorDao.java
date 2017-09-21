@@ -119,18 +119,25 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         indPublication.setId(Vocabulary.s_c_dataset_publication + "-" + time);
         indPublication.setHas_published_dataset_snapshot(descriptor);
 
-        final dataset_source indDatasetSource = new dataset_source();
         final Map<String, Set<String>> datasetSourceProperties = new HashMap<>();
         datasetSourceProperties.put(Vocabulary.s_p_has_endpoint_url,
             Collections.singleton(environment.getProperty("descriptorsEndpoint")));
         datasetSourceProperties
             .put(Vocabulary.s_p_has_graph_id, Collections.singleton(descriptor.getId()));
-        indDatasetSource.setProperties(datasetSourceProperties);
         final Set<String> datasetSourceTypes = new HashSet<>();
         datasetSourceTypes.add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
         datasetSourceTypes.add(Vocabulary.s_c_single_snapshot_dataset_source);
+        dataset_source indDatasetSource = new dataset_source();
+        indDatasetSource.setProperties(datasetSourceProperties);
         indDatasetSource.setTypes(datasetSourceTypes);
         setId(indDatasetSource);
+
+        dataset_source newIndDatasetSource = em.find(dataset_source.class,indDatasetSource.getId());
+        if (newIndDatasetSource != null) {
+            indDatasetSource = em.merge(newIndDatasetSource);
+        } else {
+            em.persist(indDatasetSource);
+        }
 
         dataset ds = new dataset();
         ds.setInv_dot_offers_dataset(Collections.singleton(indDatasetSource));
@@ -158,7 +165,6 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         em.merge(iDescription.getIs_description_of(), d);
         em.merge(iDescription.getHas_dataset_descriptor(), d);
-        em.merge(iDescription.getHas_source().iterator().next(), d);
         em.merge(
             ((dataset_source) iDescription.getHas_source().iterator().next()).getOffers_dataset()
                                                                              .iterator().next(), d);
@@ -222,12 +228,9 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 "<" + publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_graph_id)
                                             .iterator().next() + ">";
 
-            System.out.println(graphIri);
             UriComponentsBuilder builder =
                 UriComponentsBuilder.fromUriString(uri).queryParam("context", graphIri);
             String uriBuilder = builder.build().encode().toUriString();
-
-            System.out.println(uriBuilder);
 
             headers.put("Content-type", Collections.singletonList("application/ld+json"));
 
