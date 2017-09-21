@@ -128,7 +128,11 @@ const DatasetSourceStore = Reflux.createStore({
                 } else {
                     roots[ds.endpointUrl] = ds;
                 }
-            } else if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
+            }
+        });
+
+        dss.forEach((ds) => {
+           if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
                 if (!roots[ds.endpointUrl]) {
                     roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
                     roots[ds.endpointUrl].generated = true;
