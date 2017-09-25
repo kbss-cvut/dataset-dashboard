@@ -3,5 +3,14 @@
   "ovm-stav-datove-schranky'": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/StavDatoveSchranky/",
   "voc": "http://onto.fel.cvut.cz/ontologies/vocabulary/",
   "czso": "http://data.czso.cz/ontology/",
-  "onto": "	http://onto.fel.cvut.cz/ontologies/"
+  "onto": "	http://onto.fel.cvut.cz/ontologies/",
+  "vavai": "http://linked.opendata.cz/resource/domain/vavai/",
+  "vavai-cea-res": "http://linked.opendata.cz/ontology/domain/vavai/cea/res/",
+  "vavai-cea-org": "http://linked.opendata.cz/ontology/domain/vavai/cea/org/",
+  "vavai-cea-pgm": "http://linked.opendata.cz/ontology/domain/vavai/cea/pgm/",
+  "vavai-cea": "http://linked.opendata.cz/ontology/domain/vavai/cea/",
+  "vavai-cep": "http://linked.opendata.cz/ontology/domain/vavai/cep/",
+  "vavai-cez": "http://linked.opendata.cz/ontology/domain/vavai/cez/",
+  "vavai-riv": "http://linked.opendata.cz/ontology/domain/vavai/riv/",
+  "vavai-ves": "http://linked.opendata.cz/ontology/domain/vavai/ves/"
 }
