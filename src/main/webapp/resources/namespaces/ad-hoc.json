@@ -12,5 +12,7 @@
   "vavai-cep": "http://linked.opendata.cz/ontology/domain/vavai/cep/",
   "vavai-cez": "http://linked.opendata.cz/ontology/domain/vavai/cez/",
   "vavai-riv": "http://linked.opendata.cz/ontology/domain/vavai/riv/",
-  "vavai-ves": "http://linked.opendata.cz/ontology/domain/vavai/ves/"
+  "vavai-ves": "http://linked.opendata.cz/ontology/domain/vavai/ves/",
+  "ruian-o": "http://ruian.linked.opendata.cz/ontology/",
+  "eurostat-geo": "http://ec.europa.eu/eurostat/ramon/ontologies/geographic.rdf#regionCode"
 }
