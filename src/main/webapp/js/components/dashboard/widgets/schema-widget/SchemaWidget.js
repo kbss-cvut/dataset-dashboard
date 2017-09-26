@@ -116,8 +116,6 @@ class SchemaWidget extends React.Component {
 
     // creates a new node with given uri or reuses an existing if present in nodeMap.
     ensureNodeCreated(nodeMap, uri) {
-        // let nodeId = mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
-        // get the node for the uri, or create a new one if the node does not exist yet
         let nodeId = uri;
         let n = nodeMap[nodeId];
         if (!n) { // the node is not created yet
@@ -187,10 +185,6 @@ class SchemaWidget extends React.Component {
         return {'nodes': Utils.unique(nodesWithEdge), 'edges': edges};
     };
 
-    handleChange(value) {
-        this.setState({minWeight: value})
-    }
-
     render() {
         const {
             isFullscreen,
@@ -198,6 +192,7 @@ class SchemaWidget extends React.Component {
         } = this.props;
         const buttonLabel = (isFullscreen) ? 'Exit Fullscreen' : 'Enter Fullscreen';
         const toggleButton = <Button onClick={toggleFullscreen}>{buttonLabel}</Button>;
+
         const maxLimitWeight = this.computeMax(this.props.descriptorContent)
 
         const finalGraphOptions = graphOptions;
@@ -244,8 +239,9 @@ class SchemaWidget extends React.Component {
                     min={0}
                     max={maxLimitWeight}
                     value={this.state.minWeight}
-                    onChange={(value) => this.handleChange(value)}
-                />
+                    onChange={(value) => {
+                        this.setState({minWeight: value});
+                    }}/>
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
                    options={finalGraphOptions}
@@ -253,12 +249,6 @@ class SchemaWidget extends React.Component {
         </div>;
     };
 }
-//
-// SchemaWidget.propTypes = {
-//     isFullscreen: PropTypes.bool,
-//     toggleFullscreen: PropTypes.func,
-//     viewportDimensions: PropTypes.object
-// };
 
 export default LoadingWrapper(DescriptorWidgetWrapper(Fullscreenable()(SchemaWidget), Ddo.NS + "spo-summary-descriptor", "spo/spo-summary"),
     {maskClass: 'mask-container'});
