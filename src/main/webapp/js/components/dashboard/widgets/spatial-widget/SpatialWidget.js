@@ -9,6 +9,7 @@ import {render} from "react-dom";
 import {Map, Marker, Popup, TileLayer} from "react-leaflet";
 import proj4 from "proj4";
 import ClusterLayer from 'react-leaflet-cluster-layer';
+import * as console from "../../../../utils/Logger";
 
 // import {
 //     interaction, layer, custom, control, //name spaces
@@ -51,6 +52,7 @@ class SpatialWidget extends React.Component {
                 this.props.loadingOff();
             } else if (data.queryName === "spatial/get_features_with_geometry") {
                 let featuresWithGeometry = data.jsonld;
+                console.log(featuresWithGeometry);
                 this.setState({featuresWithGeometry: featuresWithGeometry});
             }
         } else if (data.action === Actions.selectDatasetSource) {
@@ -87,12 +89,18 @@ class SpatialWidget extends React.Component {
 
         // TODO: rozsekej jsonld na list s typem
         // select menu options
-        var listOfselectOptions = this.state.featuresWithGeometry;
+        var listOfSelectOptions = this.state.featuresWithGeometry;
+        console.log(listOfSelectOptions);
+        let listOfFeatures = [];
+        let counts = [];
+        // TODO: tady bude rozdeleni na features a pocet
+
 
         //create rollout menu
         var selectOptions = [];
         //TODO: pridej pocet features daneho typu
-        listOfselectOptions.forEach((value) => {
+        listOfSelectOptions.forEach((value) => {
+            //TODO: nebo to udelej tady jako property value
             selectOptions.push(<option value={value}>{value}</option>)
         });
 
