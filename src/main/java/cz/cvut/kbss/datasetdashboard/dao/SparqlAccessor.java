@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-//import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+//import org.springframework.http.MediaType;
 
 @Repository
 public class SparqlAccessor {
@@ -33,18 +34,6 @@ public class SparqlAccessor {
     @Qualifier("localDataLoader")
     private DataLoader localLoader;
 
-//    /**
-//     * Executes given named SPARQL query
-//     *
-//     * @param queryFile of the SPARQL query
-//     * @return a {@link RawJson} object containing JSON-formatted SPARQL Select result.
-//     *
-//     * @throws IllegalArgumentException When the specified queryName is not known
-//     */
-//    public RawJson getSparqlSelectResult(final String queryFile, final String repositoryUrl) {
-//        return getSparqlResult(queryFile, repositoryUrl, MediaType.APPLICATION_JSON_VALUE);
-//    }
-
     /**
      * Executes given named SPARQL query
      *
@@ -53,7 +42,8 @@ public class SparqlAccessor {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    private RawJson getSparqlResult(final String queryFile, final String repositoryUrl, final String mediaType) {
+    private RawJson getSparqlResult(final String queryFile, final String repositoryUrl,
+        final String mediaType) {
         if (repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
@@ -66,7 +56,8 @@ public class SparqlAccessor {
             final String data = remoteLoader.loadData(repositoryUrl, params);
             return new RawJson(data);
         } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unable to find encoding " + Constants.UTF_8_ENCODING, e);
+            throw new IllegalStateException("Unable to find encoding " + Constants
+                .UTF_8_ENCODING, e);
         }
     }
 
@@ -78,26 +69,26 @@ public class SparqlAccessor {
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
-    @Transactional("txManager")
-    public String getSparqlResult(final String queryFile, final Map<String, String> bindings, final String repositoryUrl, final String graphIri, final String mediaType) {
+    public String getSparqlResult(final String queryFile, final Map<String, String> bindings,
+        final String repositoryUrl, final String graphIri, final String mediaType) {
         if (repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
-//            if (!bindings.isEmpty()) {
-//                query = query + " VALUES (";
-//                for (final String key : bindings.keySet()) {
-//                    query = query + " ?" + key;
-//                }
-//                query = query + " )";
-//
-//                query = query + " { (";
-//                for (final String key : bindings.keySet()) {
-//                    query = query + " <" + bindings.get(key) + ">";
-//                }
-//                query = query + ") }";
-//            }
+            //            if (!bindings.isEmpty()) {
+            //                query = query + " VALUES (";
+            //                for (final String key : bindings.keySet()) {
+            //                    query = query + " ?" + key;
+            //                }
+            //                query = query + " )";
+            //
+            //                query = query + " { (";
+            //                for (final String key : bindings.keySet()) {
+            //                    query = query + " <" + bindings.get(key) + ">";
+            //                }
+            //                query = query + ") }";
+            //            }
 
             if (graphIri != null) {
                 final Query q = QueryFactory.create(query);
@@ -112,10 +103,12 @@ public class SparqlAccessor {
             }
             return remoteLoader.loadData(repositoryUrl, params);
         } catch (WebServiceIntegrationException e) {
-            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}, exception {}", queryFile, repositoryUrl, graphIri, e);
+            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}, exception "
+                + "{}", queryFile, repositoryUrl, graphIri, e);
             return null;
         } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unable to find encoding " + Constants.UTF_8_ENCODING, e);
+            throw new IllegalStateException("Unable to find encoding " + Constants
+                .UTF_8_ENCODING, e);
         }
     }
 }

@@ -2,8 +2,9 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import {Checkbox} from "react-bootstrap";
+import {Button, Checkbox} from "react-bootstrap";
 import Slider from "react-rangeslider";
+import Fullscreenable from "react-fullscreenable";
 
 import LoadingWrapper from "../../../misc/LoadingWrapper";
 import NamespaceStore from "../../../../stores/NamespaceStore";
@@ -12,8 +13,7 @@ import Utils from "../../Utils";
 import Rdf from "../../../../vocabulary/Rdf";
 
 import DescriptorWidgetWrapper from "../DescriptorWidgetWrapper";
-
-const DD_NS = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/";
+import Ddo from "../../../../vocabulary/Ddo";
 
 const nodeTemplate = {
     size: 150,
@@ -26,7 +26,7 @@ const nodeTemplate = {
 };
 
 const edgeTemplate = {
-    font: {align: 'middle'},
+    font: {align: 'top', multi: 'html'},
     arrows: 'to',
     physics: false,
     smooth: {
@@ -36,12 +36,22 @@ const edgeTemplate = {
 
 const graphOptions = {
     layout: {
+        improvedLayout: true,
         hierarchical: {
-            direction: 'LR',
-            levelSeparation: 400,
-            nodeSpacing: 100,
+            direction: 'UD',
+            edgeMinimization: true,
+            levelSeparation: 300,
+            nodeSpacing: 400,
             treeSpacing: 200,
         }
+    },
+    interaction: {
+        hover: true,
+        multiselect: true,
+        selectConnectedEdges: true,
+        hoverConnectedEdges: true,
+        zoomView: true,
+        tooltipDelay: 300
     },
     edges: {
         color: "#000000"
@@ -85,11 +95,17 @@ class SchemaWidget extends React.Component {
         };
     };
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.isFullscreen !== nextProps.isFullscreen) {
+            // Fullscreen status has changed.
+        }
+    }
+
     computeMax(data) {
         let max = 0;
-        if ( data ) {
+        if (data) {
             data.forEach((edge) => {
-                const weight = edge[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
+                const weight = edge[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value'];
                 if (weight > max) {
                     max = weight;
                 }
@@ -100,8 +116,6 @@ class SchemaWidget extends React.Component {
 
     // creates a new node with given uri or reuses an existing if present in nodeMap.
     ensureNodeCreated(nodeMap, uri) {
-        // let nodeId = mycrypto.createHash('md5').update(uri, 'UTF-8', 'UTF-8').digest().toString('base64');
-        // get the node for the uri, or create a new one if the node does not exist yet
         let nodeId = uri;
         let n = nodeMap[nodeId];
         if (!n) { // the node is not created yet
@@ -123,11 +137,12 @@ class SchemaWidget extends React.Component {
         edge.label = NamespaceStore.getShortForm(prp);
         if (this.state.showWeight) {
             edge.width = Math.round(Math.log(weight) / Math.log(5));
-            edge.title = weight;
+            edge.title = "" + weight;
+            edge.label = edge.label + " (" + weight + ")";
         }
         let count = fromToCount[srcNode.id + tgtNode.id];
         if (!count) count = 0;
-        edge.smooth.roundness = getRoundnessForIthEdge(count, 10);
+        edge.smooth.roundness = getRoundnessForIthEdge(count, 8);
         fromToCount[srcNode.id + tgtNode.id] = count + 1;
         return edge;
     };
@@ -143,7 +158,7 @@ class SchemaWidget extends React.Component {
             const srcNode = this.ensureNodeCreated(nodeMap, b[Rdf.NS + 'subject'][0]['@id']);
             const prp = b[Rdf.NS + 'predicate'][0]['@id'];
             const tgt = b[Rdf.NS + 'object'][0]['@id'];
-            const weight = b[DD_NS + 's-p-o-summary/hasWeight'][0]['@value'];
+            const weight = b[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value'];
             if (isDataType(tgt)) {
                 if (this.state.showAttributes) {
                     if (weight >= this.state.minWeight) {
@@ -170,13 +185,43 @@ class SchemaWidget extends React.Component {
         return {'nodes': Utils.unique(nodesWithEdge), 'edges': edges};
     };
 
-    handleChange(value) {
-        this.setState({minWeight: value})
-    }
-
     render() {
+        const {
+            isFullscreen,
+            toggleFullscreen
+        } = this.props;
+        const buttonLabel = (isFullscreen) ? 'Exit Fullscreen' : 'Enter Fullscreen';
+        const toggleButton = <Button onClick={toggleFullscreen}>{buttonLabel}</Button>;
+
         const maxLimitWeight = this.computeMax(this.props.descriptorContent)
+
+        const finalGraphOptions = graphOptions;
+        finalGraphOptions.configure = {
+            enabled: isFullscreen,
+            filter: (option, path) => {
+                if (path.indexOf('layout') !== -1) {
+                    if (
+                        (path.length == 1)
+                        || (option == 'enabled')
+                        || (option == 'levelSeparation')
+                        || (option == 'treeSpacing')
+                        || (option == 'nodeSpacing')
+                        || (option == 'direction')
+                        || (option == 'sortMethod')
+
+                    ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return false;
+            },//, "edges","interaction", "manipulation", "selection", "renderer", "physics"]
+            showButton: false
+        };
+
         return <div>
+            {toggleButton}
             <Checkbox checked={this.state.showAttributes}
                       onChange={(e) => {
                           this.setState({showAttributes: e.target.checked});
@@ -194,14 +239,16 @@ class SchemaWidget extends React.Component {
                     min={0}
                     max={maxLimitWeight}
                     value={this.state.minWeight}
-                    onChange={(value) => this.handleChange(value)}
-                />
+                    onChange={(value) => {
+                        this.setState({minWeight: value});
+                    }}/>
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
-                   options={graphOptions}
-                   style={{width: '100%', height: '400px'}}/>
+                   options={finalGraphOptions}
+                   style={{width: '100%', height: isFullscreen ? '900px' : '600px'}}/>)
         </div>;
     };
 }
-export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, DD_NS + "spo-summary-descriptor", "spo/spo-summary"),
+
+export default LoadingWrapper(DescriptorWidgetWrapper(Fullscreenable()(SchemaWidget), Ddo.NS + "spo-summary-descriptor", "spo/spo-summary"),
     {maskClass: 'mask-container'});

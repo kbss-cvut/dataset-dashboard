@@ -35,7 +35,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             if (data.action === Actions.selectDatasetSource) {
                 this.props.loadingOn();
                 Actions.getDescriptorsForDatasetSource(
-                    data.datasetSource.hash,
+                    data.datasetSource.id,
                     this.state.descriptorTypeIri);
                 this.setState({
                     datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
@@ -49,8 +49,8 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
                         descriptors: data.descriptors,
                         descriptorContent: null
                     }
-                    if ( data.descriptors && data.descriptors[0] ) {
-                        const id = data.descriptors[0].hash;
+                    if (data.descriptors && data.descriptors[0]) {
+                        const id = data.descriptors[0].id;
                         Actions.getDescriptorContent(id, this.state.descriptorQuery);
                         state.selectedDescriptorId = id;
                     }
@@ -62,7 +62,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
                     this.props.loadingOff();
 
                     this.setState({
-                        descriptorId : data.descriptorId,
+                        descriptorId: data.descriptorId,
                         descriptorContent: data.jsonLD,
                     });
                 }
@@ -82,33 +82,35 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             // passed through
             const descriptors = [];
             this.state.descriptors.forEach((d) => {
-                descriptors.push(<option value={d.hash} key={d.hash}>{d.id}</option>);
+                descriptors.push(<option value={d.id} key={d.id}>{d.id}</option>);
             });
 
-            return <div>
-                <Button onClick={(e) => {
-                    Actions.computeDescriptorForDatasetSource(
-                        this.state.datasetSource.hash,
-                        this.state.descriptorTypeIri
-                    );
-                }}>
-                    Compute
-                </Button>
+            const content =
+                (!this.state.descriptorContent) ? <div style={{textAlign: "center", verticalAlign: "center"}}>
+                    No Dataset Descriptor Selected
+                </div> :
+                    <Widget {...this.props}
+                            datasetSource={this.state.datasetSource}
+                            descriptorContent={this.state.descriptorContent}
+                    />
+
+            return <div> {this.state.datasetSource ? <div>
                 <FormControl
                     componentClass="select"
                     placeholder="No descriptor selected"
                     onChange={this.handleChange.bind(this)}>
                     {descriptors}
                 </FormControl>
-                {
-                    (!this.state.descriptorContent) ? <div style={{textAlign: "center", verticalAlign: "center"}}>
-                        No Dataset Descriptor Selected
-                    </div> :
-                        <Widget {...this.props}
-                                datasetSource={this.state.datasetSource}
-                                descriptorContent={this.state.descriptorContent}
-                        />
-                }
+                <Button onClick={(e) => {
+                    Actions.computeDescriptorForDatasetSource(
+                        this.state.datasetSource.id,
+                        this.state.descriptorTypeIri
+                    );
+                }}>
+                    Compute
+                </Button>
+                {content}
+            </div> : <div>No Dataset Source Selected.</div> }
             </div>;
         };
 

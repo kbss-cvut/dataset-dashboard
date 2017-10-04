@@ -22,11 +22,11 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <com.fasterxml.jackson.version>2.7.3</com.fasterxml.jackson.version>
 
-        <cz.cvut.kbss.jopa.version>0.9.6-20170510-patch</cz.cvut.kbss.jopa.version>
+        <cz.cvut.kbss.jopa.version>0.9.9</cz.cvut.kbss.jopa.version>
         <org.springframework.version>4.3.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>4.2.1.RELEASE</org.springframework.security.version>
         <ch.qos.logback.version>1.1.6</ch.qos.logback.version>
-        <org.aspectj.version>1.8.10</org.aspectj.version>
+        <org.aspectj.version>1.8.9</org.aspectj.version>
     </properties>
 
     <repositories>
@@ -187,24 +187,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <!-- Exclude files and folders which are not necessary in the war -->
-                    <warSourceExcludes>
-                        node_modules/,package.json,.babelrc,.eslintrc
-                    </warSourceExcludes>
-                    <packagingExcludes>
-                        node_modules/,package.json,.babelrc,.eslintrc
-                    </packagingExcludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <sourceDirectory>src/main/java</sourceDirectory>
@@ -239,6 +221,61 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <complianceLevel>1.8</complianceLevel>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <showWeaveInfo>true</showWeaveInfo>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>cz.cvut.kbss.jopa</groupId>
+                            <artifactId>jopa-impl</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${org.aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                        <version>${org.aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <!-- Exclude files and folders which are not necessary in the war -->
+                    <warSourceExcludes>
+                        node_modules/,package.json,.babelrc,.eslintrc
+                    </warSourceExcludes>
+                    <packagingExcludes>
+                        node_modules/,package.json,.babelrc,.eslintrc
+                    </packagingExcludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -284,46 +321,6 @@
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.7</version>
-                <configuration>
-                    <complianceLevel>1.8</complianceLevel>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <aspectLibraries>
-                        <aspectLibrary>
-                            <groupId>cz.cvut.kbss.jopa</groupId>
-                            <artifactId>jopa-impl</artifactId>
-                        </aspectLibrary>
-                    </aspectLibraries>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjtools</artifactId>
-                        <version>${org.aspectj.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
-                        <version>${org.aspectj.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>compile</goal>
-                            <!-- use this goal to weave all your main classes -->
-                            <goal>test-compile</goal>
-                            <!-- use this goal to weave all your test classes -->
                         </goals>
                     </execution>
                 </executions>

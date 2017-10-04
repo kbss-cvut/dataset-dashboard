@@ -74,15 +74,11 @@ class DashboardController extends React.Component {
     };
 
     componentWillMount() {
-        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
+        this.unsubscribe = DatasetSourceStore.listen((data) => this._onDataLoaded(data));
     };
 
-    _onDataLoaded = (data) => {
-        if (data === undefined) {
-            return
-        }
-
-        if (data.action == Actions.selectDatasetSource) {
+    _onDataLoaded(data) {
+        if ( (data !== undefined ) && data.action == Actions.selectDatasetSource) {
             this.setState({
                 selectedDatasetSource: data.datasetSource,
             });
@@ -96,7 +92,7 @@ class DashboardController extends React.Component {
     /**
      * When a widget moved, this will be called. Layout should be given back.
      */
-    onMove = (layout) => {
+    onMove(layout) {
         this.setState({
             layout: layout,
         });
@@ -105,7 +101,7 @@ class DashboardController extends React.Component {
     /**
      * Toggles edit mode in dashboard.
      */
-    toggleEdit = () => {
+    toggleEdit() {
         this.setState({
             editMode: !this.state.editMode,
         });
@@ -116,13 +112,13 @@ class DashboardController extends React.Component {
         return (<div>
             <Panel header={title} bsStyle="info">
                 <Container>
-                    <EditBar onEdit={this.toggleEdit}/>
+                    <EditBar onEdit={() => this.toggleEdit()}/>
                     <Dashboard
                         frameComponent={CustomFrame}
                         layout={this.state.layout}
                         widgets={this.state.widgets}
                         editable={this.state.editMode}
-                        onMove={this.onMove}
+                        onMove={(layout) => this.onMove(layout)}
                         addWidgetComponentText=""
                     />
                 </Container>

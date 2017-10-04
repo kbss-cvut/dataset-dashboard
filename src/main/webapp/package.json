@@ -23,6 +23,7 @@
     "react-dazzle": "1.2.4",
     "react-graph-vis" : "0.1.1",
     "react-vis" : "1.4.0",
+    "react-fullscreenable": "~2.4.3",
     "react-modal": "1.7.3",
     "react-dom": "~15.3.2",
     "react-dropzone": "~3.6.0",

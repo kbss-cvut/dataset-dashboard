@@ -109,7 +109,6 @@ const DatasetSourceStore = Reflux.createStore({
 
         if (datasetSource != null) {
             datasetSource.id = ds.id;
-            datasetSource.hash = ds.hash;
         } else {
             throw new Error("Unknown dataset source type - " + ds.type);
         }
@@ -129,7 +128,11 @@ const DatasetSourceStore = Reflux.createStore({
                 } else {
                     roots[ds.endpointUrl] = ds;
                 }
-            } else if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
+            }
+        });
+
+        dss.forEach((ds) => {
+           if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
                 if (!roots[ds.endpointUrl]) {
                     roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
                     roots[ds.endpointUrl].generated = true;
@@ -172,7 +175,7 @@ const DatasetSourceStore = Reflux.createStore({
             params: params,
             datasetSourceId: datasetSourceId
         };
-        const url = Utils.addParametersToUrl(this.base + "/" + datasetSourceId + "/actions/query?queryFile=" + queryName, params)
+        const url = Utils.addParametersToUrl(this.base + "/actions/query?id=" + datasetSourceId + "&queryFile=" + queryName, params)
         Ajax.get(url).end(function (data) {
             const that = this;
             jsonld.flatten(data, function (err, canonical) {
@@ -193,7 +196,7 @@ const DatasetSourceStore = Reflux.createStore({
             descriptorTypeId: descriptorTypeId,
             datasetSourceId: datasetSourceId
         };
-        Ajax.get(this.base + "/" + datasetSourceId + "/descriptor?descriptorTypeIri=" + descriptorTypeId).end(function (data) {
+        Ajax.get(this.base + "/descriptor?id=" + datasetSourceId + "&descriptorTypeIri=" + descriptorTypeId).end(function (data) {
             toSend.descriptors = data;
             this.trigger(toSend);
         }.bind(this), function () {

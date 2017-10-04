@@ -28,7 +28,7 @@ class BasicStatsWidget extends React.Component {
         }
         if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "void/class_partitions");
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, "void/class_partitions");
         } else if (data.queryName === "void/class_partitions") {
             this.setState({
                 data: data.jsonLD

@@ -27,7 +27,7 @@ class PropertyPartitionWidget extends React.Component {
         }
         if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "void/property_partitions");
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, "void/property_partitions");
         }
         if (data.queryName === "void/property_partitions") {
             this.setState({

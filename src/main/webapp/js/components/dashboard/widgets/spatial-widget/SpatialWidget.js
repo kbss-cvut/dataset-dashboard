@@ -58,14 +58,14 @@ class SpatialWidget extends React.Component {
         } else if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
             // do promenne ulozim typy co maji geometrii
-            Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_features_with_geometry");
+            Actions.executeQueryForDatasetSource(data.datasetSource.id, "spatial/get_features_with_geometry");
             //TODO: vyber featureType co má nejmíň ale víc než deset a ten zobraz defaultně
         }
     };
 
     // runs when featuretype selected from menu
     featureTypeSelect(event) {
-        Actions.executeQueryForDatasetSource(data.datasetSource.hash, "spatial/get_feature_geometry", {object_type: event.target.value});
+        Actions.executeQueryForDatasetSource(data.datasetSource.id, "spatial/get_feature_geometry", {object_type: event.target.value});
     }
     ;
 
