@@ -10,6 +10,8 @@ import {Map, Marker, Popup, TileLayer} from "react-leaflet";
 import proj4 from "proj4";
 import ClusterLayer from 'react-leaflet-cluster-layer';
 import * as console from "../../../../utils/Logger";
+import {FormGroup, ControlLabel, FormControl} from "react-bootstrap";
+import Geometry from "./Geometry";
 
 // import {
 //     interaction, layer, custom, control, //name spaces
@@ -24,6 +26,7 @@ class SpatialWidget extends React.Component {
         super(props);
         this.state = {
             data: [],
+            featuresWithGeometry: [],
         }
     };
 
@@ -38,26 +41,18 @@ class SpatialWidget extends React.Component {
         if (data.action === Actions.executeQueryForDatasetSource) {
             if (data.queryName === "spatial/get_feature_geometry") {
 
-                // if (data.jsonLD) {
-                //     data.jsonLD.forEach((point) => {
-                //         console.log(point['@id']);
-                //         console.log(point["http://www.opengis.net/ont/gml#id"][0]['@value']);
-                //         console.log(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
-                //     });
-                // }
-
                 this.setState({
                     data: data.jsonLD
                 });
-                this.props.loadingOff();
+
             } else if (data.queryName === "spatial/get_features_with_geometry") {
-                let featuresWithGeometry = data.jsonld;
-                console.log(featuresWithGeometry);
+                let featuresWithGeometry = data.jsonLD;
+                //console.log(featuresWithGeometry);
+                this.props.loadingOff();
                 this.setState({featuresWithGeometry: featuresWithGeometry});
             }
         } else if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
-            // do promenne ulozim typy co maji geometrii
             Actions.executeQueryForDatasetSource(data.datasetSource.id, "spatial/get_features_with_geometry");
             //TODO: vyber featureType co má nejmíň ale víc než deset a ten zobraz defaultně
         }
@@ -65,7 +60,7 @@ class SpatialWidget extends React.Component {
 
     // runs when featuretype selected from menu
     featureTypeSelect(event) {
-        Actions.executeQueryForDatasetSource(data.datasetSource.id, "spatial/get_feature_geometry", {object_type: event.target.value});
+        Actions.executeQueryForDatasetSource(DatasetSourceStore.getSelectedDatasetSource().id, "spatial/get_feature_geometry", {object_type: event.target.value});
     }
     ;
 
@@ -75,118 +70,203 @@ class SpatialWidget extends React.Component {
     ;
 
     render() {
-        if (this.state.data.length === 0) {
+        if (this.state.featuresWithGeometry.length === 0) {
             return <div>No data</div>;
         }
 
-        // create coords array with coords only,
-        // parse it from xml to numbers,
-        // attach to id,
-
-        var points = [];
-        var data = this.state.data;
-
-
-        // TODO: rozsekej jsonld na list s typem
-        // select menu options
         var listOfSelectOptions = this.state.featuresWithGeometry;
-        console.log(listOfSelectOptions);
-        let listOfFeatures = [];
-        let counts = [];
-        // TODO: tady bude rozdeleni na features a pocet
-
-
-        //create rollout menu
+          //create rollout menu
         var selectOptions = [];
-        //TODO: pridej pocet features daneho typu
-        listOfSelectOptions.forEach((value) => {
-            //TODO: nebo to udelej tady jako property value
-            selectOptions.push(<option value={value}>{value}</option>)
+        listOfSelectOptions.forEach((item) => {
+            selectOptions.push(<option key={item["@id"]} value={item["@id"]}>{item["@id"]}
+                ({item["http://own.schema.org/haveNumberOfInstances"][0]["@value"]})</option>)
         });
 
-        var i = 0;
-        data.forEach((point) => {
-            var xmlDoc;
-            if (window.DOMParser) {
-                var parser = new DOMParser();
-                xmlDoc = parser.parseFromString(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
-            }
-            else // Internet Explorer
-            {
-                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                xmlDoc.async = false;
-                xmlDoc.loadXML(point["http://www.opengis.net/ont/geosparql#asGML"][0]['@value']);
-            }
-            var coords = xmlDoc.getElementsByTagName("Point")[0].getElementsByTagName('pos')[0].textContent;
-            var lng = Number(coords.split(' ')[0]);
-            var lat = Number(coords.split(' ')[1]);
-            if (xmlDoc.getElementsByTagName("Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514") {
-                let pos = [lng, lat];
-                pos = proj4('http://www.opengis.net/def/crs/EPSG/0/5514', 'EPSG:4326', pos);
-                lng = pos[0];
-                lat = pos[1];
-            }
-            points.push({
-                id: point["http://www.opengis.net/ont/gml#id"][0]['@value'],
-                position: {lng: lng, lat: lat},
-                name: point["http://schema.org/name"][0]['@value']
+        const cSelect = <FormGroup controlId="formControlsSelect">
+            <ControlLabel>Select</ControlLabel>
+            <FormControl componentClass="select" placeholder="Select type"
+                         onChange={this.featureTypeSelect}>
+                <option value="select">Select type</option>
+                {selectOptions}
+            </FormControl>
+        </FormGroup>;
+
+
+        let cMap = <div>No data</div>
+        if (this.state.data.length > 0) {
+
+            let i = 0;
+            let data = this.state.data;
+            let g = new Geometry();
+
+            data.forEach((geometry) => {
+                let xmlDoc;
+                let geometryValue;
+                if (window.DOMParser) {
+                    var parser = new DOMParser();
+                    Object.keys(geometry).forEach(function (key) {
+                        let val = key.toString();
+                        switch (val) {
+                            case "http://www.opengis.net/ont/geosparql#asGML":
+                                //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
+                                xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
+                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc));
+                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.points.push(parsePolygonFromGML(xmlDoc));
+
+                            case "http://www.opengis.net/ont/geosparql#asWKT":
+                                geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometryValue));
+                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometryValue));
+                        }
+                    });
+                }
+                else // Internet Explorer
+                {
+                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                    xmlDoc.async = false;
+
+                    Object.keys(geometry).forEach(function (key) {
+                        let val = key.toString();
+                        switch (val) {
+                            case "http://www.opengis.net/ont/geosparql#asGML":
+                                //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
+                                xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
+                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc));
+                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc));
+
+                            case "http://www.opengis.net/ont/geosparql#asWKT":
+                                geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometry));
+                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometry));
+                        }
+                    });
+                }
+
+                //TODO: g.points and g.polygons need other information than geometry representatyion
+                //TODO: See GML
+                // processing polygon in WKT
+                function parsePolygonFromWKT(geometry) {
+                    let geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                    let coords = geometryValue.split('((')[1].split('))')[0];
+                    let polygon = [];
+                    coords.split(' ').forEach((coords) => {
+                        let x = coords.split(',')[0];
+                        let y = coords.split(',')[1];
+                        if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
+                            polygon.push(convertFromSJSTK(x, y));
+                        }
+                        else polygon.push([x, y]);
+                    })
+                    return polygon;
+                };
+
+                // processing point in WKT
+                function parsePointFromWKT(geometry) {
+                    let geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                    let coords = geometryValue.split('((')[1].split('))')[0];
+                    let x = coords.split(',')[0];
+                    let y = coords.split(',')[1];
+                    if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
+                        return convertFromSJSTK(x, y);
+                    }
+                    else return [x, y];
+                };
+
+
+                // processing of points in gml
+                function parsePointFromGML(xmlDoc) {
+
+                    var coords = xmlDoc.getElementsByTagName("Point")[0].getElementsByTagName('pos')[0].textContent;
+                    var lng = Number(coords.split(' ')[0]);
+                    var lat = Number(coords.split(' ')[1]);
+                    if (xmlDoc.getElementsByTagName("Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514") {
+                        [lng, lat] = convertFromSJSTK(lng, lat);
+                    }
+                    return({
+                        id: geometry["http://www.opengis.net/ont/gml#id"][0]['@value'],
+                        position: {lng: lng, lat: lat},
+                        name: geometry["http://schema.org/name"][0]['@value']
+                    });
+                }
+
+
+
+                //get geometry objects
+                //for each element in xmldoc get geometry value and save it to an array
+
+
+                //convert data to 4326 if needed
+
+                //create geometry layer for publication
+
+                //optional: recognize polygon and geometry geometry
+
+                //function for coversion of points from 5514
+                function convertFromSJSTK(lng, lat){
+                    let pos = [lng, lat];
+                    pos = proj4('http://www.opengis.net/def/crs/EPSG/0/5514', 'EPSG:4326', pos);
+                    return [pos[0], pos[1]];
+                }
+
+                //function for parsing geometry
+                function parseGeometry(geometry){
+                    Object.keys(geometry).forEach(function (key) {
+                        let val = key.toString();
+                        switch (val){
+                            case "http://www.opengis.net/ont/geosparql#asGML":
+                                //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
+                                xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
+                            case "http://www.opengis.net/ont/geosparql#asWKT":
+                                geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                            //xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'], 'text/xml');
+                        }
+                    });
+                }
+
+
             });
 
+            //TODO:points to g.points
+            // get minimum bounds of map for points
+            let position = points[0].position;
+            let markers = [];
+            let xmin = position[0];
+            let xmax = position[0];
+            let ymin = position[1];
+            let ymax = position[1];
+            points.forEach((point) => {
+                markers.push(
+                    <Marker key={point.id} position={point.position}>
+                        <Popup>
+                            <span>{point.name}</span>
+                        </Popup>
+                    </Marker>);
+                if (point.position[0] < xmin) xmin = point.position[0];
+                if (point.position[1] < ymin) ymin = point.position[1];
+                if (point.position[0] > xmax) xmax = point.position[0];
+                if (point.position[1] > ymax) ymax = point.position[1];
+            });
+            let bounds = L.polyline([[ymin, xmin], [ymax, xmax]]);
+            console.log(bounds.position);
 
-        });
+            //create map with layer as markers and vizualize
+            cMap = <Map bounds={bounds} style={{height: 500}}>
+                <TileLayer
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                />
+                {markers}
+            </Map>;
+        }
 
-        // transformace souradnic do epsg 3857
-        //console.log(points[0].crs);
-        // calculate mean coordinates as position,
-        // render coords with id as label
-        // set srs to srs
-        //const position = [49.0, 14.5];
-        let position = points[0].position;
-        // let popup = points[0].id;
-
-        let markers = [];
-        let xmin = position[0];
-        let xmax = position[0];
-        let ymin = position[1];
-        let ymax = position[1];
-        points.forEach((point) => {
-            markers.push(
-                <Marker key={point.id} position={point.position}>
-                    <Popup>
-                        <span>{point.name}</span>
-                    </Popup>
-                </Marker>);
-            if (point.position[0] < xmin) xmin = point.position[0];
-            if (point.position[1] < ymin) ymin = point.position[1];
-            if (point.position[0] > xmax) xmax = point.position[0];
-            if (point.position[1] > ymax) ymax = point.position[1];
-        });
-        let bounds = L.polyline([[ymin, xmin], [ymax, xmax]]);
-        console.log(bounds.position);
-
-        if (this.state.featuresWithGeometry.length === 0)
-
-            return (
-                <div>
-                    <FormGroup controlId="formControlsSelect">
-                        <ControlLabel>Select</ControlLabel>
-                        <FormControl componentClass="select" placeholder="Select type"
-                                     onChange={this.featureTypeSelect}>
-                            <option value="select">Select type</option>
-                            {selectOptions}
-                        </FormControl>
-                    </FormGroup>
-
-                    <Map bounds={bounds} style={{height: 500}}>
-                        <TileLayer
-                            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                            url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-                        />
-                        {markers}
-                    </Map>
-                </div>
-            );
+        return (
+            <div>
+                {cSelect}
+                {cMap}
+            </div>
+        );
     }
+
 }
 //window.ReactDOM.render(<SimpleExample />, document.getElementById('mask-container'));
 export default LoadingWrapper(SpatialWidget, {maskClass: 'mask-container'});

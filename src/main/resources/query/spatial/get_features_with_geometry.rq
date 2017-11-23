@@ -10,10 +10,17 @@ where
       SELECT ?typ (count(?s) as ?c) {
         {
         ?s  ogcgs:asGML ?geometry.
-} UNION {
-?s ogcgs:asWKT ?geometry.
-}
+        } UNION {
+        ?s ogcgs:asWKT ?geometry.
+        }
         ?s rdf:type ogcgs:Geometry.
+        {
         ?s rdf:type ?typ
+        } UNION
+        {
+        ?f ogcgs:hasGeometry ?s .
+        ?f rdf:type ?typ
+        }
+        FILTER(isIRI(?typ))
       } GROUP BY ?typ
     }
