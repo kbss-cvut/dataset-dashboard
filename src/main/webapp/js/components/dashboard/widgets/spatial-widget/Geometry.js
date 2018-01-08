@@ -4,13 +4,16 @@
 class Geometry {
     points;
     polygons;
+    multipolygons;
     polylines;
 
     constructor() {
-        points=[];
-        polygons=[];
-        polylines=[];
+        this.points=[];
+        this.polygons=[];
+        this.multipolygons=[];
+        this.polylines=[];
     };
 
 }
 
+export default Geometry;

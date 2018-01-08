@@ -99,6 +99,7 @@ class SpatialWidget extends React.Component {
             let data = this.state.data;
             let g = new Geometry();
 
+
             data.forEach((geometry) => {
                 let xmlDoc;
                 let geometryValue;
@@ -111,11 +112,12 @@ class SpatialWidget extends React.Component {
                                 //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                                 xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
                                 if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc));
-                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.points.push(parsePolygonFromGML(xmlDoc));
+                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc));
 
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
                                 if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometryValue));
+                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue));
                                 if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometryValue));
                         }
                     });
@@ -137,35 +139,64 @@ class SpatialWidget extends React.Component {
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
                                 if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometry));
+                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue));
                                 if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometry));
                         }
                     });
                 }
 
-                //TODO: g.points and g.polygons need other information than geometry representatyion
+
+
+                //TODO: g.points and g.polygons need other information than geometry representation
                 //TODO: See GML
+
+
                 // processing polygon in WKT
                 function parsePolygonFromWKT(geometry) {
-                    let geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
-                    let coords = geometryValue.split('((')[1].split('))')[0];
+                    let coords = geometry.split('((')[1].split('))')[0];
                     let polygon = [];
-                    coords.split(' ').forEach((coords) => {
-                        let x = coords.split(',')[0];
-                        let y = coords.split(',')[1];
-                        if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
-                            polygon.push(convertFromSJSTK(x, y));
-                        }
-                        else polygon.push([x, y]);
+                    coords.split(',').forEach((polpart) => {
+                        let pol = [];
+                        polpart.split('),(').forEach((coords) =>{
+                            let x = coords.split(' ')[0];
+                            let y = coords.split(' ')[1];
+                            if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
+                                pol.push(convertFromSJSTK(x, y));
+                            }
+                            else pol.push([x, y]);
+                        })
+                        polygon.push(pol);
                     })
                     return polygon;
                 };
 
+                // processing multipolygons in WKT
+                function parseMultiPolygonFromWKT(geometry) {
+                    let coords = geometry.split('(((')[1].split(')))')[0];
+                    let multipolygon = [];
+                    coords.split(')),((').forEach((polygon) => {
+                        // polygon w/ hole as two polygons
+                        polygon.split('),(').forEach((polpart) => {
+                            let pol = [];
+                            polpart.split(',').forEach((coords) => {
+                                let x = coords.split(' ')[0];
+                                let y = coords.split(' ')[1];
+                                if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
+                                    pol.push(convertFromSJSTK(x, y));
+                                }
+                                else pol.push([x, y]);
+                            })
+                            multipolygon.push(pol);
+                        })
+                    })
+                    return multipolygon;
+                }
+
                 // processing point in WKT
                 function parsePointFromWKT(geometry) {
-                    let geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
-                    let coords = geometryValue.split('((')[1].split('))')[0];
-                    let x = coords.split(',')[0];
-                    let y = coords.split(',')[1];
+                    let coords = geometry.split('((')[1].split('))')[0];
+                    let x = coords.split(' ')[0];
+                    let y = coords.split(' ')[1];
                     if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
                         return convertFromSJSTK(x, y);
                     }
@@ -189,17 +220,8 @@ class SpatialWidget extends React.Component {
                     });
                 }
 
+                //TODO: processing of GML data
 
-
-                //get geometry objects
-                //for each element in xmldoc get geometry value and save it to an array
-
-
-                //convert data to 4326 if needed
-
-                //create geometry layer for publication
-
-                //optional: recognize polygon and geometry geometry
 
                 //function for coversion of points from 5514
                 function convertFromSJSTK(lng, lat){
@@ -208,27 +230,23 @@ class SpatialWidget extends React.Component {
                     return [pos[0], pos[1]];
                 }
 
-                //function for parsing geometry
-                function parseGeometry(geometry){
-                    Object.keys(geometry).forEach(function (key) {
-                        let val = key.toString();
-                        switch (val){
-                            case "http://www.opengis.net/ont/geosparql#asGML":
-                                //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
-                                xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
-                            case "http://www.opengis.net/ont/geosparql#asWKT":
-                                geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
-                            //xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'], 'text/xml');
-                        }
-                    });
-                }
 
 
             });
 
-            //TODO:points to g.points
+
+            //TODO: render data in a map
+
+            //get geometry objects
+
+            //SITUATION --- g object holds all geometries divided by the type (polygons and holes are stored as two polygons)
+            // polygons -- array of arrays (polygons with holes)
+            // multipolygons -- array of arrays of arrays (multipolygons with holes)
+
+            //create geometry layer for publication
+            
             // get minimum bounds of map for points
-            let position = points[0].position;
+            let position = g.points[0].position;
             let markers = [];
             let xmin = position[0];
             let xmax = position[0];

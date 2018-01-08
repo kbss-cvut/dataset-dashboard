@@ -31,6 +31,9 @@ const NamespaceStore = Reflux.createStore({
 
     // calculate a short form of a uri
     getShortForm: function(uri){
+        if ( uri == null ) {
+           return "";
+    } else
         if ( uri.indexOf("#") != -1 ) {
             const [namespace,id] = uri.split('#');
             const prefix=this.getPrefix(namespace+'#');
