@@ -103,6 +103,7 @@ class SpatialWidget extends React.Component {
             data.forEach((geometry) => {
                 let xmlDoc;
                 let geometryValue;
+                let id;
                 if (window.DOMParser) {
                     var parser = new DOMParser();
                     Object.keys(geometry).forEach(function (key) {
@@ -111,14 +112,16 @@ class SpatialWidget extends React.Component {
                             case "http://www.opengis.net/ont/geosparql#asGML":
                                 //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                                 xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
-                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc));
-                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc));
+                                id = geometry['@id'];
+                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc,id));
+                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc,id));
 
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
-                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometryValue));
-                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue));
-                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometryValue));
+                                id = geometry['@id'];
+                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometryValue,id));
+                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue,id));
+                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometryValue,id));
                         }
                     });
                 }
@@ -133,11 +136,13 @@ class SpatialWidget extends React.Component {
                             case "http://www.opengis.net/ont/geosparql#asGML":
                                 //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                                 xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
-                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc));
-                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc));
+                                id = geometry['@id'];
+                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc,id));
+                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc,id));
 
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
+                                id = geometry['@id'];
                                 if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometry));
                                 if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue));
                                 if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometry));
@@ -152,7 +157,7 @@ class SpatialWidget extends React.Component {
 
 
                 // processing polygon in WKT
-                function parsePolygonFromWKT(geometry) {
+                function parsePolygonFromWKT(geometry,id) {
                     let coords = geometry.split('((')[1].split('))')[0];
                     let polygon = [];
                     coords.split(',').forEach((polpart) => {
@@ -167,11 +172,12 @@ class SpatialWidget extends React.Component {
                         })
                         polygon.push(pol);
                     })
-                    return polygon;
+                    return {id:id,
+                            position:polygon};
                 };
 
                 // processing multipolygons in WKT
-                function parseMultiPolygonFromWKT(geometry) {
+                function parseMultiPolygonFromWKT(geometry,id) {
                     let coords = geometry.split('(((')[1].split(')))')[0];
                     let multipolygon = [];
                     coords.split(')),((').forEach((polygon) => {
@@ -189,23 +195,24 @@ class SpatialWidget extends React.Component {
                             multipolygon.push(pol);
                         })
                     })
-                    return multipolygon;
+                    return {id: id,
+                            position: multipolygon};
                 }
 
                 // processing point in WKT
-                function parsePointFromWKT(geometry) {
+                function parsePointFromWKT(geometry,id) {
                     let coords = geometry.split('((')[1].split('))')[0];
                     let x = coords.split(' ')[0];
                     let y = coords.split(' ')[1];
                     if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
-                        return convertFromSJSTK(x, y);
+                        return {id: id, position: convertFromSJSTK(x, y)};
                     }
-                    else return [x, y];
+                    else return {id: id, position: [x, y]};
                 };
 
 
                 // processing of points in gml
-                function parsePointFromGML(xmlDoc) {
+                function parsePointFromGML(xmlDoc,id) {
 
                     var coords = xmlDoc.getElementsByTagName("Point")[0].getElementsByTagName('pos')[0].textContent;
                     var lng = Number(coords.split(' ')[0]);
@@ -215,8 +222,8 @@ class SpatialWidget extends React.Component {
                     }
                     return({
                         id: geometry["http://www.opengis.net/ont/gml#id"][0]['@value'],
-                        position: {lng: lng, lat: lat},
-                        name: geometry["http://schema.org/name"][0]['@value']
+                        position: {lng: lng, lat: lat}//,
+                      //  name: geometry["http://schema.org/name"][0]['@value']
                     });
                 }
 
@@ -244,31 +251,55 @@ class SpatialWidget extends React.Component {
             // multipolygons -- array of arrays of arrays (multipolygons with holes)
 
             //create geometry layer for publication
-            
-            // get minimum bounds of map for points
-            let position = g.points[0].position;
+
+            let position;
+            let bbox = [];
             let markers = [];
-            let xmin = position[0];
-            let xmax = position[0];
-            let ymin = position[1];
-            let ymax = position[1];
-            points.forEach((point) => {
-                markers.push(
-                    <Marker key={point.id} position={point.position}>
-                        <Popup>
-                            <span>{point.name}</span>
-                        </Popup>
-                    </Marker>);
-                if (point.position[0] < xmin) xmin = point.position[0];
-                if (point.position[1] < ymin) ymin = point.position[1];
-                if (point.position[0] > xmax) xmax = point.position[0];
-                if (point.position[1] > ymax) ymax = point.position[1];
-            });
-            let bounds = L.polyline([[ymin, xmin], [ymax, xmax]]);
+
+
+            // get minimum bounds
+            if (g.points.length != 0){
+
+            }
+
+            if (g.polylines.length != 0){
+
+            }
+
+            if (g.polygons.length != 0){
+
+            }
+
+            if (g.multipolygons.length != 0){
+                position = g.multipolygons[0].position[0][0];
+                let xmin = position[0];
+                let ymin = position[1];
+                let xmax = position[0];
+                let ymax = position[1];
+                g.multipolygons.forEach((multipolygon) => {
+                    multipolygon.position.forEach((polygon) => {
+                        polygon.forEach((point) => {
+                            if (point[0] < xmin) xmin = point[0];
+                            if (point[1] < ymin) ymin = point[1];
+                            if (point[0] > xmax) xmax = point[0];
+                            if (point[1] > ymax) ymax = point[1];
+                        })
+                    })
+                })
+                bbox = [[ymin, xmin], [ymax, xmax]];
+
+
+            }
+
+
+            // get minimum bounds of map for points
+            //let position = g.points[0].position;
+            let bounds = L.polyline(bbox);
             console.log(bounds.position);
+            console.log(bounds._bounds);
 
             //create map with layer as markers and vizualize
-            cMap = <Map bounds={bounds} style={{height: 500}}>
+            cMap = <Map bounds={bounds._latlngs} style={{height: 500}}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
