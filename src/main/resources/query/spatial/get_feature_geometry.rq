@@ -10,4 +10,4 @@ where
         ?s rdf:type ?object_type .
         FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT || ?p = ogcgml:id || ?p = schema:name)
     }
-LIMIT 5
+LIMIT 50

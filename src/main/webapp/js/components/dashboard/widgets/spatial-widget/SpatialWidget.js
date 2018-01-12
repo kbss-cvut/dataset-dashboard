@@ -6,7 +6,7 @@ import Actions from "../../../../actions/Actions";
 import {TreeNode} from "rc-tree";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
 import {render} from "react-dom";
-import {Map, Marker, Popup, TileLayer} from "react-leaflet";
+import {Map, Marker, Popup, TileLayer, Polygon} from "react-leaflet";
 import proj4 from "proj4";
 import ClusterLayer from 'react-leaflet-cluster-layer';
 import * as console from "../../../../utils/Logger";
@@ -99,11 +99,12 @@ class SpatialWidget extends React.Component {
             let data = this.state.data;
             let g = new Geometry();
 
-
+            // ===== get geometry data into proper structure =====
             data.forEach((geometry) => {
                 let xmlDoc;
                 let geometryValue;
                 let id;
+                let name;
                 if (window.DOMParser) {
                     var parser = new DOMParser();
                     Object.keys(geometry).forEach(function (key) {
@@ -113,8 +114,8 @@ class SpatialWidget extends React.Component {
                                 //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                                 xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
                                 id = geometry['@id'];
-                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc,id));
-                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc,id));
+                                if (xmlDoc.getElementsByTagName("gml:Point") != null) g.points.push(parsePointFromGML(xmlDoc, id));
+                                if (xmlDoc.getElementsByTagName("gml:Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc, id));
 
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
@@ -137,26 +138,25 @@ class SpatialWidget extends React.Component {
                                 //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                                 xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
                                 id = geometry['@id'];
-                                if (xmlDoc.getElementsByTagName("Point") != null) g.points.push(parsePointFromGML(xmlDoc,id));
-                                if (xmlDoc.getElementsByTagName("Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc,id));
+                                if (xmlDoc.getElementsByTagName("gml:Point") != null) g.points.push(parsePointFromGML(xmlDoc, id));
+                                if (xmlDoc.getElementsByTagName("gml:Polygon") != null) g.polygons.push(parsePolygonFromGML(xmlDoc, id));
 
                             case "http://www.opengis.net/ont/geosparql#asWKT":
                                 geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
                                 id = geometry['@id'];
-                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometry));
-                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue));
-                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometry));
+                                if (geometryValue.split('(')[0] == 'POLYGON') g.polygons.push(parsePolygonFromWKT(geometry, id));
+                                if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.multipolygons.push(parseMultiPolygonFromWKT(geometryValue, id));
+                                if (geometryValue.split('(')[0] == 'POINT') g.points.push(parsePointFromWKT(geometry, id));
                         }
                     });
                 }
 
 
 
-                //TODO: g.points and g.polygons need other information than geometry representation
                 //TODO: See GML
 
 
-                // processing polygon in WKT
+                // ===== processing polygon in WKT =====
                 function parsePolygonFromWKT(geometry,id) {
                     let coords = geometry.split('((')[1].split('))')[0];
                     let polygon = [];
@@ -176,7 +176,7 @@ class SpatialWidget extends React.Component {
                             position:polygon};
                 };
 
-                // processing multipolygons in WKT
+                // ===== processing multipolygons in WKT =====
                 function parseMultiPolygonFromWKT(geometry,id) {
                     let coords = geometry.split('(((')[1].split(')))')[0];
                     let multipolygon = [];
@@ -199,7 +199,7 @@ class SpatialWidget extends React.Component {
                             position: multipolygon};
                 }
 
-                // processing point in WKT
+                // ===== processing point in WKT =====
                 function parsePointFromWKT(geometry,id) {
                     let coords = geometry.split('((')[1].split('))')[0];
                     let x = coords.split(' ')[0];
@@ -207,34 +207,36 @@ class SpatialWidget extends React.Component {
                     if ((-400000 > x > -1000000) && (-900000 > y > -1400000)) {
                         return {id: id, position: convertFromSJSTK(x, y)};
                     }
-                    else return {id: id, position: [x, y]};
+                    else return {id: id, position: [x, y], name: id};
                 };
 
 
-                // processing of points in gml
-                function parsePointFromGML(xmlDoc,id) {
+                // ===== processing of points in gml =====
+                function parsePointFromGML(xmlDoc, id) {
 
-                    var coords = xmlDoc.getElementsByTagName("Point")[0].getElementsByTagName('pos')[0].textContent;
+                    var coords = xmlDoc.getElementsByTagName("gml:Point")[0].getElementsByTagName('gml:pos')[0].textContent;
                     var lng = Number(coords.split(' ')[0]);
                     var lat = Number(coords.split(' ')[1]);
-                    if (xmlDoc.getElementsByTagName("Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514") {
+                    if (xmlDoc.getElementsByTagName("gml:Point")[0].getAttribute('srsName') == "http://www.opengis.net/def/crs/EPSG/0/5514") {
                         [lng, lat] = convertFromSJSTK(lng, lat);
                     }
                     return({
-                        id: geometry["http://www.opengis.net/ont/gml#id"][0]['@value'],
-                        position: {lng: lng, lat: lat}//,
-                      //  name: geometry["http://schema.org/name"][0]['@value']
+                        id: id,
+                        position: {lng: lng, lat: lat},
+                        name: id
                     });
                 }
+
+                function parsePolygonFromGML(xmlDOc, id) {return 0;}
 
                 //TODO: processing of GML data
 
 
-                //function for coversion of points from 5514
+                // ===== function for coversion of points from 5514 =====
                 function convertFromSJSTK(lng, lat){
                     let pos = [lng, lat];
                     pos = proj4('http://www.opengis.net/def/crs/EPSG/0/5514', 'EPSG:4326', pos);
-                    return [pos[0], pos[1]];
+                    return [pos[1], pos[0]];
                 }
 
 
@@ -253,13 +255,36 @@ class SpatialWidget extends React.Component {
             //create geometry layer for publication
 
             let position;
-            let bbox = [];
             let markers = [];
+            let polygons = [];
+            let polylines = [];
+            let multipolygons = [];
+            let xmin = null;
+            let xmax = null;
+            let ymin = null;
+            let ymax = null;
 
 
-            // get minimum bounds
+            // ====== get minimum bounds and put data into map object =====
+
             if (g.points.length != 0){
-
+                position = g.points[0].position;
+                if (xmin == null) xmin = position[0];
+                if (ymin == null) ymin = position[1];
+                if (xmax == null) xmax = position[0];
+                if (ymax == null) ymax = position[1];
+                g.points.forEach((point) => {
+                    markers.push(
+                        <Marker key={point.id} position={point.position}>
+                                     <Popup>
+                                         <span>{point.name}</span>
+                                     </Popup>
+                                 </Marker>);
+                        if (point[0] < xmin) xmin = point[0];
+                        if (point[1] < ymin) ymin = point[1];
+                        if (point[0] > xmax) xmax = point[0];
+                        if (point[1] > ymax) ymax = point[1];
+                })
             }
 
             if (g.polylines.length != 0){
@@ -272,11 +297,12 @@ class SpatialWidget extends React.Component {
 
             if (g.multipolygons.length != 0){
                 position = g.multipolygons[0].position[0][0];
-                let xmin = position[0];
-                let ymin = position[1];
-                let xmax = position[0];
-                let ymax = position[1];
+                if (xmin == null) xmin = position[0];
+                if (ymin == null) ymin = position[1];
+                if (xmax == null) xmax = position[0];
+                if (ymax == null) ymax = position[1];
                 g.multipolygons.forEach((multipolygon) => {
+                    multipolygons.push(<Polygon key={multipolygon.id} color="blue" positions={multipolygon.position} />);
                     multipolygon.position.forEach((polygon) => {
                         polygon.forEach((point) => {
                             if (point[0] < xmin) xmin = point[0];
@@ -286,25 +312,31 @@ class SpatialWidget extends React.Component {
                         })
                     })
                 })
-                bbox = [[ymin, xmin], [ymax, xmax]];
-
-
             }
 
 
-            // get minimum bounds of map for points
-            //let position = g.points[0].position;
-            let bounds = L.polyline(bbox);
-            console.log(bounds.position);
-            console.log(bounds._bounds);
+            // ====== how to push markers =====
+            // markers.push(
+            //     <Marker key={point.id} position={point.position}>
+            //         <Popup>
+            //             <span>{point.name}</span>
+            //         </Popup>
+            //     </Marker>);
 
-            //create map with layer as markers and vizualize
+
+            let bbox = [[xmin, ymin], [xmax, ymax]];
+            let bounds = L.polyline(bbox);
+
+            // ====== create map with layers and vizualize ======
             cMap = <Map bounds={bounds._latlngs} style={{height: 500}}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                 />
                 {markers}
+                {/*{polygons}*/}
+                {/*{polylines}*/}
+                {multipolygons}
             </Map>;
         }
 
