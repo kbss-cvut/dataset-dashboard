@@ -247,7 +247,7 @@ class GeoSparqlMap extends React.Component {
         // ====== create map with layers and vizualize ======
         return <Map bounds={bounds._latlngs} style={{height: 500}}>
             <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMapXXXZZZ</a> contributors'
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
             />
             {markers}

@@ -16,11 +16,11 @@ class SelectGeoSparqlFeature extends React.Component {
         });
 
         return <FormGroup controlId="formControlsSelect">
-            <ControlLabel>SelectZAX</ControlLabel>
+            <ControlLabel>Select Type</ControlLabel>
             <FormControl componentClass="select"
-                         placeholder="Select type"
+                         placeholder="Select Type"
                          onChange={this.props.onChange}>
-                <option value="select">Select type</option>
+                <option value="select">No type selected</option>
                 {selectOptions}
             </FormControl>
         </FormGroup>;
