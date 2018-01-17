@@ -1,6 +1,5 @@
-/**
- * Created by michal on 11/23/17.
- */
+'use strict';
+
 class Geometry {
     points;
     polygons;

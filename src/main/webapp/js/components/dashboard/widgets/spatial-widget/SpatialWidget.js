@@ -26,13 +26,10 @@ class SpatialWidget extends React.Component {
         }
         if (data.action === Actions.executeQueryForDatasetSource) {
             if (data.queryName === "spatial/get_feature_geometry") {
-                this.setState({
-                    geometries: data.jsonLD
-                });
+                this.setState({geometries: data.jsonLD});
             } else if (data.queryName === "spatial/get_features_with_geometry") {
-                let featuresWithGeometry = data.jsonLD;
                 this.props.loadingOff();
-                this.setState({featuresWithGeometry: featuresWithGeometry});
+                this.setState({featuresWithGeometry: data.jsonLD});
             }
         } else if (data.action === Actions.selectDatasetSource) {
             this.props.loadingOn();
