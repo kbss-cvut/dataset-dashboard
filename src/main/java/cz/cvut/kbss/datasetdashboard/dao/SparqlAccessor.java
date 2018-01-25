@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 //import org.springframework.http.MediaType;
 
@@ -76,22 +76,11 @@ public class SparqlAccessor {
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
-            //            if (!bindings.isEmpty()) {
-            //                query = query + " VALUES (";
-            //                for (final String key : bindings.keySet()) {
-            //                    query = query + " ?" + key;
-            //                }
-            //                query = query + " )";
-            //
-            //                query = query + " { (";
-            //                for (final String key : bindings.keySet()) {
-            //                    query = query + " <" + bindings.get(key) + ">";
-            //                }
-            //                query = query + ") }";
-            //            }
-
+            ParameterizedSparqlString pss = new ParameterizedSparqlString(query);
+            pss = SparqlUtils.setSingleBinding(pss, bindings);
+            query = pss.toString();
             if (graphIri != null) {
-                final Query q = QueryFactory.create(query);
+                Query q = QueryFactory.create(query);
                 q.addGraphURI(graphIri);
                 query = q.toString();
             }

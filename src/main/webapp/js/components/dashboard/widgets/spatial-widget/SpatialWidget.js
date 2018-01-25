@@ -47,7 +47,7 @@ class SpatialWidget extends React.Component {
         Actions.executeQueryForDatasetSource(
             DatasetSourceStore.getSelectedDatasetSource().id,
             "spatial/get_feature_geometry",
-            {object_type: event.target.value}
+            {object_type: "<"+event.target.value+">"}
         );
     };
 
