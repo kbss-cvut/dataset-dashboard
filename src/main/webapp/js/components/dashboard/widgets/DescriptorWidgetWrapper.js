@@ -1,12 +1,12 @@
 'use strict';
 
 import React from "react";
-import {Button, FormControl} from "react-bootstrap";
 
 import Actions from "../../../actions/Actions";
 import PropTypes from "prop-types";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
 import DatasetDescriptorStore from "../../../stores/DatasetDescriptorStore";
+import DescriptorWidgetWrapperUI from "./DescriptorWidgetWrapperUI";
 
 export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri, descriptorQuery) {
 
@@ -77,41 +77,22 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             });
         }
 
+        handleClick(event) {
+            Actions.computeDescriptorForDatasetSource(
+                this.state.datasetSource.id,
+                this.state.descriptorTypeIri
+            );
+        }
+
         render() {
-            // Filter out extra props that are specific to this HOC and shouldn't be
-            // passed through
-            const descriptors = [];
-            this.state.descriptors.forEach((d) => {
-                descriptors.push(<option value={d.id} key={d.id}>{d.id}</option>);
-            });
-
-            const content =
-                (!this.state.descriptorContent) ? <div style={{textAlign: "center", verticalAlign: "center"}}>
-                    No Dataset Descriptor Selected
-                </div> :
-                    <Widget {...this.props}
-                            datasetSource={this.state.datasetSource}
-                            descriptorContent={this.state.descriptorContent}
-                    />
-
-            return <div> {this.state.datasetSource ? <div>
-                <FormControl
-                    componentClass="select"
-                    placeholder="No descriptor selected"
-                    onChange={this.handleChange.bind(this)}>
-                    {descriptors}
-                </FormControl>
-                <Button onClick={(e) => {
-                    Actions.computeDescriptorForDatasetSource(
-                        this.state.datasetSource.id,
-                        this.state.descriptorTypeIri
-                    );
-                }}>
-                    Compute
-                </Button>
-                {content}
-            </div> : <div>No Dataset Source Selected.</div> }
-            </div>;
+                return <DescriptorWidgetWrapperUI
+                datasetSource={this.state.datasetSource}
+                descriptorContent={this.state.descriptorContent}
+                descriptors={this.state.descriptors}
+                handleChangeDescriptor={this.handleChange.bind(this)}
+                handleComputeDescriptor={this.handleClick.bind(this)}
+                wrappedComponent={Widget}
+            />
         };
 
     }
