@@ -7,7 +7,8 @@ import Actions from "../../../../actions/Actions";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import { TableHeaderColumn } from 'react-bootstrap-table';
+import Table from './Table';
 
 class PropertyPartitionWidget extends React.Component {
     constructor(props) {
@@ -59,16 +60,13 @@ class PropertyPartitionWidget extends React.Component {
                     'distinctObjects': Utils.getJsonLdFirst(r[Void.DISTINCT_OBJECTS],['@value'])
                 }
             });
-
-        const numberColWidth = "150";
-        return (
-            <BootstrapTable data={data} striped={true} hover={true} >
-                <TableHeaderColumn dataField="property" isKey={true} dataSort={true} dataFormat={this.format}>property</TableHeaderColumn>
-                <TableHeaderColumn dataField="triples" dataSort={true} width={numberColWidth}>triples</TableHeaderColumn>
-                <TableHeaderColumn dataField="distinctSubjects" dataSort={true} width={numberColWidth}>dist. subjs</TableHeaderColumn>
-                <TableHeaderColumn dataField="distinctObjects" dataSort={true} width={numberColWidth}>dist. objs</TableHeaderColumn>
-            </BootstrapTable>
-        );
+        const numberColWidth = "80" ;
+        const columns=[];
+        columns.push(<TableHeaderColumn key="property" dataField="property" isKey={true} dataSort={true} dataFormat={this.format}>property</TableHeaderColumn>)
+        columns.push(<TableHeaderColumn key="triples" dataField="triples" dataSort={true} width={numberColWidth}>triples</TableHeaderColumn>)
+        columns.push(<TableHeaderColumn key="distinctSubjects" dataField="distinctSubjects" dataSort={true} width={numberColWidth}>dist.sbj</TableHeaderColumn>)
+        columns.push(<TableHeaderColumn key="distinctObjects" dataField="distinctObjects" dataSort={true} width={numberColWidth}>dist.obj</TableHeaderColumn>)
+        return(<Table data={data} columns={columns} sortName="triples"/>);
     };
 }
 

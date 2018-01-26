@@ -21,7 +21,7 @@ var Utils = {
                 url += param + '=' + parameters[param] + '&';   // '&' at the end of request URI should not be a problem
             });
         }
-        return url;
+        return encodeURI(url).replace("#","%23");
     },
 };
 

@@ -2,9 +2,8 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import {Button, Checkbox} from "react-bootstrap";
+import { Checkbox} from "react-bootstrap";
 import Slider from "react-rangeslider";
-import Fullscreenable from "react-fullscreenable";
 import GraphDefaults from "./vis/GraphDefaults";
 import SchemaUtils from "./SchemaUtils";
 
@@ -51,6 +50,7 @@ class SchemaWidget extends React.Component {
     componentWillReceiveProps(nextProps) {
         if (this.props.isFullscreen !== nextProps.isFullscreen) {
             // Fullscreen status has changed.
+            // TODO
         }
     }
 
@@ -126,17 +126,12 @@ class SchemaWidget extends React.Component {
     };
 
     render() {
-        const {
-            isFullscreen,
-            toggleFullscreen
-        } = this.props;
         const maxLimitWeight = SchemaUtils.computeMaxEdgeWeight(this.props.descriptorContent)
-
+        const isFullscreen = this.props.isFullscreen ? this.props.isFullscreen : false;
         const graphOptions = GraphDefaults.graphOptions();
         graphOptions.configure.enabled = isFullscreen;
 
         return <div>
-            <Button onClick={toggleFullscreen}>{(isFullscreen) ? 'Exit Fullscreen' : 'Enter Fullscreen'}</Button>
             <Checkbox checked={this.state.showAttributes}
                       onChange={(e) => {
                           this.setState({showAttributes: e.target.checked});
@@ -165,5 +160,5 @@ class SchemaWidget extends React.Component {
     };
 }
 
-export default LoadingWrapper(DescriptorWidgetWrapper(Fullscreenable()(SchemaWidget), Ddo.NS + "spo-summary-descriptor", "spo/spo-summary"),
+export default LoadingWrapper(DescriptorWidgetWrapper(SchemaWidget, Ddo.NS + "spo-summary-descriptor", "spo/spo-summary"),
     {maskClass: 'mask-container'});
