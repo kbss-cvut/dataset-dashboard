@@ -7,8 +7,8 @@ import Actions from "../../../../actions/Actions";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
-
+import { TableHeaderColumn } from 'react-bootstrap-table';
+import Table from './Table';
 
 class BasicStatsWidget extends React.Component {
     constructor(props) {
@@ -57,13 +57,11 @@ class BasicStatsWidget extends React.Component {
                     'entities': Utils.getJsonLdFirst(r[Void.ENTITIES], '@value')
                 }
             });
-        const numberColWidth = "150" ;
-        return (
-        <BootstrapTable data={data} striped={true} hover={true} condensed>
-            <TableHeaderColumn dataField="class" isKey={true} dataSort={true} dataFormat={this.format}>class</TableHeaderColumn>
-            <TableHeaderColumn dataField="entities" dataSort={true} width={numberColWidth}>entities</TableHeaderColumn>
-        </BootstrapTable>
-        );
+        const numberColWidth = "100" ;
+        const columns=[];
+        columns.push(<TableHeaderColumn key="class" dataField="class" isKey={true} dataSort={true} dataFormat={this.format}>class</TableHeaderColumn>)
+        columns.push(<TableHeaderColumn key="entities" dataField="entities" dataSort={true} width={numberColWidth}>instances</TableHeaderColumn>)
+        return(<Table data={data} columns={columns} sortName="entities"/>);
     };
 }
 
