@@ -77,7 +77,7 @@ class GeoUtils {
         }
         return ({
             id: id,
-            position: {lng: lng, lat: lat},
+            position: [lng, lat] ,
             name: id
         });
     }

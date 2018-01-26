@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import React, {Component} from "react";
 import {Map, Marker, Polygon, Popup, TileLayer} from "react-leaflet";
 import Geometry from "./Geometry";
 import GeoUtils from "./GeoUtils";
@@ -70,6 +70,7 @@ class GeoSparqlMap extends React.Component {
         // ====== get minimum bounds and put data into map object =====
 
         if (g.points.length != 0) {
+            console.log("POINT1: "+g.points[0].position)
             bb.add(g.points[0].position)
             g.points.forEach((point) => {
                 markers.push(
@@ -78,7 +79,8 @@ class GeoSparqlMap extends React.Component {
                             <span>{point.name}</span>
                         </Popup>
                     </Marker>);
-                bb.add(point)
+                console.log("POINT2: "+point.position)
+                bb.add(point.position)
             })
         }
 
@@ -91,11 +93,13 @@ class GeoSparqlMap extends React.Component {
         }
 
         if (g.multipolygons.length != 0) {
+            console.log("POLYGON1: "+g.multipolygons[0].position[0][0])
             bb.add(g.multipolygons[0].position[0][0]);
             g.multipolygons.forEach((multipolygon) => {
                 multipolygons.push(<Polygon key={multipolygon.id} color="blue" positions={multipolygon.position}/>);
                 multipolygon.position.forEach((polygon) => {
                     polygon.forEach((point) => {
+                        console.log("POLYGON2: "+point)
                         bb.add(point);
                     })
                 })
