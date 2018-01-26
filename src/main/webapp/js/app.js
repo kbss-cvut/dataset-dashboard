@@ -1,16 +1,16 @@
-/**
- Main entry point for the ReactJS frontend
- */
-
 'use strict';
 
-const React = require('react');
-const ReactDOM = require('react-dom');
-const Actions = require('./actions/Actions');
-
-function main() {
-    const Main = require('./Main').default;
-    ReactDOM.render(<Main/>, document.getElementById('content'));
-}
-
-main();
+import React from 'react'
+import { render } from 'react-dom'
+import {Router, Route, browserHistory} from "react-router";
+import { BrowserRouter } from 'react-router-dom'
+import DatasetDashboard from "./components/dashboard/DashboardController";
+render((
+    <BrowserRouter>
+        <Router history={browserHistory}>
+            <Route path='/dataset-dashboard' component={DatasetDashboard}/>
+            <Route path='/dataset-dashboard?endpointUrl=:endpointUrl' component={DatasetDashboard}/>
+            <Route path='/dataset-dashboard?endpointUrl=:endpointUrl&graphIri=:graphIri' component={DatasetDashboard}/>
+        </Router>
+    </BrowserRouter>
+), document.getElementById('content'));

@@ -1,7 +1,7 @@
 'use strict';
 
 import React from "react";
-import Actions from "../../actions/Actions";
+import Actions from "../actions/Actions";
 import {Button, ControlLabel, FormControl, FormGroup, Panel} from "react-bootstrap";
 
 const urlRegexPattern = new RegExp('^(https?:\\/\\/)?' + // protocol

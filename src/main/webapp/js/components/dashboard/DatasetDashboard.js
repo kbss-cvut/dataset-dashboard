@@ -10,7 +10,7 @@ import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWid
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
 import {Responsive, WidthProvider} from 'react-grid-layout';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-import DatasetSourceLabel from "./DatasetSourceLabel";
+import DatasetSourceLabel from "../DatasetSourceLabel";
 import {Panel} from "react-bootstrap";
 import WidgetPanelUI from "./widgets/WidgetPanelUI";
 

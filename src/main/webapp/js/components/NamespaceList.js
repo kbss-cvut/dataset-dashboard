@@ -1,7 +1,7 @@
 'use strict';
 
 import React from "react";
-import NamespaceStore from "../../stores/NamespaceStore";
+import NamespaceStore from "../stores/NamespaceStore";
 import {Panel, Button} from "react-bootstrap";
 
 class NamespaceList extends React.Component {

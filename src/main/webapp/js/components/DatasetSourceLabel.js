@@ -1,7 +1,7 @@
 'use strict';
 
 import React from "react";
-import NamespaceStore from "../../stores/NamespaceStore";
+import NamespaceStore from "../stores/NamespaceStore";
 
 class DatasetSourceLabel extends React.Component {
 

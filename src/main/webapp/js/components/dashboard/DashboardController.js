@@ -2,10 +2,10 @@
 
 import React from "react";
 import {Grid, Row, Col} from "react-bootstrap";
-import DatasetSourceTree from "./DatasetSourceTree";
 import DatasetDashboard from "./DatasetDashboard";
-import DatasetSourceRegistration from "./DatasetSourceRegistration";
-import NamespaceList from "./NamespaceList";
+import DatasetSourceTree from "../DatasetSourceTree";
+import DatasetSourceRegistration from "../DatasetSourceRegistration";
+import NamespaceList from "../NamespaceList";
 
 class DashboardController extends React.Component {
     render() {

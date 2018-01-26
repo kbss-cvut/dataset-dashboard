@@ -1,7 +1,7 @@
 'use strict';
 
 import React from "react";
-import Actions from "../../actions/Actions";
+import Actions from "../actions/Actions";
 import DatasetSourceLabel from "./DatasetSourceLabel";
 
 class DatasetSourceLink extends React.Component {

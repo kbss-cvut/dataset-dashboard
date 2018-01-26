@@ -1,12 +1,12 @@
 'use strict';
 
 import React from "react";
-import DatasetSourceStore from "../../stores/DatasetSourceStore";
-import Actions from "../../actions/Actions";
+import DatasetSourceStore from "../stores/DatasetSourceStore";
+import Actions from "../actions/Actions";
 import {Panel} from "react-bootstrap";
-import LoadingWrapper from "../misc/LoadingWrapper";
+import LoadingWrapper from "./misc/LoadingWrapper";
 import DatasetSourceLink from "./DatasetSourceLink";
-import FilterableTree from '../misc/FilterableTree';
+import FilterableTree from './misc/FilterableTree';
 
 class DatasetSourceTree extends FilterableTree {
 
