@@ -8,7 +8,8 @@ import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
 import SpatialWidget from "./widgets/spatial-widget/SpatialWidget";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
-import ResponsiveReactGridLayout from "react-grid-layout";
+import {Responsive, WidthProvider} from 'react-grid-layout';
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
 import DatasetSourceLabel from "./DatasetSourceLabel";
 import {Panel} from "react-bootstrap";
 import WidgetPanelUI from "./widgets/WidgetPanelUI";
@@ -46,25 +47,32 @@ class DashboardController extends React.Component {
     };
 
     render() {
-        var title = <h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>;
+        const title = <h1>Dataset Source <DatasetSourceLabel datasetSource={this.state.selectedDatasetSource}/></h1>;
 
-        var layout = [
+        const layouts = {lg: [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-            {i: 'main', x: 0, y: 0, w: 14, h: 23, minW: 14, maxW: 20},
-            {i: 'righttop', x: 15, y: 0, w: 6, h: 11},
-            {i: 'rightbottom', x: 15, y: 7, w: 6, h: 12},
-            {i: 'downleft', x: 0, y: 23, w: 10, h: 20},
-            {i: 'downright', x: 10, y: 23, w: 10, h: 20}
-        ];
+            {i: 'main', x: 0, y: 0, w: 4, h: 4, minW: 3, maxW: 4, isResizable: false},
+            {i: 'righttop', x: 4, y: 0, w: 2, h: 2},
+            {i: 'rightbottom', x: 4, y: 2, w: 2, h: 2},
+            {i: 'downleft', x: 0, y: 5, w: 3, h: 2},
+            {i: 'downright', x: 4, y: 5, w: 3, h: 2}
+        ],sm: [
+            // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
+            {i: 'main', x: 0, y: 0, w: 3, h: 3, minW: 3, maxW: 3},
+            {i: 'righttop', x: 0, y: 3, w: 3, h: 2},
+            {i: 'rightbottom', x: 0, y: 5, w: 3, h: 2},
+            {i: 'downleft', x: 0, y: 7, w: 3, h: 2},
+            {i: 'downright', x: 0, y: 9, w: 3, h: 2}
+        ]};
 
+        const cols = { lg: 6, md: 4, sm: 3, xs: 2, xxs: 1 };
         return (<div>
             <Panel header={title} bsStyle="info">
                 <ResponsiveReactGridLayout
                     className="layout"
-                    layout={layout}
-                    cols={20}
-                    rowHeight={30}
-                    width={1200}>
+                    layouts={layouts}
+                    cols={cols}
+                    rowHeight={210}>
                     <div key="main">{this.widget("Schema",<SchemaWidget/>)}</div>
                     <div key="righttop">{this.widget("Classes",<ClassPartitionWidget/>)}</div>
                     <div key="rightbottom">{this.widget("Properties",<PropertyPartitionWidget/>)}</div>
