@@ -2,12 +2,17 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ogcgs: <http://www.opengis.net/ont/geosparql#>
 PREFIX ogcgml: <http://www.opengis.net/ont/gml#>
 PREFIX schema: <http://schema.org/>
-construct {?s ?p ?o}
+construct {?geo ?p ?o}
 where
-    {
-        ?s ?p ?o.
-        ?s rdf:type ogcgs:Geometry .
-        ?s rdf:type ?object_type .
+    {{
+        ?geo ?p ?o.
+    	?s rdf:type ogcgs:Feature.
+        ?s rdf:type ?object_type.
+    	?s ogcgs:hasGeometry ?geo.
         FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT || ?p = ogcgml:id || ?p = schema:name)
-    }
-LIMIT 50
+} UNION {
+        ?geo ?p ?o.
+        ?geo rdf:type ogcgs:Geometry .
+        ?geo rdf:type ?object_type .
+        FILTER (?p = ogcgs:asGML || ?p = ogcgs:asWKT || ?p = ogcgml:id || ?p = schema:name)
+    }}
