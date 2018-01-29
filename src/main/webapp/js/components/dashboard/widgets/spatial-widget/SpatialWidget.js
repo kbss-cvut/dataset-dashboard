@@ -7,6 +7,11 @@ import LoadingWrapper from "../../../misc/LoadingWrapper";
 import SelectGeoSparqlFeature from "./SelectGeoSparqlFeature";
 import GeoSparqlMap from "./GeoSparqlMap";
 
+
+// TODO 1) při načtení vyber featueType a zobraz
+// TODO 2) při vybrání jiného source reinicializovat mapové okno
+// TODO 3) zkontroluj funkčnost GML u ruianu (sample okresy)
+// TODO 4) dodělej načítání dat pro GML i WKT struktury
 class SpatialWidget extends React.Component {
     constructor(props) {
         super(props);
