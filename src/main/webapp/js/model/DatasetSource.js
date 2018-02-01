@@ -1,4 +1,4 @@
-class DatasetSource {
+export default class DatasetSource {
 
     constructor(type) {
         this._id = null;
@@ -24,18 +24,4 @@ class DatasetSource {
     get type() {
         throw new Error();
     }
-
-    create(ds) {
-        if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/named-graph-sparql-endpoint-dataset-source") {
-            return new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
-        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/sparql-endpoint-dataset-source") {
-            return new SparqlEndpointDatasetSource(ds.endpointUrl);
-        } else if ( ds.type === "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/url-dataset-source") {
-            return new UrlDatasetSource(ds.downloadUrl);
-        } else {
-            throw new Error();
-        }
-    }
 }
-
-export default DatasetSource ;

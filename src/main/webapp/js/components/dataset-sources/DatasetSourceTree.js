@@ -17,7 +17,7 @@ class DatasetSourceTree extends React.Component {
     };
 
     componentWillMount() {
-        this.state.data = DatasetSourceStore.onGetAllDatasetSources();
+        this.state.data = DatasetSourceStore.getAllDatasetSources();
         if ( this.state.data == null ) {
             this.props.loadingOn();
             Actions.refreshDatasetSources();

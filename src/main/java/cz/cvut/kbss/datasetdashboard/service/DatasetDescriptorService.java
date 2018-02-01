@@ -15,14 +15,22 @@ public class DatasetDescriptorService {
 
     @Transactional
     public RawJson getDescriptorContent(final String descriptorId, final String fileName) {
-        return new RawJson(JsonLd.toJsonLd(datasetDescriptorDao.getDescriptorContent(descriptorId,
-            fileName)));
+        try {
+            return new RawJson(
+                JsonLd.toJsonLd(datasetDescriptorDao.getDescriptorContent(descriptorId, fileName)));
+        } catch(Exception e) {
+            throw new DatasetDescriptorServiceException("Unknown error",e);
+        }
     }
 
     @Transactional
     public String computeDescriptorForDatasetSource(final String datasetSourceId, final String
         descriptorType) {
-        return datasetDescriptorDao.computeDescriptorForDatasetSource(datasetSourceId,
-            descriptorType).getId();
+        try {
+            return datasetDescriptorDao.computeDescriptorForDatasetSource(datasetSourceId,
+                descriptorType).getId();
+        } catch(Exception e) {
+            throw new DatasetDescriptorServiceException("Unknown error",e);}
+
     }
 }

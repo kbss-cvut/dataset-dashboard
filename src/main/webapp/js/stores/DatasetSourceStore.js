@@ -9,6 +9,7 @@ import Utils from "../utils/Utils";
 import NamedGraphSparqlEndpointDatasetSource from "../model/NamedGraphSparqlEndpointDatasetSource";
 import SparqlEndpointDatasetSource from "../model/SparqlEndpointDatasetSource";
 import UrlDatasetSource from "../model/UrlDatasetSource";
+import DatasetSourceUtils from "../model/utils/DatasetSourceUtils";
 import Ddo from "../vocabulary/Ddo";
 
 const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
@@ -48,6 +49,15 @@ const DatasetSourceStore = Reflux.createStore({
         return this.selectDatasetSource;
     },
 
+    /**
+     * Returns all dataset sources cached in the client
+     *
+     * @returns {DatasetSource[]}
+     */
+    getAllDatasetSources: function () {
+        return this.datasetSources;
+    },
+
     onSelectDatasetSource: function (selectDatasetSource) {
         this.selectDatasetSource = selectDatasetSource;
         this.trigger({
@@ -61,8 +71,8 @@ const DatasetSourceStore = Reflux.createStore({
             action: Actions.registerDatasetSourceEndpoint,
             datasetSource: new SparqlEndpointDatasetSource(endpointUrl)
         };
-        Ajax.put(this.base + "/?endpointUrl=" + endpointUrl).end(
-            (data) => this._registerDatasetSourceSuccess(toSend,data),
+        Ajax.put(this.requestURL("", {endpointUrl: endpointUrl})).end(
+            (data) => this._registerDatasetSourceSuccess(toSend, data),
             () => this._registerDatasetSourceFail);
     },
 
@@ -71,7 +81,7 @@ const DatasetSourceStore = Reflux.createStore({
             action: Actions.registerDatasetSourceNamedGraph,
             datasetSource: new NamedGraphSparqlEndpointDatasetSource(endpointUrl, graphIri)
         };
-        Ajax.put(this.base + "/?endpointUrl=" + endpointUrl + "&graphIri=" + graphIri).end(
+        Ajax.put(this.requestURL("", {endpointUrl: endpointUrl, graphIri: graphIri})).end(
             (data) => this._registerDatasetSourceSuccess(toSend, data),
             () => this._registerDatasetSourceFail);
     },
@@ -82,7 +92,7 @@ const DatasetSourceStore = Reflux.createStore({
             datasetSource: new UrlDatasetSource(downloadUrl)
         };
         const ds = new UrlDatasetSource(downloadUrl);
-        Ajax.put(this.base + "/?downloadUrl=" + downloadUrl).end(
+        Ajax.put(this.requestURL("", {downloadUrl: downloadUrl})).end(
             (data) => this._registerDatasetSourceSuccess(toSend, data),
             () => this._registerDatasetSourceFail);
     },
@@ -99,28 +109,10 @@ const DatasetSourceStore = Reflux.createStore({
         this.trigger(toSend);
     },
 
-    _parseDatasetSource: function (ds) {
-        var datasetSource = null;
-        if (ds.type === Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
-            datasetSource = new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
-        } else if (ds.type === Ddo.NS + "sparql-endpoint-dataset-source") {
-            datasetSource = new SparqlEndpointDatasetSource(ds.endpointUrl);
-        } else if (ds.type === Ddo.NS + "url-dataset-source") {
-            datasetSource = new UrlDatasetSource(ds.downloadUrl);
-        }
-
-        if (datasetSource != null) {
-            datasetSource.id = ds.id;
-        } else {
-            throw new Error("Unknown dataset source type - " + ds.type);
-        }
-        return datasetSource;
-    },
-
     hierarchizeDS: function (dss) {
         const roots = {}
         dss.forEach((ds) => {
-            if (ds.type == Ddo.NS + "sparql-endpoint-dataset-source") {
+            if (ds.type == Ddo.SparqlEndpointDatasetSource) {
                 if (roots[ds.endpointUrl]) {
                     if (roots[ds.endpointUrl].generated) {
                         roots[ds.endpointUrl] = ds;
@@ -134,7 +126,7 @@ const DatasetSourceStore = Reflux.createStore({
         });
 
         dss.forEach((ds) => {
-           if (ds.type == Ddo.NS + "named-graph-sparql-endpoint-dataset-source") {
+            if (ds.type == Ddo.NamedGraphSparqlEndpointDatasetSource) {
                 if (!roots[ds.endpointUrl]) {
                     roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
                     roots[ds.endpointUrl].generated = true;
@@ -146,10 +138,6 @@ const DatasetSourceStore = Reflux.createStore({
         return roots;
     },
 
-    onGetAllDatasetSources: function () {
-        return this.datasetSources;
-    },
-
     onRefreshDatasetSources: function () {
         const toSend = {
             action: Actions.refreshDatasetSources,
@@ -157,8 +145,8 @@ const DatasetSourceStore = Reflux.createStore({
 
         if (!this.refreshing) {
             this.refreshing = true
-            Ajax.get(this.base + "/").end(function (data) {
-                let dss = data.map(this._parseDatasetSource);
+            Ajax.get(this.requestURL("", {})).end(function (data) {
+                let dss = data.map(DatasetSourceUtils.create);
                 let roots = this.hierarchizeDS(dss);
                 console.log("Root objects: " + Object.values(roots).length);
                 toSend.datasetSources = Object.values(roots)
@@ -175,30 +163,34 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onExecuteQueryForDatasetSource: function (datasetSourceId, queryName, params) {
-        const _executeQueryFail = function(toSend) {
+        const _executeQueryFail = function (toSend) {
             Logger.error('Unable to execute query.');
             toSend.jsonLD = []
             this.trigger(toSend);
         }.bind(this);
+        const par = {}
         const toSend = {
             action: Actions.executeQueryForDatasetSource,
             queryName: queryName,
-            params: params,
+            params: par,
             datasetSourceId: datasetSourceId
         };
-        const url = Utils.addParametersToUrl(this.base + "/actions/query?id=" + datasetSourceId + "&queryFile=" + queryName, params)
+        const url = this.requestURL("actions/query",{}) + Utils.createQueryParams({
+            id: datasetSourceId,
+            queryFile: queryName
+        }) + "&" + Utils.createQueryParams(params)
         Ajax.get(url).end(function (data) {
             const that = this;
             jsonld.flatten(data, function (err, canonical) {
                 if (err) {
-                    toSend.error=err
+                    toSend.error = err
                     _executeQueryFail(toSend)
                 } else {
                     toSend.jsonLD = canonical;
                     that.trigger(toSend);
                 }
             });
-        }.bind(this),() => _executeQueryFail(toSend));
+        }.bind(this), () => _executeQueryFail(toSend));
     },
 
     onGetDescriptorsForDatasetSource: function (datasetSourceId, descriptorTypeId) {
@@ -207,7 +199,10 @@ const DatasetSourceStore = Reflux.createStore({
             descriptorTypeId: descriptorTypeId,
             datasetSourceId: datasetSourceId
         };
-        Ajax.get(this.base + "/descriptor?id=" + datasetSourceId + "&descriptorTypeIri=" + descriptorTypeId).end(function (data) {
+        Ajax.get(this.requestURL("descriptor", {
+            id: datasetSourceId,
+            descriptorTypeIri: descriptorTypeId
+        })).end(function (data) {
             toSend.descriptors = data;
             this.trigger(toSend);
         }.bind(this), function () {
@@ -215,6 +210,10 @@ const DatasetSourceStore = Reflux.createStore({
             toSend.descriptors = [];
             this.trigger(toSend);
         }.bind(this));
+    },
+
+    requestURL(path, queryParamMap) {
+        return this.base + "/" + path + "?" + Utils.createQueryParams(queryParamMap)
     }
 });
 

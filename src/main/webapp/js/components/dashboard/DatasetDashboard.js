@@ -10,20 +10,6 @@ import WidgetPanelUI from "./widgets/WidgetPanelUI";
 import {Responsive, WidthProvider} from 'react-grid-layout';
 
 export default class DashboardController extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            editMode: false,
-            isModalOpen: false,
-            addWidgetOptions: null,
-        };
-    };
-
-    widget(t,w) {
-        return (<WidgetPanelUI title={t} widget={w}/>);
-    };
-
     render() {
         const layouts = {lg: [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
@@ -34,11 +20,11 @@ export default class DashboardController extends React.Component {
             {i: 'downright', x: 4, y: 5, w: 3, h: 2}
         ],sm: [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-            {i: 'main', x: 0, y: 0, w: 3, h: 3, minW: 3, maxW: 3},
-            {i: 'righttop', x: 0, y: 3, w: 3, h: 2},
-            {i: 'rightbottom', x: 0, y: 5, w: 3, h: 2},
-            {i: 'downleft', x: 0, y: 7, w: 3, h: 2},
-            {i: 'downright', x: 0, y: 9, w: 3, h: 2}
+            {i: 'main', x: 0, y: 0, w: 3, h: 4, minW: 3, maxW: 3},
+            {i: 'righttop', x: 0, y: 4, w: 3, h: 2},
+            {i: 'rightbottom', x: 0, y: 6, w: 3, h: 2},
+            {i: 'downleft', x: 0, y: 8, w: 3, h: 4},
+            {i: 'downright', x: 0, y: 12, w: 3, h: 4}
         ]};
 
         const cols = { lg: 6, md: 4, sm: 3, xs: 2, xxs: 1 };
