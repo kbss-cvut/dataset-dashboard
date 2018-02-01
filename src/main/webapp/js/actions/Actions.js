@@ -7,6 +7,7 @@ module.exports = Reflux.createActions([
     'registerDatasetSourceNamedGraph',
     'registerDatasetUrl',
     'getAllDatasetSources',
+    'refreshDatasetSources',
     'executeQueryForDatasetSource',
     'selectDatasetSource',
     'computeDescriptorForDatasetSource',

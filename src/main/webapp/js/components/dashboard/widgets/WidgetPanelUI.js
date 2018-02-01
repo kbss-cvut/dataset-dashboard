@@ -39,8 +39,8 @@ class WidgetPanelUI extends React.Component {
 
         let panelHeader = (
             <Row>
-                <Col xs={8}><h3>{this.props.title}</h3></Col>
-                <Col xs={4}>
+                <Col xs={4}><h4>{this.props.title}</h4></Col>
+                <Col xs={8}>
                     <ButtonToolbar className="pull-right">
                         {buttons}
                     </ButtonToolbar>
@@ -50,7 +50,7 @@ class WidgetPanelUI extends React.Component {
 
         return(
         <Panel header={panelHeader}>
-            {this.props.widget}
+            {this.props.widget(isFullscreen)}
         </Panel>);
     };
 }

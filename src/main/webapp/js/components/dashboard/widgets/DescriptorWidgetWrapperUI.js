@@ -18,7 +18,7 @@ export default class DescriptorWidgetWrapperUI extends React.Component {
         return <div> {this.props.datasetSource ? <div>
             <Grid fluid>
                 <Row>
-                    <Col xs={12} md={8} >
+                    <Col xs={12} md={8}>
                         <FormControl
                             componentClass="select"
                             placeholder="No descriptor selected"
@@ -31,10 +31,10 @@ export default class DescriptorWidgetWrapperUI extends React.Component {
                     </Button>
                     </Col>
                 </Row></Grid>
-                {!this.props.descriptorContent ?
-                    <div style={{textAlign: "center", verticalAlign: "center"}}>
-                        No Dataset Descriptor Selected
-                    </div> : wrappedComponent}
+            {!this.props.descriptorContent ?
+                <div style={{textAlign: "center", verticalAlign: "center"}}>
+                    No Dataset Descriptor Selected
+                </div> : wrappedComponent}
         </div> : <div>No Dataset Source Selected.</div> }
         </div>;
     };

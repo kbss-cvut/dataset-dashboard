@@ -22,7 +22,19 @@ class Hierarchy extends React.Component {
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
+        this.selectDatasetSource();
     };
+
+    selectDatasetSource() {
+        const queryHierarchy = "vocabulary/skos/get_concept_hierarchy";
+        const queryHierarchy2 = "vocabulary/owl/get_hierarchy";
+
+        this.setState({loadedQueries: [], iriToVocabularyMap: {}, vocabularyIriActiveMap: {}})
+        this.props.loadingOn();
+        const datasetSource = DatasetSourceStore.getSelectedDatasetSource();
+        Actions.executeQueryForDatasetSource(datasetSource.id, queryHierarchy);
+        Actions.executeQueryForDatasetSource(datasetSource.id, queryHierarchy2);
+    }
 
     _onDataLoaded = (data) => {
         if (data === undefined) {
@@ -33,10 +45,7 @@ class Hierarchy extends React.Component {
         const queryHierarchy2 = "vocabulary/owl/get_hierarchy";
 
         if (data.action === Actions.selectDatasetSource) {
-            this.setState({loadedQueries: [], iriToVocabularyMap: {}, vocabularyIriActiveMap: {}})
-            this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryHierarchy);
-            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryHierarchy2);
+            this.selectDatasetSource();
         } else {
             if (data.queryName === queryHierarchy) {
                 this.constructSkosTree(data.jsonLD)

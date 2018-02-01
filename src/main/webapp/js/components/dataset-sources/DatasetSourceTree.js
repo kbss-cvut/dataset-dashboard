@@ -1,14 +1,13 @@
 'use strict';
 
 import React from "react";
-import DatasetSourceStore from "../stores/DatasetSourceStore";
-import Actions from "../actions/Actions";
-import {Panel} from "react-bootstrap";
-import LoadingWrapper from "./misc/LoadingWrapper";
-import DatasetSourceLink from "./DatasetSourceLink";
-import FilterableTree from './misc/FilterableTree';
+import DatasetSourceStore from "../../stores/DatasetSourceStore";
+import Actions from "../../actions/Actions";
+import LoadingWrapper from "../misc/LoadingWrapper";
+import DatasetSourceLink from "../misc/DatasetSourceLink";
+import DatasetSourceFilterableTreeComponent from '../misc/DatasetSourceFilterableTreeComponent';
 
-class DatasetSourceTree extends FilterableTree {
+class DatasetSourceTree extends React.Component {
 
     constructor(props) {
         super(props);
@@ -18,8 +17,12 @@ class DatasetSourceTree extends FilterableTree {
     };
 
     componentWillMount() {
-        this.props.loadingOn();
-        Actions.getAllDatasetSources();
+        this.state.data = DatasetSourceStore.onGetAllDatasetSources();
+        if ( this.state.data == null ) {
+            this.props.loadingOn();
+            Actions.refreshDatasetSources();
+        }
+
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
@@ -28,7 +31,7 @@ class DatasetSourceTree extends FilterableTree {
             return
         }
 
-        if (data.action == Actions.getAllDatasetSources) {
+        if (data.action == Actions.refreshDatasetSources) {
             this.props.loadingOff();
             this.setState({
                 data: data.datasetSources,
@@ -38,7 +41,8 @@ class DatasetSourceTree extends FilterableTree {
         if (( data.action == Actions.registerDatasetSourceEndpoint )
             || ( data.action == Actions.registerDatasetSourceNamedGraph )
             || ( data.action == Actions.registerDatasetUrl )) {
-            Actions.getAllDatasetSources();
+            this.props.loadingOn();
+            Actions.refreshDatasetSources();
         }
     };
 
@@ -47,9 +51,8 @@ class DatasetSourceTree extends FilterableTree {
     };
 
     render() {
-        const header = <div>Filter Dataset Source</div>;
-        return (<Panel header={header}>
-            <FilterableTree
+        return (this.state.data ?
+            <DatasetSourceFilterableTreeComponent
                 data={this.state.data}
                 height={400}
                 selectable={false}
@@ -58,8 +61,7 @@ class DatasetSourceTree extends FilterableTree {
                 treeCheckable={false}
                 createKey={(item) => item.endpointUrl + " " + item.graphId}
                 createView={(item) => <DatasetSourceLink datasetSource={item}/>}
-            />
-        </Panel>);
+            /> : <div>No data</div>);
     }
 }
 export default LoadingWrapper(DatasetSourceTree, {maskClass: 'mask-container'});

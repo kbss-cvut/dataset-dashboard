@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.http.CacheControl;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
@@ -32,36 +34,61 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resources/**")
-            .addResourceLocations("/resources/").setCacheControl(
-            CacheControl.maxAge(7, TimeUnit.DAYS));
-        registry.addResourceHandler("/js/**")
-            .addResourceLocations("/js/").setCacheControl(
-            CacheControl.maxAge(24, TimeUnit.HOURS));
+//        registry.addResourceHandler("/resources/**")
+//            .addResourceLocations("/resources/").setCacheControl(
+//            CacheControl.maxAge(7, TimeUnit.DAYS));
+//        registry.addResourceHandler("/js/**")
+//            .addResourceLocations("/js/").setCacheControl(
+//            CacheControl.maxAge(24, TimeUnit.HOURS));
+//        registry.setOrder(-1);
+//        registry.addResourceHandler("/**").addResourceLocations("/index.html").setCachePeriod(0);
     }
+
+    @Override public void addViewControllers(ViewControllerRegistry registry) {
+        ////        super.addViewControllers(registry);
+        registry.addViewController("/").setViewName("forward:/index.html"); // Same thing without this line
+        registry.addViewController("/namespaces").setViewName("forward:/index.html");
+        super.addViewControllers(registry); // and this line...
+//        registry.addViewController("/{spring:\\w+}")
+//                .setViewName("forward:/");
+//        registry.addViewController("/**/{spring:\\w+}")
+//                .setViewName("forward:/");
+//        registry.addViewController("/{spring:\\w+}/**{spring:?!(\\.js|\\.css)$}")
+//                .setViewName("forward:/");
+    }
+
+//    @Bean
+//    public WebServerFactoryCustomizer containerCustomizer() {
+//        return container -> {
+//            container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND,
+//                "/notFound"));
+//        };
+//    }
+
+
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
 
-    /**
-     * TODO.
-     */
-    @Bean
-    public InternalResourceViewResolver setupViewResolver() {
-        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setViewClass(JstlView.class);
-        resolver.setPrefix("/WEB-INF/");
-        resolver.setSuffix(".html");
-        return resolver;
-    }
-
-    @Bean(name = "multipartResolver")
-    public MultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
-    }
-
+//    /**
+//     * TODO.
+//     */
+//    @Bean
+//    public InternalResourceViewResolver setupViewResolver() {
+//        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+//        resolver.setViewClass(JstlView.class);
+//        resolver.setPrefix("/WEB-INF/");
+//        resolver.setSuffix(".html");
+//        return resolver;
+//    }
+//
+//    @Bean(name = "multipartResolver")
+//    public MultipartResolver multipartResolver() {
+//        return new StandardServletMultipartResolver();
+//    }
+//
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         final MappingJackson2HttpMessageConverter converter =

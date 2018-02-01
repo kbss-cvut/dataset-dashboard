@@ -1,6 +1,7 @@
 import UrlDatasetSource from './UrlDatasetSource';
+import Ddo from '../vocabulary/Ddo';
 
-class NamedGraphSparqlEndpointDatasetSource extends UrlDatasetSource {
+export default class NamedGraphSparqlEndpointDatasetSource extends UrlDatasetSource {
     constructor(endpointUrl, graphId) {
         super(endpointUrl+"?query=CONSTRUCT ?s ?p ?o WHERE {<"+graphId+"> {?s ?p ?o}}")
         this._endpointUrl = endpointUrl;
@@ -16,8 +17,6 @@ class NamedGraphSparqlEndpointDatasetSource extends UrlDatasetSource {
     }
 
     get type() {
-        return "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/named-graph-sparql-endpoint-dataset-source"
+        return Ddo.NamedGraphSparqlEndpointDatasetSource;
     }
 }
-
-export default NamedGraphSparqlEndpointDatasetSource ;

@@ -24,6 +24,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
         componentWillMount() {
             this.unsubscribe1 = DatasetSourceStore.listen(this._onDescriptorsLoaded.bind(this));
             this.unsubscribe2 = DatasetDescriptorStore.listen(this._onDescriptorsLoaded.bind(this));
+            this.getCurrentDatasetSource();
         };
 
         componentWillUnmount() {
@@ -31,16 +32,23 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             this.unsubscribe2();
         };
 
-        _onDescriptorsLoaded = (data) => {
-            if (data.action === Actions.selectDatasetSource) {
-                this.props.loadingOn();
+        getCurrentDatasetSource() {
+            this.props.loadingOn();
+            const datasetSource = DatasetSourceStore.getSelectedDatasetSource()
+            if (datasetSource) {
                 Actions.getDescriptorsForDatasetSource(
-                    data.datasetSource.id,
+                    datasetSource.id,
                     this.state.descriptorTypeIri);
                 this.setState({
-                    datasetSource: DatasetSourceStore.getSelectedDatasetSource(),
+                    datasetSource: datasetSource,
                     descriptorContent: null
                 });
+            }
+        }
+
+        _onDescriptorsLoaded = (data) => {
+            if (data.action === Actions.selectDatasetSource) {
+                this.getCurrentDatasetSource();
             } else if (data.action === Actions.getDescriptorsForDatasetSource) {
                 this.props.loadingOn();
                 if (data.descriptorTypeId == this.state.descriptorTypeIri) {
@@ -85,7 +93,7 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
         }
 
         render() {
-                return <DescriptorWidgetWrapperUI
+            return <DescriptorWidgetWrapperUI
                 datasetSource={this.state.datasetSource}
                 descriptorContent={this.state.descriptorContent}
                 descriptors={this.state.descriptors}

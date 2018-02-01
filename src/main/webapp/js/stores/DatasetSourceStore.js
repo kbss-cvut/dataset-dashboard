@@ -21,6 +21,8 @@ const DatasetSourceStore = Reflux.createStore({
 
     selectDatasetSource: null,
 
+    datasetSources: null,
+
     init() {
         this.addFromResource(datasetSourcesAdHoc);
     },
@@ -145,22 +147,31 @@ const DatasetSourceStore = Reflux.createStore({
     },
 
     onGetAllDatasetSources: function () {
+        return this.datasetSources;
+    },
+
+    onRefreshDatasetSources: function () {
         const toSend = {
-            action: Actions.getAllDatasetSources,
+            action: Actions.refreshDatasetSources,
         };
 
-        Ajax.get(this.base + "/").end(function (data) {
-            let dss = data.map(this._parseDatasetSource);
-            let roots = this.hierarchizeDS(dss);
-
-            console.log("Root objects: " + Object.values(roots).length);
-            toSend.datasetSources = Object.values(roots)
-            this.trigger(toSend);
-        }.bind(this), function () {
-            Logger.error('Unable to get data.');
-            this.datasetSources = null;
-            this.trigger(toSend);
-        }.bind(this));
+        if (!this.refreshing) {
+            this.refreshing = true
+            Ajax.get(this.base + "/").end(function (data) {
+                let dss = data.map(this._parseDatasetSource);
+                let roots = this.hierarchizeDS(dss);
+                console.log("Root objects: " + Object.values(roots).length);
+                toSend.datasetSources = Object.values(roots)
+                this.datasetSources = toSend.datasetSources;
+                this.refreshing = false
+                this.trigger(toSend);
+            }.bind(this), function () {
+                Logger.error('Unable to get data.');
+                this.datasetSources = null;
+                this.refreshing = false
+                this.trigger(toSend);
+            }.bind(this));
+        }
     },
 
     onExecuteQueryForDatasetSource: function (datasetSourceId, queryName, params) {

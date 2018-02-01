@@ -1,6 +1,7 @@
 import DatasetSource from './DatasetSource';
+import Ddo from '../vocabulary/Ddo';
 
-class UrlDatasetSource extends DatasetSource {
+export default class UrlDatasetSource extends DatasetSource {
     constructor(url) {
         super();
         this._url = url;
@@ -11,8 +12,6 @@ class UrlDatasetSource extends DatasetSource {
     }
 
     get type() {
-        return "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/url-dataset-source"
+        return Ddo.UrlDatasetSource;
     }
 }
-
-export default UrlDatasetSource ;

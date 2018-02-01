@@ -1,13 +1,13 @@
 'use strict';
 
 import React from "react";
-import NamespaceStore from "../stores/NamespaceStore";
+import NamespaceStore from "../../stores/NamespaceStore";
 
-class DatasetSourceLabel extends React.Component {
+export default class DatasetSourceLabel extends React.Component {
 
     render() {
         const ds = this.props.datasetSource;
-        let label="<Undefined>";
+        let label;
         if (ds) {
             if (ds.endpointUrl) {
                 if (ds.graphId) {
@@ -18,10 +18,10 @@ class DatasetSourceLabel extends React.Component {
             } else {
                 label = <span>{NamespaceStore.getShortForm(ds.url)}</span>
             }
+        } else {
+            label = <span>No Dataset Source Selected</span>;
         }
 
         return ( <span>{label}</span> );
     }
 }
-
-export default DatasetSourceLabel;

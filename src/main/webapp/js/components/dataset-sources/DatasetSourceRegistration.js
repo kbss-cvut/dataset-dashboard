@@ -1,8 +1,8 @@
 'use strict';
 
 import React from "react";
-import Actions from "../actions/Actions";
 import {Button, ControlLabel, FormControl, FormGroup, Panel} from "react-bootstrap";
+import Actions from "../../actions/Actions";
 
 const urlRegexPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\.)+[a-z]{2,}|' + // domain name

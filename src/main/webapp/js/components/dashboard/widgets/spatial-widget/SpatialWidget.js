@@ -23,7 +23,14 @@ class SpatialWidget extends React.Component {
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
+        this.selectDatasetSource();
     };
+
+    selectDatasetSource() {
+        this.props.loadingOn();
+        Actions.executeQueryForDatasetSource(DatasetSourceStore.getSelectedDatasetSource().id, "spatial/get_features_with_geometry");
+        //TODO: vyber featureType co má nejmíň ale víc než deset a ten zobraz defaultně
+    }
 
     _onDataLoaded = (data) => {
         if (data === undefined) {
@@ -37,9 +44,7 @@ class SpatialWidget extends React.Component {
                 this.setState({featuresWithGeometry: data.jsonLD});
             }
         } else if (data.action === Actions.selectDatasetSource) {
-            this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.id, "spatial/get_features_with_geometry");
-            //TODO: vyber featureType co má nejmíň ale víc než deset a ten zobraz defaultně
+            this.selectDatasetSource();
         }
     };
 

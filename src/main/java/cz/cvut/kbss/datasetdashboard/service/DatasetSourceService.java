@@ -38,7 +38,7 @@ public class DatasetSourceService {
      *
      * @param endpointUrl URL of the SPARQL endpoint
      * @param graphIri    IRI of the context within the SPARQL endpoint
-     * @return an identifier of the registered dataset source
+     * @return an identifier of the registered dataset source, or an identifier of an existing dataset source, if a dataset source with existing endpointURL and graph IRI exists.
      */
     @Transactional
     public String register(final String endpointUrl, final String graphIri) {

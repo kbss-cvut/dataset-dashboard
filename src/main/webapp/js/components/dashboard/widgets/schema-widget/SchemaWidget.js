@@ -47,13 +47,6 @@ class SchemaWidget extends React.Component {
         };
     };
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.isFullscreen !== nextProps.isFullscreen) {
-            // Fullscreen status has changed.
-            // TODO
-        }
-    }
-
     // creates a new node with given uri or reuses an existing if present in nodeMap.
     ensureNodeCreated(nodeMap, uri) {
         let nodeId = uri;
@@ -127,9 +120,9 @@ class SchemaWidget extends React.Component {
 
     render() {
         const maxLimitWeight = SchemaUtils.computeMaxEdgeWeight(this.props.descriptorContent)
-        const isFullscreen = this.props.isFullscreen ? this.props.isFullscreen : false;
+        const isFullScreen = this.props.isFullScreen ? this.props.isFullScreen : false;
         const graphOptions = GraphDefaults.graphOptions();
-        graphOptions.configure.enabled = isFullscreen;
+        graphOptions.configure.enabled = isFullScreen;
 
         return <div>
             <Checkbox checked={this.state.showAttributes}
@@ -155,7 +148,7 @@ class SchemaWidget extends React.Component {
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
                    options={graphOptions}
-                   style={{width: '100%', height: isFullscreen ? '900px' : '600px'}}/>)
+                   style={{width: '100%', height: isFullScreen ? '900px' : '600px'}}/>)
         </div>;
     };
 }

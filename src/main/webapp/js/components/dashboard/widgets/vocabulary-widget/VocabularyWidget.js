@@ -21,7 +21,17 @@ class VocabularyWidget extends React.Component {
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
+        this.selectDatasetSource();
     };
+
+    selectDatasetSource() {
+        this.props.loadingOn();
+        const queryType = "vocabulary/get_vocabulary_type";
+        const queryLanguage = "vocabulary/get_vocabulary_language";
+        const datasetSource = DatasetSourceStore.getSelectedDatasetSource();
+        Actions.executeQueryForDatasetSource(datasetSource.id, queryType);
+        Actions.executeQueryForDatasetSource(datasetSource.id, queryLanguage);
+    }
 
     _onDataLoaded = (data) => {
         if (data === undefined) {
@@ -33,9 +43,7 @@ class VocabularyWidget extends React.Component {
         const voc = "http://onto.fel.cvut.cz/ontologies/vocabulary/";
 
         if (data.action === Actions.selectDatasetSource) {
-            this.props.loadingOn();
-            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryType);
-            Actions.executeQueryForDatasetSource(data.datasetSource.id, queryLanguage);
+            this.selectDatasetSource();
         } else {
             if (data.queryName === queryType) {
                 this.setState({
@@ -79,7 +87,6 @@ class VocabularyWidget extends React.Component {
             l[item] = false;
         }
         l[item] = !l[item];
-        console.log(l);
         this.setState({
             languages: l
         });

@@ -1,8 +1,9 @@
 import UrlDatasetSource from './UrlDatasetSource';
+import Ddo from '../vocabulary/Ddo';
 
-class SparqlEndpointDatasetSource extends UrlDatasetSource {
+export default class SparqlEndpointDatasetSource extends UrlDatasetSource {
     constructor(endpointUrl) {
-        super(endpointUrl+"?query=CONSTRUCT WHERE {?s ?p ?o}")
+        super(endpointUrl + "?query=CONSTRUCT WHERE {?s ?p ?o}")
         this._endpointUrl = endpointUrl;
     }
 
@@ -11,8 +12,6 @@ class SparqlEndpointDatasetSource extends UrlDatasetSource {
     }
 
     get type() {
-        return "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/sparql-endpoint-dataset-source"
+        return Ddo.SparqlEndpointDatasetSource;
     }
 }
-
-export default SparqlEndpointDatasetSource ;
