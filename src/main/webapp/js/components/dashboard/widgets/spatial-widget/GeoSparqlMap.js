@@ -70,16 +70,16 @@ class GeoSparqlMap extends React.Component {
         // ====== get minimum bounds and put data into map object =====
 
         if (g.points.length != 0) {
-            console.log("POINT1: "+g.points[0].position)
+            //console.log("POINT1: "+g.points[0].position)
             bb.add(g.points[0].position)
             g.points.forEach((point) => {
                 markers.push(
                     <Marker key={point.id} position={point.position}>
                         <Popup>
-                            <span>{point.name}</span>
+                            <span><a target="_blank" href={point.id}>{point.name}</a></span>
                         </Popup>
                     </Marker>);
-                console.log("POINT2: "+point.position)
+                   //console.log("POINT2: "+point.position)
                 bb.add(point.position)
             })
         }
@@ -93,13 +93,17 @@ class GeoSparqlMap extends React.Component {
         }
 
         if (g.multipolygons.length != 0) {
-            console.log("POLYGON1: "+g.multipolygons[0].position[0][0])
+            //console.log("POLYGON1: "+g.multipolygons[0].position[0][0])
             bb.add(g.multipolygons[0].position[0][0]);
             g.multipolygons.forEach((multipolygon) => {
-                multipolygons.push(<Polygon key={multipolygon.id} color="blue" positions={multipolygon.position}/>);
+                multipolygons.push(<Polygon key={multipolygon.id} color="blue" positions={multipolygon.position}>
+                    <Popup>
+                        <span><a target="_blank" href={multipolygon.id}>{multipolygon.name}</a></span>
+                    </Popup>
+                </Polygon>);
                 multipolygon.position.forEach((polygon) => {
                     polygon.forEach((point) => {
-                        console.log("POLYGON2: "+point)
+                        //console.log("POLYGON2: "+point)
                         bb.add(point);
                     })
                 })
@@ -118,7 +122,7 @@ class GeoSparqlMap extends React.Component {
         let bounds = L.polyline(bb.getBounds());
 
         // ====== create map with layers and vizualize ======
-        return <Map bounds={bounds._latlngs} style={{height: 500}}>
+        return <Map bounds={bounds._latlngs} style={{height: "80vh"}}>
             <TileLayer
                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'

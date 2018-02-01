@@ -9,9 +9,9 @@ import GeoSparqlMap from "./GeoSparqlMap";
 
 
 // TODO 1) při načtení vyber featueType a zobraz
-// TODO 2) při vybrání jiného source reinicializovat mapové okno
-// TODO 3) zkontroluj funkčnost GML u ruianu (sample okresy)
 // TODO 4) dodělej načítání dat pro GML i WKT struktury
+// TODO 5) možnost zobrazovat víc features najednou
+
 class SpatialWidget extends React.Component {
     constructor(props) {
         super(props);
@@ -38,6 +38,7 @@ class SpatialWidget extends React.Component {
         }
         if (data.action === Actions.executeQueryForDatasetSource) {
             if (data.queryName === "spatial/get_feature_geometry") {
+                this.props.loadingOff();
                 this.setState({geometries: data.jsonLD});
             } else if (data.queryName === "spatial/get_features_with_geometry") {
                 this.props.loadingOff();
@@ -53,12 +54,14 @@ class SpatialWidget extends React.Component {
     };
 
     // runs when featuretype selected from menu
-    featureTypeSelect(event) {
+    featureTypeIriSelect(iri) {
+        this.props.loadingOn();
         Actions.executeQueryForDatasetSource(
             DatasetSourceStore.getSelectedDatasetSource().id,
             "spatial/get_feature_geometry",
-            {object_type: "<"+event.target.value+">"}
+            {object_type: "<"+iri+">"}
         );
+        this.setState({value : iri,geometries:[]})
     };
 
     render() {
@@ -67,8 +70,9 @@ class SpatialWidget extends React.Component {
                 {this.state.featuresWithGeometry.length > 0 ?
                     <div>
                         <SelectGeoSparqlFeature
-                            onChange={(event) => this.featureTypeSelect(event)}
-                            options={this.state.featuresWithGeometry}/>
+                            onChange={(iri) => this.featureTypeIriSelect(iri)}
+                            options={this.state.featuresWithGeometry}
+                            value={this.state.value}/>
                             {this.state.geometries.length > 0 ?
                                 <GeoSparqlMap
                                     data={this.state.geometries}/> :

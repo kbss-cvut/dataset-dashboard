@@ -33,7 +33,8 @@ class GeoUtils {
         })
         return {
             id: id,
-            position: polygon
+            position: polygon,
+            name: id
         };
     };
 
@@ -53,7 +54,8 @@ class GeoUtils {
         })
         return {
             id: id,
-            position: multipolygon
+            position: multipolygon,
+            name: id
         };
     }
 
@@ -66,6 +68,14 @@ class GeoUtils {
         }
         else return {id: id, position: [x, y], name: id};
     }
+
+    //TODO: processing polyline un WKT
+    //TODO: processing line un WKT
+
+    //TODO: processing polygon in GML
+    //TODO: processing multipolygon in GML
+    //TODO: processing polyline in GML
+    //TODO: processing line in GML
 
     // ===== processing of points in gml =====
     static parsePointFromGML(xmlDoc, id) {

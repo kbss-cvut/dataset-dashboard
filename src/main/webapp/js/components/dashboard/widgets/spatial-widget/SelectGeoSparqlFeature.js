@@ -5,12 +5,30 @@ import {ControlLabel, FormControl, FormGroup} from "react-bootstrap";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 
 class SelectGeoSparqlFeature extends React.Component {
+
+    componentDidMount() {
+        const max=10000000000000000000000000000000000000;
+        let minNumberInstances = max;
+        let minId=null;
+        this.props.options.forEach((item) => {
+            const num = item["http://own.schema.org/haveNumberOfInstances"][0]["@value"];
+            const id = item["@id"];
+            if ( (minNumberInstances > num && num > 2) || minNumberInstances == max) {
+                minNumberInstances = num;
+                minId = id;
+            }
+        });
+        this.props.onChange(minId)
+    }
+
     render() {
         let selectOptions = [];
         this.props.options.forEach((item) => {
+            const num = item["http://own.schema.org/haveNumberOfInstances"][0]["@value"];
+            const id = item["@id"];
             selectOptions.push(
-                <option key={item["@id"]} value={item["@id"]}>
-                    {NamespaceStore.getShortForm(item["@id"])}({item["http://own.schema.org/haveNumberOfInstances"][0]["@value"]})
+                <option key={id} value={id}>
+                    {NamespaceStore.getShortForm(id)}({num})
                 </option>
             )
         });
@@ -19,7 +37,8 @@ class SelectGeoSparqlFeature extends React.Component {
             <ControlLabel>Select Type</ControlLabel>
             <FormControl componentClass="select"
                          placeholder="Select Type"
-                         onChange={this.props.onChange}>
+                         onChange={(event) => this.props.onChange(event.target.value)}
+                         value={this.props.value}>
                 <option value="select">No type selected</option>
                 {selectOptions}
             </FormControl>
