@@ -2,13 +2,7 @@
 
 import React from "react";
 
-
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import NamespaceStore from "../../../../stores/NamespaceStore";
-
-import Utils from "../../Utils";
-import Rdf from "../../../../vocabulary/Rdf";
-
 import DescriptorWidgetWrapper from "../DescriptorWidgetWrapper";
 import Ddo from "../../../../vocabulary/Ddo";
 
