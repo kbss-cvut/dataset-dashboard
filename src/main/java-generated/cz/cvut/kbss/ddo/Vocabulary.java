@@ -101,5 +101,6 @@ public class Vocabulary {
     public final static String s_p_inv_dot_has_sub_dataset_snapshot = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/inv.has-sub-dataset-snapshot";
     public final static String s_c_dataset_descriptor = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/dataset-descriptor";
     public final static String s_p_is_description_of = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/is-description-of";
+    public final static String s_c_temporal_dataset_descriptor = "http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-function";
 
 }
