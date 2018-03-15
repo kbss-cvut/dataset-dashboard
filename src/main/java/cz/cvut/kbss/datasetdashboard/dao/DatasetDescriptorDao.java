@@ -190,12 +190,19 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
     public dataset_descriptor computeDescriptorForDatasetSource(final String datasetSourceId,
                                                                 final String descriptorType) {
         final URI datasetSourceIri = URI.create(datasetSourceId);
-        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
+        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType) || (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType))) {
             final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
             String url = environment.getProperty("spipes.service");
             // not using params - order is important
-            url += "?id=" + "compute-spo-summary-descriptor";
+
+            if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)){
+                url += "?id=" + "compute-spo-summary-descriptor";
+            }
+            else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)){
+                    url += "?id=" + "temporal-function";
+            }
+
             if (EntityToOwlClassMapper
                 .isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
                 url +=
@@ -214,7 +221,13 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
             final dataset_source publishedDatasetSource =
                 (dataset_source) p.getHas_source().iterator().next();
-            LOG.info("Computing SPO: {}", url);
+
+            if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)){
+                LOG.info("Computing SPO: {}", url);
+            }
+            else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)){
+                LOG.info("Computing temporal descriptor: {}", url);
+            }
             String s = remoteLoader.loadData(url, new HashMap<>());
             LOG.info(" - done. Response length {}", s);
 
