@@ -1,0 +1,6 @@
+PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
+SELECT DISTINCT ?result
+{
+    ?result ddo:has-endpoint-url ?param1 ;
+        ddo:has-graph-id ?param2
+}

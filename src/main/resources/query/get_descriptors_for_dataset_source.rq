@@ -1,0 +1,10 @@
+# Returns descriptors of given type (?param2) for the given dataset source (?param1).
+
+PREFIX dd: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
+SELECT DISTINCT ?result {
+    ?result a ?param2 ;
+        dd:inv.has-dataset-descriptor [
+            a dd:description ;
+            dd:has-source ?param1
+        ] .
+}

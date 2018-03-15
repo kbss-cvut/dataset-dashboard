@@ -1,5 +1,9 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
@@ -35,30 +39,26 @@ public class SparqlAccessor {
     private DataLoader localLoader;
 
     /**
-     * Executes given named SPARQL query
+     * Returns result of a SPARQL query.
      *
-     * @param queryFile of the SPARQL query
-     * @return a {@link RawJson} object containing JSON-formatted SPARQL Select result.
-     *
-     * @throws IllegalArgumentException When the specified queryName is not known
+     * @param queryName         name of the query to executed
+     * @param sparqlEndpointUrl URL of the SPARQL endpoint to execute the query on
+     * @return a JSON array of results
      */
-    private RawJson getSparqlResult(final String queryFile, final String repositoryUrl,
-        final String mediaType) {
-        if (repositoryUrl.isEmpty()) {
-            throw new IllegalStateException("Missing repository URL configuration.");
+    public JsonArray getSparqlSelectResult(final String queryName, final String sparqlEndpointUrl) {
+        final JsonParser jsonParser = new JsonParser();
+        String result = getSparqlResult(queryName, Collections.emptyMap(), sparqlEndpointUrl, null,
+                "application/json");
+        if (result != null) {
+            try {
+                final JsonElement jsonResult = jsonParser.parse(result);
+                return jsonResult.getAsJsonObject().get("results").getAsJsonObject().get("bindings")
+                                 .getAsJsonArray();
+            } catch(JsonSyntaxException e) {
+                LOG.warn("Not a valid JSON ", e);
+            }
         }
-        String query = localLoader.loadData(queryFile, Collections.emptyMap());
-        try {
-            query = URLEncoder.encode(query, Constants.UTF_8_ENCODING);
-            final Map<String, String> params = new HashMap<>();
-            params.put("query", query);
-            params.put(HttpHeaders.ACCEPT, mediaType);
-            final String data = remoteLoader.loadData(repositoryUrl, params);
-            return new RawJson(data);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unable to find encoding " + Constants
-                .UTF_8_ENCODING, e);
-        }
+        return new JsonArray();
     }
 
     /**

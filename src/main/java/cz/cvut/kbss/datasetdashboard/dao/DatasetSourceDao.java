@@ -24,6 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
@@ -42,27 +45,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         super(dataset_source.class);
     }
 
-    /**
-     * Returns result of a SPARQL query.
-     *
-     * @param queryName         name of the query to executed
-     * @param sparqlEndpointUrl URL of the SPARQL endpoint to execute the query on
-     * @return a JSON array of results
-     */
-    public JsonArray getSparqlSelectResult(final String queryName, final String sparqlEndpointUrl) {
-        final JsonParser jsonParser = new JsonParser();
-        String result = sparqlAccessor
-            .getSparqlResult(queryName, Collections.emptyMap(), sparqlEndpointUrl, null,
-                "application/json");
-        if (result != null) {
-            final JsonElement jsonResult = jsonParser.parse(result);
-            return jsonResult.getAsJsonObject().get("results").getAsJsonObject().get("bindings")
-                             .getAsJsonArray();
-        } else {
-            return new JsonArray();
-        }
-    }
-
     private String getStringValue(final JsonObject o, final String parameter) {
         return o.get(parameter).getAsJsonObject().get("value").getAsString();
     }
@@ -75,7 +57,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      */
     public List<String> getAllNamedGraphsInEndpoint(final String sparqlEndpointUrl) {
         List<String> all = new ArrayList<>();
-        getSparqlSelectResult("query/get_sparql_endpoint_named_graph_datasetsources.rq",
+        sparqlAccessor.getSparqlSelectResult("query/get_sparql_endpoint_named_graph_datasetsources.rq",
             sparqlEndpointUrl).forEach((e) -> {
                 final String graph = getStringValue(e.getAsJsonObject(), "graph");
                 all.add(graph);
@@ -142,7 +124,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             ds.setOffers_dataset(Collections.singleton(dataset));
             dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
             EntityDescriptor d = new EntityDescriptor(URI.create(
-                "http://onto.fel.cvut" + "" + "" + ".cz/ontologies/ddo-metadata/dataset-sources"));
+                "http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources"));
             em.persist(dataset, d);
             em.persist(ds, d);
         } else {
@@ -166,6 +148,26 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         }
     }
 
+    private dataset_source registerNamedGraph(final String endpointUrl, final String graphIri) {
+        int id = (endpointUrl + graphIri).hashCode();
+        final List<dataset_source> datasetSources = getTypedQuery(
+            dataset_source.class,
+            "query/check_exists_named_graph_in_endpoint.rq",
+            endpointUrl,
+            graphIri);
+        dataset_source ds;
+        if (datasetSources.isEmpty()) {
+            EntityDescriptor d = new EntityDescriptor(URI.create(
+                "http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources"));
+            ds = _registerNamedGraphDatasetSource(d, id, endpointUrl, graphIri);
+            em.persist(ds, d);
+        } else {
+            ds = datasetSources.iterator().next();
+            LOG.warn("The datasource {} has already been registered.", id);
+        }
+        return ds;
+    }
+
     private dataset_source initDatasetSource(int id, final EntityDescriptor d) {
         final dataset_source ds = createDatasetSource(id);
         final dataset dataset = createDataset(id);
@@ -175,29 +177,29 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         return ds;
     }
 
-    private dataset_source registerNamedGraph(final String endpointUrl, final String graphIri) {
-        int id = (endpointUrl + graphIri).hashCode();
-        final String queryString = "SELECT DISTINCT ?datasetSource { ?datasetSource ?hasEndpointUrl ?endpointUrl ; ?hasGraphId ?graphId }";
+    private dataset_source _registerNamedGraphDatasetSource(
+        final EntityDescriptor d, int id, final String endpointUrl, final String graphIri) {
+        dataset_source ds = initDatasetSource(id, d);
+        ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
+        ds.getProperties().put(Vocabulary.s_p_has_endpoint_url,
+            Collections.singleton(endpointUrl));
+        ds.getProperties().put(Vocabulary.s_p_has_graph_id, Collections.singleton(graphIri));
+        ds.getTypes().add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
+        return ds;
+    }
 
-        final TypedQuery q = em.createNativeQuery(queryString
-            , dataset_source.class)
-                               .setParameter("hasEndpointUrl",
-                                   URI.create(Vocabulary.s_p_has_endpoint_url))
-                               .setParameter("hasGraphId", URI.create(Vocabulary.s_p_has_graph_id))
-                               .setParameter("endpointUrl", endpointUrl)
-                               .setParameter("graphId", graphIri);
-
-        final List<dataset_source> datasetSources = q.getResultList();
+    private dataset_source registerEndpoint(final String endpointUrl) {
+        int id = endpointUrl.hashCode();
+        final List<dataset_source> datasetSources = getTypedQuery(
+                dataset_source.class,
+                "query/get_endpoints.rq",
+                URI.create(endpointUrl),
+                endpointUrl);
         dataset_source ds;
         if (datasetSources.isEmpty()) {
             EntityDescriptor d = new EntityDescriptor(URI.create(
                 "http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources"));
-            ds = initDatasetSource(id, d);
-            ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
-            ds.getProperties().put(Vocabulary.s_p_has_endpoint_url,
-                Collections.singleton(endpointUrl));
-            ds.getProperties().put(Vocabulary.s_p_has_graph_id, Collections.singleton(graphIri));
-            ds.getTypes().add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
+            ds = _registerEndpointDatasetSource(d, id, endpointUrl);
             em.persist(ds, d);
         } else {
             ds = datasetSources.iterator().next();
@@ -206,34 +208,16 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         return ds;
     }
 
-    private dataset_source registerEndpoint(final String endpointUrl) {
-        int id = endpointUrl.hashCode();
-        final String queryString = "SELECT DISTINCT ?datasetSource { ?datasetSource a ?datasetSourceClass. { ?datasetSource ?hasEndpointUrl ?endpointUrlString } UNION {?datasetSource ?hasEndpointUrl ?endpointUrlObject} }";
-
-        final TypedQuery q = em.createNativeQuery(queryString
-            , dataset_source.class)
-                               .setParameter("datasetSourceClass", URI.create(Vocabulary.s_c_sparql_endpoint_dataset_source))
-                               .setParameter("hasEndpointUrl", URI.create(Vocabulary.s_p_has_endpoint_url))
-                               .setParameter("endpointUrlObject", URI.create(endpointUrl))
-                               .setParameter("endpointUrlString", endpointUrl);
-        final List<dataset_source> datasetSources = q.getResultList();
-        dataset_source ds;
-        if (datasetSources.isEmpty()) {
-            EntityDescriptor d = new EntityDescriptor(URI.create(
-                "http://onto.fel.cvut.cz/ontologies/ddo-metadata/dataset-sources"));
-            ds = initDatasetSource(id, d);
-            ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
-            ds.getProperties()
-                .put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(endpointUrl));
-            ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
-            final List<String> graphIds = getAllNamedGraphsInEndpoint(endpointUrl);
-            for (final String graphId : graphIds) {
-                registerNamedGraph(endpointUrl, graphId);
-            }
-            em.persist(ds, d);
-        } else {
-            ds = datasetSources.iterator().next();
-            LOG.warn("The datasource {} has already been registered.", id);
+    private dataset_source _registerEndpointDatasetSource(
+        final EntityDescriptor d, int id, final String endpointUrl) {
+        dataset_source ds = initDatasetSource(id, d);
+        ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
+        ds.getProperties()
+          .put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(endpointUrl));
+        ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
+        final List<String> graphIds = getAllNamedGraphsInEndpoint(endpointUrl);
+        for (final String graphId : graphIds) {
+            registerNamedGraph(endpointUrl, graphId);
         }
         return ds;
     }
@@ -247,26 +231,11 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      */
     public List<dataset_descriptor> getDescriptors(final String datasetSourceId,
                                                    final String descriptorType) {
-        TypedQuery q = em.createNativeQuery(
-            "SELECT DISTINCT ?datasetDescriptor { " + "?vocDescriptionInstance a ?vocDescription ; "
-            + "?vocHasSource ?datasetSource . " + "?datasetDescriptor ?vocInvHasDatasetDescriptor "
-            + "?vocDescriptionInstance. " + "?datasetDescriptor a" + " ?datasetDescriptorType }",
-            dataset_descriptor.class);
-
-        q = q.setParameter("vocDescription", URI.create(Vocabulary.s_c_description))
-             .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
-             .setParameter("vocInvHasDatasetDescriptor",
-                 URI.create(Vocabulary.s_p_inv_dot_has_dataset_descriptor))
-             .setParameter("datasetSource", URI.create(datasetSourceId));
-        if (descriptorType != null) {
-            q = q.setParameter("datasetDescriptorType", URI.create(descriptorType));
-        }
-        final List<dataset_descriptor> result = q.getResultList();
-        result.forEach((r) -> {
-            r.getTypes();
-            r.getProperties();
-        });
-        return result;
+        return getTypedQuery(
+            dataset_descriptor.class,
+            "query/get_descriptors_for_dataset_source.rq",
+            URI.create(datasetSourceId),
+            URI.create(descriptorType));
     }
 
     /**
@@ -274,34 +243,28 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      * snapshot is created and queried by the user supplied query
      *
      * @param queryFile of the SPARQL query to execute
-     * @return a {@link String} object containing JSONLD-formatted result.
+     * @return a {@link String} object containing turtle-formatted result.
      *
      * @throws IllegalArgumentException When the specified queryName is not known
      */
     public String getSparqlConstructResult(dataset_source ds, final String queryFile,
                                            final Map<String, String> bindings) {
-        dataset_source datasetSource = this.find(URI.create(ds.getId()));
+        final dataset_source datasetSource = this.find(URI.create(ds.getId()));
 
         if (EntityToOwlClassMapper
             .isOfType(datasetSource, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            final String endpointUrl =
-                datasetSource.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator()
-                             .next();
-            final String graphIri =
-                datasetSource.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next();
+            final String endpointUrl = getSingleProperty(datasetSource,Vocabulary.s_p_has_endpoint_url);
+            final String graphIri = getSingleProperty(datasetSource,Vocabulary.s_p_has_graph_id);
             return sparqlAccessor
                 .getSparqlResult(queryFile, bindings, endpointUrl, graphIri, "text/turtle");
         } else if (EntityToOwlClassMapper
             .isOfType(datasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            final String endpointUrl =
-                datasetSource.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator()
-                             .next();
+            final String endpointUrl = getSingleProperty(datasetSource,Vocabulary.s_p_has_endpoint_url);
             return sparqlAccessor
                 .getSparqlResult(queryFile, bindings, endpointUrl, null, "text/turtle");
         } else {
             throw new IllegalStateException(MessageFormat.format(
-                "The dataset source of types {} " + "" + "" + "" + "" + "" + "is " + "not "
-                + "recognized.", datasetSource.getTypes()));
+                "The dataset source of types {} is not recognized.", datasetSource.getTypes()));
         }
     }
 }

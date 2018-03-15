@@ -1,0 +1,11 @@
+PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
+
+SELECT DISTINCT ?result
+{
+    ?result a ddo:sparql-endpoint-dataset-source .
+    {
+        ?result ddo:has-endpoint-url ?param1
+    } UNION {
+        ?result ddo:has-endpoint-url ?param2
+    }
+}

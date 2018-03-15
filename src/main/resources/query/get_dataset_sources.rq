@@ -1,14 +1,5 @@
 PREFIX ddo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
-SELECT ?datasetSourceIri ?realType ?endpointUrl ?graphIri ?downloadUrl
+SELECT ?result
 WHERE {
-    ?datasetSourceIri a ?type .
-    OPTIONAL {
-        ?datasetSourceIri ddo:has-endpoint-url ?endpointUrl .
-        OPTIONAL {
-            ?datasetSourceIri ddo:has-graph-id ?graphIri .
-        }
-    }
-    OPTIONAL {
-        ?datasetSourceIri ddo:has-download-url ?downloadUrl .
-    }
+    ?result a ddo:dataset-source .
 }
