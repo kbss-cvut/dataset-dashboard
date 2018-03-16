@@ -33,9 +33,9 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
         };
 
         getCurrentDatasetSource() {
-            this.props.loadingOn();
             const datasetSource = DatasetSourceStore.getSelectedDatasetSource()
             if (datasetSource) {
+                this.props.loadingOn();
                 Actions.getDescriptorsForDatasetSource(
                     datasetSource.id,
                     this.state.descriptorTypeIri);
@@ -50,7 +50,6 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
             if (data.action === Actions.selectDatasetSource) {
                 this.getCurrentDatasetSource();
             } else if (data.action === Actions.getDescriptorsForDatasetSource) {
-                this.props.loadingOn();
                 if (data.descriptorTypeId == this.state.descriptorTypeIri) {
                     this.props.loadingOff();
                     const state = {
@@ -59,13 +58,13 @@ export default function DescriptorWidgetWrapper(Widget, datasetDescriptorTypeIri
                     }
                     if (data.descriptors && data.descriptors[0]) {
                         const id = data.descriptors[0].id;
+                        this.props.loadingOn();
                         Actions.getDescriptorContent(id, this.state.descriptorQuery);
                         state.selectedDescriptorId = id;
                     }
                     this.setState(state);
                 }
             } else if (data.action === Actions.getDescriptorContent) {
-                this.props.loadingOn();
                 if (data.descriptorId == this.state.selectedDescriptorId) {
                     this.props.loadingOff();
 

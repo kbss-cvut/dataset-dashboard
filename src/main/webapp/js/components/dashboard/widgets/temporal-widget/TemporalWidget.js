@@ -11,35 +11,29 @@ class TemporalWidget extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            minDate : '',
-            maxDate : ''
-
-        };
     };
 
     computeMinMaxDates(results){
-        results.forEach(function (b) {
+        if (results) {
+            const b = results[0];
             const minD = b['http://onto.fel.cvut.cz/ontologies/lib/module/temporal-v1/hasMinDate'][0]['@value'];
             const maxD = b['http://onto.fel.cvut.cz/ontologies/lib/module/temporal-v1/hasMaxDate'][0]['@value'];
-
-            this.state.maxDate = maxD;
-            this.state.minDate = minD;
-
-        }.bind(this));
-
+            return [minD,maxD];
+        } else {
+            return [0,0];
+        }
     }
 
     render() {
-        console.log(this.props);
-        this.computeMinMaxDates(this.props.descriptorContent);
+        console.log("XXX"+this.props);
+        let [min,max] = this.computeMinMaxDates(this.props.descriptorContent);
 
         return <div>
                     <p>
-                        <span className="badge">Max Date: {this.state.maxDate}</span>
+                        <span className="badge">Max Date: {max}</span>
                     </p>
                     <p>
-                        <span className="badge">Min Date: {this.state.minDate}</span>
+                        <span className="badge">Min Date: {min}</span>
                     </p>
                 </div>
 
