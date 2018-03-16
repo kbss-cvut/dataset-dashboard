@@ -1,57 +1,42 @@
 'use strict';
 
 import React from "react";
-import {Panel,Row,Col,Button,ButtonToolbar,Glyphicon} from "react-bootstrap";
+import {ButtonToolbar, Col, Panel, Row} from "react-bootstrap";
 import Fullscreenable from "react-fullscreenable";
+import FullScreenButton from "./FullScreenButton";
 
 class WidgetPanelUI extends React.Component {
+    render() {
+        let components = [];
 
-    getFullScreenButton(isFullscreen, toggleFullscreen) {
-        let icon;
-        let title;
-        if ( isFullscreen) {
-            icon = "arrow-left"
-            title= "Exit Fullscreen"
-        } else {
-            icon = "fullscreen"
-            title= "Enter Fullscreen"
+        if (this.props.components) {
+            this.props.components.forEach((c) => {
+                components.push(c);
+            });
         }
 
-        return (<Button key="FULLSCREEN" onClick={toggleFullscreen} title={title}><Glyphicon glyph={icon}/></Button>);
-
-    };
-
-    render() {
         const {
             isFullscreen,
             toggleFullscreen
         } = this.props;
-
-        let buttons = [];
-
-        if ( this.props.actions ) {
-            this.props.actions.each((a) => {
-                buttons.push(<Button key={a.name} onClick={a.execute} icon={a.icon} tooltip={a.name}>{a.name}</Button>);
-            });
-        }
-
-        buttons.push(this.getFullScreenButton(isFullscreen,toggleFullscreen));
+        components.push(<FullScreenButton key="fullscreen" isFullscreen={isFullscreen}
+                                          toggleFullscreen={toggleFullscreen}/>);
 
         let panelHeader = (
             <Row>
                 <Col xs={4}><h4>{this.props.title}</h4></Col>
                 <Col xs={8}>
                     <ButtonToolbar className="pull-right">
-                        {buttons}
+                        {components}
                     </ButtonToolbar>
                 </Col>
             </Row>
         );
 
-        return(
-        <Panel header={panelHeader}>
-            {this.props.widget(isFullscreen)}
-        </Panel>);
+        return (
+            <Panel header={panelHeader}>
+                {this.props.widget}
+            </Panel>);
     };
 }
 

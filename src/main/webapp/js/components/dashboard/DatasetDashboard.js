@@ -40,12 +40,12 @@ export default class DashboardController extends React.Component {
                     layouts={layouts}
                     cols={cols}
                     rowHeight={210}>
-                    <div key="main">{<WidgetPanelUI title="Schema" widget={(isFullScreen) => (<SchemaWidget isFullScreen={isFullScreen}/>)}/>}</div>
-                    <div key="righttop">{<WidgetPanelUI title="Classes" widget={(isFullScreen) => ( <ClassPartitionWidget/> )} />}</div>
-                    <div key="rightbottom">{<WidgetPanelUI title="Properties" widget={(isFullScreen) => (<PropertyPartitionWidget/> ) }/>}</div>
-                    <div key="downleft">{<WidgetPanelUI title="Geo" widget={(isFullScreen) => (<SpatialWidget/> ) }/>}</div>
-                    <div key="downright">{<WidgetPanelUI title="Vocabulary" widget={(isFullScreen) => (<VocabularyWidget/> ) }/>}</div>
-                    <div key="downleft2">{<WidgetPanelUI title="Temporal"   widget={(isFullScreen) => (<TemporalWidget/> ) }/>}</div>
+                    <div key="main">{<WidgetPanelUI title="Schema" widget={<SchemaWidget/>}/>}</div>
+                    <div key="righttop">{<WidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
+                    <div key="rightbottom">{<WidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
+                    <div key="downleft">{<WidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>
+                    <div key="downleft2">{<WidgetPanelUI title="Temporal"   widget={<TemporalWidget/>}/>}</div>
+                    <div key="downright">{<WidgetPanelUI title="Vocabulary" widget={<VocabularyWidget/>}/>}</div>
                 </ResponsiveReactGridLayout>
         </div>);
     }
