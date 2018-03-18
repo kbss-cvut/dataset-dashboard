@@ -62,16 +62,16 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
     }
 
     private void setId(final dataset_source ds) {
-        if (ds.getTypes().contains(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
+        if (EntityToOwlClassMapper.isOfType(ds,Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
             ds.setId(Vocabulary.s_c_dataset_source + "-" + (
-                ds.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next() + ds
-                    .getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next()
+                getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url)
+                + getSingleProperty(ds,Vocabulary.s_p_has_graph_id)
             ).hashCode());
-        } else if (ds.getTypes().contains(Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            ds.setId(Vocabulary.s_c_dataset_source + "-" + (ds.getProperties()
-                                                              .get(Vocabulary.s_p_has_endpoint_url)
-                                                              .iterator().next()
+        } else if (EntityToOwlClassMapper.isOfType(ds,Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+            ds.setId(Vocabulary.s_c_dataset_source + "-" + (getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url)
             ).hashCode());
+        } else {
+            throw new IllegalArgumentException("Dataset source of unsupported type " + ds);
         }
     }
 
@@ -132,7 +132,8 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         indDatasetSource.setTypes(datasetSourceTypes);
         setId(indDatasetSource);
 
-        dataset_source newIndDatasetSource = em.find(dataset_source.class,indDatasetSource.getId());
+        dataset_source newIndDatasetSource =
+            em.find(dataset_source.class, indDatasetSource.getId());
         if (newIndDatasetSource != null) {
             indDatasetSource = em.merge(newIndDatasetSource);
         } else {
@@ -161,7 +162,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         final dataset_publication iPublication =
             createPublication(iDescription.getHas_dataset_descriptor());
 
-        EntityDescriptor d = new EntityDescriptor(URI.create(iPublication.getId()));
+        final EntityDescriptor d = new EntityDescriptor(URI.create(iPublication.getId()));
 
         em.merge(iDescription.getIs_description_of(), d);
         em.merge(iDescription.getHas_dataset_descriptor(), d);
@@ -189,87 +190,77 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
      */
     public dataset_descriptor computeDescriptorForDatasetSource(final String datasetSourceId,
                                                                 final String descriptorType) {
-        final URI datasetSourceIri = URI.create(datasetSourceId);
-        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType) || (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType))) {
-            final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
-
-            String url = environment.getProperty("spipes.service");
-            // not using params - order is important
-
-            if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)){
-                url += "?id=" + "compute-spo-summary-descriptor";
-            }
-            else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)){
-                    url += "?id=" + "temporal-function";
-            }
-
-            if (EntityToOwlClassMapper
-                .isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-                url +=
-                    "&datasetEndpointUrl=" + ds.getProperties().get(Vocabulary.s_p_has_endpoint_url)
-                                               .iterator().next();
-            } else if (EntityToOwlClassMapper
-                .isOfType(ds, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-                url +=
-                    "&datasetEndpointUrl=" + ds.getProperties().get(Vocabulary.s_p_has_endpoint_url)
-                                               .iterator().next();
-                url += "&snapshotGraphId=" + ds.getProperties().get(Vocabulary.s_p_has_graph_id)
-                                               .iterator().next();
-            }
-
-            dataset_publication p = storeMetadata(ds, descriptorType);
-
-            final dataset_source publishedDatasetSource =
-                (dataset_source) p.getHas_source().iterator().next();
-
-            if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)){
-                LOG.info("Computing SPO: {}", url);
-            }
-            else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)){
-                LOG.info("Computing temporal descriptor: {}", url);
-            }
-            String s = remoteLoader.loadData(url, new HashMap<>());
-            LOG.info(" - done. Response length {}", s);
-
-            final HttpHeaders headers = new HttpHeaders();
-
-            final String uri =
-                publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_endpoint_url)
-                                      .iterator().next() + "/statements";
-
-            final String graphIri =
-                "<" + publishedDatasetSource.getProperties().get(Vocabulary.s_p_has_graph_id)
-                                            .iterator().next() + ">";
-
-            UriComponentsBuilder builder =
-                UriComponentsBuilder.fromUriString(uri).queryParam("context", graphIri);
-            String uriBuilder = builder.build().encode().toUriString();
-
-            headers.put("Content-type", Collections.singletonList("application/ld+json"));
-
-            final URI urlWithQuery = URI.create(uriBuilder);
-            try {
-                final HttpEntity<Object> entity = new HttpEntity<>(s, headers);
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Putting remote data using {}", urlWithQuery.toString());
-                }
-                final ResponseEntity<String> result =
-                    restTemplate.exchange(urlWithQuery, HttpMethod.POST, entity, String.class);
-            } catch (HttpServerErrorException e) {
-                LOG.error(
-                    "Error when putting remote data, url: {}. Response Status: {}\n, " + "Body:",
-                    urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());
-                throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
-            } catch (Exception e) {
-                LOG.error("Error when putting remote data, url: {}.", urlWithQuery.toString(), e);
-                throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
-            }
-
-            return (dataset_descriptor) p.getHas_published_dataset_snapshot();
+        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
+            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
+                "compute-spo-summary-descriptor");
+        } else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)) {
+            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
+                "temporal-function");
         } else {
             LOG.error("Unknown descriptor type {}, not computing", descriptorType);
             return null;
         }
+    }
+
+    /**
+     * Computes a new descriptor of given type for the given dataset source.
+     *
+     * @param datasetSourceId IRI of the dataset source to compute
+     * @param descriptorType  IRI of the descriptor type
+     * @return new dataset descriptor
+     */
+    public dataset_descriptor _computeDescriptorForDatasetSource(final String datasetSourceId,
+                                                                 final String descriptorType,
+                                                                 final String function) {
+        final URI datasetSourceIri = URI.create(datasetSourceId);
+        final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
+
+        final StringBuilder urlBuilder = new StringBuilder(environment.getProperty("spipes.service"));
+        // not using params - order is important
+
+        urlBuilder.append("?id=").append(function);
+
+        if (EntityToOwlClassMapper.isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+            urlBuilder.append("&datasetEndpointUrl=").append(getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url));
+        } else if (EntityToOwlClassMapper
+            .isOfType(ds, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
+            urlBuilder.append("&datasetEndpointUrl=").append(getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url));
+            urlBuilder.append("&snapshotGraphId=").append(getSingleProperty(ds,Vocabulary.s_p_has_graph_id));
+        }
+
+        final dataset_publication p = storeMetadata(ds, descriptorType);
+        final dataset_source publishedDatasetSource = (dataset_source) p.getHas_source().iterator().next();
+
+        LOG.info("Computing descriptor of type {}: {}", descriptorType, urlBuilder.toString());
+        String s = remoteLoader.loadData(urlBuilder.toString(), new HashMap<>());
+        LOG.info(" - done. Response length {}", s.length());
+
+        final String uri =
+            getSingleProperty(publishedDatasetSource,Vocabulary.s_p_has_endpoint_url) + "/statements";
+        final String graphIri =
+             getSingleProperty(publishedDatasetSource,Vocabulary.s_p_has_graph_id) ;
+
+        final UriComponentsBuilder builder =
+            UriComponentsBuilder.fromUriString(uri).queryParam("context", "<" + graphIri + ">");
+        final URI urlWithQuery = URI.create(builder.build().encode().toUriString());
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.put("Content-type", Collections.singletonList("application/ld+json"));
+        try {
+            final HttpEntity<Object> entity = new HttpEntity<>(s, headers);
+            LOG.trace("Putting remote data using {}", urlWithQuery.toString());
+            final ResponseEntity<String> result =
+                restTemplate.exchange(urlWithQuery, HttpMethod.POST, entity, String.class);
+        } catch (HttpServerErrorException e) {
+            LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, " + "Body:",
+                urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());
+            throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
+        } catch (Exception e) {
+            LOG.error("Error when putting remote data, url: {}.", urlWithQuery.toString(), e);
+            throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
+        }
+
+        return (dataset_descriptor) p.getHas_published_dataset_snapshot();
     }
 
     /**
@@ -298,7 +289,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor) {
         return em.createNativeQuery(
-            "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource " + "" + "" + ""
+            "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource "
             + "?datasetSource. }", dataset_source.class)
                  .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
                  .setParameter("publication", URI.create(

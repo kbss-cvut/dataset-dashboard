@@ -2,10 +2,8 @@
 
 import React from "react";
 import {ButtonToolbar, Col, Panel, Row} from "react-bootstrap";
-import Fullscreenable from "react-fullscreenable";
-import FullScreenButton from "./FullScreenButton";
 
-class WidgetPanelUI extends React.Component {
+export default class WidgetPanelUI extends React.Component {
     render() {
         let components = [];
 
@@ -14,13 +12,6 @@ class WidgetPanelUI extends React.Component {
                 components.push(c);
             });
         }
-
-        const {
-            isFullscreen,
-            toggleFullscreen
-        } = this.props;
-        components.push(<FullScreenButton key="fullscreen" isFullscreen={isFullscreen}
-                                          toggleFullscreen={toggleFullscreen}/>);
 
         let panelHeader = (
             <Row>
@@ -39,5 +30,3 @@ class WidgetPanelUI extends React.Component {
             </Panel>);
     };
 }
-
-export default Fullscreenable()(WidgetPanelUI)

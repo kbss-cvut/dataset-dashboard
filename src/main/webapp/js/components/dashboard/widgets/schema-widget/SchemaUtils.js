@@ -4,6 +4,14 @@ import Rdf from "../../../../vocabulary/Rdf";
 import Ddo from "../../../../vocabulary/Ddo";
 
 export default class SchemaUtils {
+
+
+    // i - index of the edge
+    // max - number of edges
+    static getRoundnessForIthEdge(i, max) {
+        return ( ( i == 0 ) ? i : ( ( i % max ) * ( ( i % 2 ) - 0.5 ) / max ) )
+    };
+
     /**
      * Checks whether the given URI denotes an RDF datatype, i.e. an instance of rdfs:Datatype
      *
@@ -25,7 +33,7 @@ export default class SchemaUtils {
         let max = 0;
         if (data) {
             data.forEach((edge) => {
-                const weight = edge[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value'];
+                const weight = parseInt(edge[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value']);
                 if (weight > max) {
                     max = weight;
                 }

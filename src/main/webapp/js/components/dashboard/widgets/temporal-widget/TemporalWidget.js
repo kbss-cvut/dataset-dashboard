@@ -2,11 +2,6 @@
 
 import React from "react";
 
-import LoadingWrapper from "../../../misc/LoadingWrapper";
-import DescriptorWidgetWrapper from "../DescriptorWidgetWrapper";
-import Ddo from "../../../../vocabulary/Ddo";
-
-
 class TemporalWidget extends React.Component {
 
     constructor(props) {
@@ -25,7 +20,6 @@ class TemporalWidget extends React.Component {
     }
 
     render() {
-        console.log("XXX"+this.props);
         let [min,max] = this.computeMinMaxDates(this.props.descriptorContent);
 
         return <div>
@@ -40,5 +34,4 @@ class TemporalWidget extends React.Component {
     };
 }
 
-export default LoadingWrapper(DescriptorWidgetWrapper(TemporalWidget, Ddo.NS + "temporal-function", "temporal/getCoverage"),
-    {maskClass: 'mask-container'});
+export default TemporalWidget;

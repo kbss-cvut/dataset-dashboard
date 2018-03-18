@@ -7,12 +7,25 @@ import SpatialWidget from "./widgets/spatial-widget/SpatialWidget";
 import TemporalWidget from "./widgets/temporal-widget/TemporalWidget";
 import ClassPartitionWidget from "./widgets/basic-stats-widget/ClassPartitionWidget";
 import PropertyPartitionWidget from "./widgets/basic-stats-widget/PropertyPartitionWidget";
-import WidgetPanelUI from "./widgets/WidgetPanelUI";
+import FullscreenWidgetPanelUI from "./widgets/FullscreenWidgetPanelUI";
+import WidgetPanel from "./widgets/WidgetPanel";
 import {Responsive, WidthProvider} from 'react-grid-layout';
+import Ddo from "../../vocabulary/Ddo";
 
 export default class DashboardController extends React.Component {
     render() {
-        const layouts = {lg: [
+        const sm = [
+            // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
+            {i: 'main', x: 0, y: 0, w: 3, h: 4, minW: 3, maxW: 3},
+            {i: 'righttop', x: 0, y: 4, w: 3, h: 2},
+            {i: 'rightbottom', x: 0, y: 6, w: 3, h: 2},
+            {i: 'downleft', x: 0, y: 8, w: 3, h: 4},
+            {i: 'downleft2', x: 0, y: 12, w: 3, h: 4},
+            {i: 'downright', x: 0, y: 16, w: 3, h: 4}
+
+        ];
+
+        const lg = [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
             {i: 'main', x: 0, y: 0, w: 4, h: 4, minW: 3, maxW: 4, isResizable: false},
             {i: 'righttop', x: 4, y: 0, w: 2, h: 2},
@@ -21,18 +34,10 @@ export default class DashboardController extends React.Component {
             {i: 'downleft2', x: 0, y:9 , w: 3, h: 2},
             {i: 'downright', x: 4, y: 5, w: 3, h: 2}
 
-        ],sm: [
-            // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-            {i: 'main', x: 0, y: 0, w: 3, h: 4, minW: 3, maxW: 3},
-            {i: 'righttop', x: 0, y: 4, w: 3, h: 2},
-            {i: 'rightbottom', x: 0, y: 6, w: 3, h: 2},
-            {i: 'downleft', x: 0, y: 8, w: 3, h: 4},
-            {i: 'downleft2', x: 0, y:12 , w: 3, h: 4},
-            {i: 'downright', x: 0, y: 16, w: 3, h: 4}
+        ];
 
-        ]};
-
-        const cols = { lg: 6, md: 4, sm: 3, xs: 2, xxs: 1 };
+        const layouts = {lg:lg,md:lg,sm:sm,xs:sm,xxs:sm };
+        const cols = { lg: 6, md: 6, sm: 3, xs: 3, xxs: 3 };
         const ResponsiveReactGridLayout = WidthProvider(Responsive);
         return (<div>
                 <ResponsiveReactGridLayout
@@ -40,12 +45,20 @@ export default class DashboardController extends React.Component {
                     layouts={layouts}
                     cols={cols}
                     rowHeight={210}>
-                    <div key="main">{<WidgetPanelUI title="Schema" widget={<SchemaWidget/>}/>}</div>
-                    <div key="righttop">{<WidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
-                    <div key="rightbottom">{<WidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
-                    <div key="downleft">{<WidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>
-                    <div key="downleft2">{<WidgetPanelUI title="Temporal"   widget={<TemporalWidget/>}/>}</div>
-                    <div key="downright">{<WidgetPanelUI title="Vocabulary" widget={<VocabularyWidget/>}/>}</div>
+                    <div key="main">{<WidgetPanel
+                        title="Schema"
+                        widget={(content) => <SchemaWidget descriptorContent={content}/>}
+                        descriptorQuery="spo/spo-summary"
+                        descriptorTypeIri={Ddo.NS + "spo-summary-descriptor"}/>}</div>
+                    <div key="righttop">{<FullscreenWidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
+                    <div key="rightbottom">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
+                    <div key="downleft">{<FullscreenWidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>
+                    <div key="downleft2">{<WidgetPanel
+                        title="Temporal"
+                        widget={(content) => <TemporalWidget descriptorContent={content}/>}
+                        descriptorQuery="temporal/get_coverage"
+                        descriptorTypeIri={Ddo.NS + "temporal-function"}/>}</div>
+                    <div key="downright">{<FullscreenWidgetPanelUI title="Vocabulary" widget={<VocabularyWidget/>}/>}</div>
                 </ResponsiveReactGridLayout>
         </div>);
     }

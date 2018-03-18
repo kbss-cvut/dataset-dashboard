@@ -27,10 +27,11 @@ public class DatasetDescriptorService {
     public String computeDescriptorForDatasetSource(final String datasetSourceId, final String
         descriptorType) {
         try {
-            return datasetDescriptorDao.computeDescriptorForDatasetSource(datasetSourceId,
+            final String result = datasetDescriptorDao.computeDescriptorForDatasetSource(datasetSourceId,
                 descriptorType).getId();
+            return result;
         } catch(Exception e) {
-            throw new DatasetDescriptorServiceException("Unknown error",e);}
-
+            throw new DatasetDescriptorServiceException("Unknown error",e);
+        }
     }
 }

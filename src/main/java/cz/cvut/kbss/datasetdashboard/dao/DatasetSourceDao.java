@@ -153,8 +153,8 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         final List<dataset_source> datasetSources = getTypedQuery(
             dataset_source.class,
             "query/check_exists_named_graph_in_endpoint.rq",
-            endpointUrl,
-            graphIri);
+            endpointUrl, URI.create(endpointUrl),
+            graphIri, URI.create(graphIri));
         dataset_source ds;
         if (datasetSources.isEmpty()) {
             EntityDescriptor d = new EntityDescriptor(URI.create(
