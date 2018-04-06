@@ -61,15 +61,15 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         super(dataset_descriptor.class);
     }
 
-    private void setId(final dataset_source ds) {
+    private String getId(final dataset_source ds) {
         if (EntityToOwlClassMapper.isOfType(ds,Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            ds.setId(Vocabulary.s_c_dataset_source + "-" + (
+            return Vocabulary.s_c_dataset_source + "-" + (
                 getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url)
                 + getSingleProperty(ds,Vocabulary.s_p_has_graph_id)
-            ).hashCode());
+            ).hashCode();
         } else if (EntityToOwlClassMapper.isOfType(ds,Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            ds.setId(Vocabulary.s_c_dataset_source + "-" + (getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url)
-            ).hashCode());
+             return Vocabulary.s_c_dataset_source + "-" + (getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url)
+            ).hashCode();
         } else {
             throw new IllegalArgumentException("Dataset source of unsupported type " + ds);
         }
@@ -130,14 +130,15 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         dataset_source indDatasetSource = new dataset_source();
         indDatasetSource.setProperties(datasetSourceProperties);
         indDatasetSource.setTypes(datasetSourceTypes);
-        setId(indDatasetSource);
+        String id = getId(indDatasetSource);
 
+        final EntityDescriptor desc = new EntityDescriptor(URI.create(id));
         dataset_source newIndDatasetSource =
-            em.find(dataset_source.class, indDatasetSource.getId());
+            em.find(dataset_source.class, id, desc);
         if (newIndDatasetSource != null) {
-            indDatasetSource = em.merge(newIndDatasetSource);
+            indDatasetSource = newIndDatasetSource;
         } else {
-            em.persist(indDatasetSource);
+            em.persist(indDatasetSource, desc);
         }
 
         dataset ds = new dataset();
@@ -166,18 +167,18 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
         em.merge(iDescription.getIs_description_of(), d);
         em.merge(iDescription.getHas_dataset_descriptor(), d);
-        em.merge(
-            ((dataset_source) iDescription.getHas_source().iterator().next()).getOffers_dataset()
-                                                                             .iterator().next(), d);
+        iDescription.getHas_source().forEach( (datasetSource) ->
+            ((dataset_source) datasetSource).getOffers_dataset().forEach(
+                (dataset) ->  em.merge(dataset, d)
+            )
+        );
         em.merge(iDescription, d);
-
         em.merge(iPublication.getHas_publisher().iterator().next(), d);
-        em.merge(iPublication.getHas_source().iterator().next(), d);
-        em.merge(
-            ((dataset_source) iPublication.getHas_source().iterator().next()).getOffers_dataset()
-                                                                             .iterator().next(), d);
+        iPublication.getHas_publisher().forEach( (publisher) -> em.merge(publisher, d) );
+        iPublication.getHas_source().forEach( (datasetSource) ->
+            ((dataset_source) datasetSource).getOffers_dataset().forEach( (dataset) ->  em.merge(dataset, d) )
+        );
         em.merge(iPublication, d);
-
         return iPublication;
     }
 
@@ -199,6 +200,56 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         } else {
             LOG.error("Unknown descriptor type {}, not computing", descriptorType);
             return null;
+        }
+    }
+
+    /**
+     * Removes the descriptor with the given IRI and its content.
+     *
+     * @param datasetDescriptorIri IRI of the dataset descriptor to remove
+     * @return removed dataset descriptor metadata
+     */
+    public dataset_descriptor removeDescriptorForDatasetSource(final String datasetDescriptorIri) {
+        final dataset_descriptor descriptor = em.find(dataset_descriptor.class, datasetDescriptorIri);
+
+        final dataset_source
+            datasetSource = (dataset_source) descriptor.getInv_dot_has_published_dataset_snapshot().getHas_source().iterator().next();
+
+        removeNamedGraphDatasetSource(datasetSource);
+
+        em.remove(descriptor);
+        return descriptor;
+    }
+
+    private URI createUrlForNamedGraphSparqlEndpointDatasetSource(
+        final dataset_source ds) {
+        final String uri =
+            getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url) + "/statements";
+        final String graphIri =
+            getSingleProperty(ds,Vocabulary.s_p_has_graph_id) ;
+
+        final UriComponentsBuilder builder =
+            UriComponentsBuilder.fromUriString(uri).queryParam("context", "<" + graphIri + ">");
+        final URI urlWithQuery = URI.create(builder.build().encode().toUriString());
+        return urlWithQuery;
+    }
+
+    private void removeNamedGraphDatasetSource(final dataset_source ds) {
+        final URI urlWithQuery = createUrlForNamedGraphSparqlEndpointDatasetSource(ds);
+        final HttpHeaders headers = new HttpHeaders();
+        headers.put("Content-type", Collections.singletonList("application/ld+json"));
+        try {
+            final HttpEntity<Object> entity = new HttpEntity<>(headers);
+            LOG.trace("Putting remote data using {}", urlWithQuery.toString());
+            final ResponseEntity<String> result =
+                restTemplate.exchange(urlWithQuery, HttpMethod.DELETE, entity, String.class);
+        } catch (HttpServerErrorException e) {
+            LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, " + "Body:",
+                urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());
+            throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
+        } catch (Exception e) {
+            LOG.error("Error when putting remote data, url: {}.", urlWithQuery.toString(), e);
+            throw new WebServiceIntegrationException("Unable to fetch remote data.", e);
         }
     }
 
@@ -235,14 +286,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
         String s = remoteLoader.loadData(urlBuilder.toString(), new HashMap<>());
         LOG.info(" - done. Response length {}", s.length());
 
-        final String uri =
-            getSingleProperty(publishedDatasetSource,Vocabulary.s_p_has_endpoint_url) + "/statements";
-        final String graphIri =
-             getSingleProperty(publishedDatasetSource,Vocabulary.s_p_has_graph_id) ;
-
-        final UriComponentsBuilder builder =
-            UriComponentsBuilder.fromUriString(uri).queryParam("context", "<" + graphIri + ">");
-        final URI urlWithQuery = URI.create(builder.build().encode().toUriString());
+        final URI urlWithQuery = createUrlForNamedGraphSparqlEndpointDatasetSource(publishedDatasetSource);
 
         final HttpHeaders headers = new HttpHeaders();
         headers.put("Content-type", Collections.singletonList("application/ld+json"));

@@ -72,6 +72,24 @@ class WidgetPanel extends React.Component {
                     descriptorContent: data.jsonLD,
                 });
             }
+        } else if (data.action === Actions.computeDescriptorForDatasetSource) {
+            if (data.descriptorTypeId == this.state.descriptorTypeIri) {
+                this.props.loadingOff();
+
+                const descriptors = this.state.descriptors;
+                descriptors.push(data.descriptor);
+                this.setState({descriptors:descriptors});
+            }
+        } else if (data.action === Actions.removeDescriptorForDatasetSource) {
+            this.props.loadingOff();
+            const descriptors = this.state.descriptors.filter(function (obj) {
+                return obj.id !== data.datasetDescriptorIri;
+            });
+            let nextIri = null;
+            if ( descriptors && descriptors.length > 0) {
+                nextIri = descriptors[0].id;
+            }
+            this.setState({descriptors:descriptors,selectedDescriptorId:nextIri});
         }
     };
 
@@ -82,10 +100,18 @@ class WidgetPanel extends React.Component {
         });
     }
 
-    handleClick(event) {
+    handleExecute(event) {
+        this.props.loadingOn();
         Actions.computeDescriptorForDatasetSource(
             this.state.datasetSource.id,
             this.state.descriptorTypeIri
+        );
+    }
+
+    handleRemove(event) {
+        this.props.loadingOn();
+        Actions.removeDescriptorForDatasetSource(
+            this.state.selectedDescriptorId
         );
     }
 
@@ -102,8 +128,15 @@ class WidgetPanel extends React.Component {
         c.push(<Button
             key="buttonExecute"
             bsSize="small"
-            onClick={this.handleClick.bind(this)}>
+            onClick={this.handleExecute.bind(this)}>
             <Glyphicon glyph="play"/>
+        </Button>);
+
+        c.push(<Button
+            key="buttonDelete"
+            bsSize="small"
+            onClick={this.handleRemove.bind(this)}>
+            <Glyphicon glyph="remove"/>
         </Button>);
 
         return (
@@ -113,7 +146,7 @@ class WidgetPanel extends React.Component {
                 widget={!this.state.descriptorContent ?
                     <div style={{textAlign: "center", verticalAlign: "center"}}>
                         No Dataset Descriptor Selected
-                    </div> : this.props.widget(this.state.descriptorContent, this.state.datasetSource)}/>);
+                    </div> : this.props.widget(this.state.descriptorContent)}/>);
     };
 }
 

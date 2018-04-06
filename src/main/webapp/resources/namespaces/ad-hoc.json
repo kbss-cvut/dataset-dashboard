@@ -15,5 +15,7 @@
   "vavai-ves": "http://linked.opendata.cz/ontology/domain/vavai/ves/",
   "ruian-o": "http://ruian.linked.opendata.cz/ontology/",
   "ruian-s": "https://ruian.linked.opendata.cz/slovník/",
-  "eurostat-geo": "http://ec.europa.eu/eurostat/ramon/ontologies/geographic.rdf#regionCode"
+  "eurostat-geo": "http://ec.europa.eu/eurostat/ramon/ontologies/geographic.rdf#regionCode",
+  "ag" : "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/agendy/",
+  "ovm" : "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/"
 }

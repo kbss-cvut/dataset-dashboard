@@ -16,22 +16,22 @@ export default class DashboardController extends React.Component {
     render() {
         const sm = [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-            {i: 'main', x: 0, y: 0, w: 3, h: 4, minW: 3, maxW: 3},
+            {i: 'main', x: 0, y: 0, w: 3, h: 4, minW: 3, maxW: 3, isDraggable:false, isResizable: false},
             {i: 'righttop', x: 0, y: 4, w: 3, h: 2},
-            {i: 'rightbottom', x: 0, y: 6, w: 3, h: 2},
-            {i: 'downleft', x: 0, y: 8, w: 3, h: 4},
-            {i: 'downleft2', x: 0, y: 12, w: 3, h: 4},
-            {i: 'downright', x: 0, y: 16, w: 3, h: 4}
+            {i: 'rightcenter', x: 0, y: 6, w: 3, h: 2},
+            {i: 'rightbottom', x: 0, y: 8, w: 3, h: 1},
+            {i: 'downleft', x: 0, y: 9, w: 3, h: 4},
+            {i: 'downright', x: 0, y: 17, w: 3, h: 4}
 
         ];
 
         const lg = [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-            {i: 'main', x: 0, y: 0, w: 4, h: 4, minW: 3, maxW: 4, isResizable: false},
+            {i: 'main', x: 0, y: 0, w: 4, h: 5, isResizable: false, isDraggable:false},
             {i: 'righttop', x: 4, y: 0, w: 2, h: 2},
-            {i: 'rightbottom', x: 4, y: 2, w: 2, h: 2},
+            {i: 'rightcenter', x: 4, y: 2, w: 2, h: 2},
+            {i: 'rightbottom', x: 4, y: 4, w: 2, h: 1},
             {i: 'downleft', x: 0, y: 5, w: 3, h: 2, isDraggable:false},
-            {i: 'downleft2', x: 0, y:9 , w: 3, h: 2},
             {i: 'downright', x: 4, y: 5, w: 3, h: 2}
 
         ];
@@ -51,13 +51,13 @@ export default class DashboardController extends React.Component {
                         descriptorQuery="spo/spo-summary"
                         descriptorTypeIri={Ddo.NS + "spo-summary-descriptor"}/>}</div>
                     <div key="righttop">{<FullscreenWidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
-                    <div key="rightbottom">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
-                    <div key="downleft">{<FullscreenWidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>
-                    <div key="downleft2">{<WidgetPanel
+                    <div key="rightcenter">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
+                    <div key="rightbottom">{<WidgetPanel
                         title="Temporal"
                         widget={(content) => <TemporalWidget descriptorContent={content}/>}
                         descriptorQuery="temporal/get_coverage"
                         descriptorTypeIri={Ddo.NS + "temporal-function"}/>}</div>
+                    <div key="downleft">{<FullscreenWidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>
                     <div key="downright">{<FullscreenWidgetPanelUI title="Vocabulary" widget={<VocabularyWidget/>}/>}</div>
                 </ResponsiveReactGridLayout>
         </div>);

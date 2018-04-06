@@ -65,7 +65,7 @@ var Ajax = {
         this._extendPortalSession();
         this.req.set(csrfTokenHeader, this.getCsrfToken()).end(function (err, resp) {
             if (err) {
-                if (err.status === 401) {
+                if ((err.status === 401) || (err.status === 403)) {
                     if (onError) {
                         onError();
                     }

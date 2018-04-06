@@ -107,7 +107,6 @@ export default class SchemaWidget extends React.Component {
 
     render() {
         const maxLimitWeight = SchemaUtils.computeMaxEdgeWeight(this.props.descriptorContent)
-        const isFullScreen = this.props.isFullScreen ? this.props.isFullScreen : false;
         const graphOptions = GraphDefaults.graphOptions();
         graphOptions.configure.enabled = true;
 
@@ -135,7 +134,7 @@ export default class SchemaWidget extends React.Component {
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
                    options={graphOptions}
-                   style={{width: '100%', height: isFullScreen ? '900px' : '600px'}}/>)
+                   style={{width: '100%', height: '690px' }}/>
         </div>;
     };
 }

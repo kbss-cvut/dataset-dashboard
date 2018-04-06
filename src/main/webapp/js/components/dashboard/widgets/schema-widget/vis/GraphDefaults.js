@@ -29,6 +29,7 @@ export default class GraphDefaults {
             layout: {
                 improvedLayout: true,
                 hierarchical: {
+                    enabled: false,
                     direction: 'UD',
                     edgeMinimization: true,
                     levelSeparation: 300,
@@ -45,6 +46,7 @@ export default class GraphDefaults {
                 tooltipDelay: 300
             },
             edges: {
+                smooth: true,
                 color: "#000000"
             },
             configure: {

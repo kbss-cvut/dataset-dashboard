@@ -2,7 +2,7 @@
 
 PREFIX dd: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/>
 SELECT DISTINCT ?result {
-    ?result a ?param2 ;
+    ?result a/rdfs:subClassOf* ?param2 ;
         dd:inv.has-dataset-descriptor [
             a dd:description ;
             dd:has-source ?param1

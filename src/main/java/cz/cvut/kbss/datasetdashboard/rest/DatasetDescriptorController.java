@@ -2,6 +2,7 @@ package cz.cvut.kbss.datasetdashboard.rest;
 
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.service.DatasetDescriptorService;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +25,18 @@ public class DatasetDescriptorController {
         return service.getDescriptorContent(id, fileName);
     }
 
-    @RequestMapping(path = "/actions/compute", method = RequestMethod.GET,
+    @RequestMapping(path = "/actions/admin/compute", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public String computeDescriptor(
+    public RawJson computeDescriptor(
         @RequestParam String datasetSourceId,
         @RequestParam String descriptorTypeIri) {
         return service.computeDescriptorForDatasetSource(datasetSourceId, descriptorTypeIri);
+    }
+
+    @RequestMapping(path = "/actions/admin/remove", method = RequestMethod.GET,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public String removeDescriptor(
+        @RequestParam String datasetDescriptorIri, HttpServletRequest request) {
+        return service.removeDescriptorForDatasetSource(datasetDescriptorIri);
     }
 }

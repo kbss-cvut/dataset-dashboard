@@ -6,6 +6,7 @@ import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.util.JsonLd;
+import cz.cvut.kbss.datasetdashboard.util.ServiceUtils;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
@@ -117,29 +118,14 @@ import org.springframework.transaction.annotation.Transactional;
                                                                  final String descriptorTypeIri)
         throws DatasetSourceServiceException {
         try {
-            return new RawJson(
-                outputDescriptors(datasetSourceDao.getDescriptors(sourceId, descriptorTypeIri))
-                    .toString());
+            return new RawJson(ServiceUtils.outputDescriptors(
+                datasetSourceDao.getDescriptors(sourceId, descriptorTypeIri)).toString()
+            );
         } catch (Exception e) {
             throw new DatasetSourceServiceException(MessageFormat
                 .format("Error in getting descriptors of type {0} for a dataset source {1}",
                     descriptorTypeIri, sourceId), e);
         }
-    }
-
-    private JsonArray outputDescriptors(List<dataset_descriptor> data) {
-        final JsonArray result = new JsonArray();
-        data.forEach((v) -> {
-            try {
-                final JsonObject ds = new JsonObject();
-                ds.addProperty("id", v.getId());
-                ds.addProperty("type", Vocabulary.s_c_dataset_descriptor);
-                result.add(ds);
-            } catch (Exception e) {
-                System.out.println("Invalid source " + v.getId() + " , skipping");
-            }
-        });
-        return result;
     }
 
     /**

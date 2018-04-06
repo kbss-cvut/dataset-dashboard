@@ -25,8 +25,9 @@ export default class WidgetPanelUI extends React.Component {
         );
 
         return (
-            <Panel header={panelHeader}>
-                {this.props.widget}
+            <Panel>
+                <Panel.Heading>{panelHeader}</Panel.Heading>
+                <Panel.Body>{this.props.widget}</Panel.Body>
             </Panel>);
     };
 }

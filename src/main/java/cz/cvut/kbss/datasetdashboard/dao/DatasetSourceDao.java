@@ -1,12 +1,8 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.ddo.Vocabulary;
-import cz.cvut.kbss.ddo.model.Thing;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
@@ -14,19 +10,14 @@ import cz.cvut.kbss.ddo.model.named_graph_sparql_endpoint_dataset_source;
 import cz.cvut.kbss.ddo.model.sparql_endpoint_dataset_source;
 import cz.cvut.kbss.jopa.model.EntityManager;
 import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
-import cz.cvut.kbss.jopa.model.query.TypedQuery;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
@@ -75,9 +66,10 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut"
                                             + ".cz/ontologies/dataset-descriptor/> SELECT DISTINCT "
                                             + "" + "?x ?endpoint ?graphId WHERE { "
-                                            + "?x a ?type ; ddo:has-endpoint-url ?endpoint . "
+                                            + "?x ddo:has-endpoint-url ?endpoint . "
                                             + "OPTIONAL {?x ddo:has-graph-id " + "?graphId}}")
-                         .setParameter("type", typeUri).getResultList();
+//                         .setParameter("type", typeUri)
+                         .getResultList();
         final List<dataset_source> datasetSources = new ArrayList<>();
         l.forEach((result) -> {
             final Object[] record = (Object[]) result;
