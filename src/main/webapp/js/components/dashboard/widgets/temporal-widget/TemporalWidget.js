@@ -11,8 +11,8 @@ class TemporalWidget extends React.Component {
     computeMinMaxDates(results){
         if (results) {
             const b = results[0];
-            const minD = b['http://onto.fel.cvut.cz/ontologies/lib/module/temporal-v1/hasMinDate'][0]['@value'];
-            const maxD = b['http://onto.fel.cvut.cz/ontologies/lib/module/temporal-v1/hasMaxDate'][0]['@value'];
+            const minD = b['http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/hasMinDate'][0]['@value'];
+            const maxD = b['http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/hasMaxDate'][0]['@value'];
             return [minD,maxD];
         } else {
             return [0,0];
