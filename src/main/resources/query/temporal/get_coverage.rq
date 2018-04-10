@@ -1,4 +1,4 @@
-PREFIX analyze: <http://onto.fel.cvut.cz/ontologies/lib/module/temporal-v1/>
+PREFIX analyze: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 CONSTRUCT {
     ?ext analyze:hasMaxDate ?MaxDate;
