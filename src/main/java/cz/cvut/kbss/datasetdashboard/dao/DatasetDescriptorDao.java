@@ -196,7 +196,7 @@ public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
                 "compute-spo-summary-descriptor");
         } else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)) {
             return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
-                "temporal-function");
+                "compute-temporal-v1-descriptor");
         } else {
             LOG.error("Unknown descriptor type {}, not computing", descriptorType);
             return null;
