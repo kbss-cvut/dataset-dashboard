@@ -183,11 +183,11 @@ class Hierarchy extends React.Component {
         });
     }
 
-    _renderTree(current) {
-        const children = current.children.map((child) => {
-            return this._renderTree(child)
-        });
+    _renderTree(current,path) {
+        const children = current.children.map((child) => this._renderTree(child,path.concat([current.iri])));
         const label = NamespaceStore.getShortForm(current.labelMap ? current.labelMap["en"] : current.iri);
+        const pathId = path.join("-") + "-" + current.iri;
+
         if (!children || ( children.length == 0 )) {
             return (<TreeNode key={current.iri} title={label} disableCheckbox/> );
 
@@ -231,7 +231,7 @@ class Hierarchy extends React.Component {
             }).length > 0);
         });
         const children = rootsWithActiveVocabularies.map((node) => {
-            return this._renderTree(node);
+            return this._renderTree(node,[]);
         });
         // const subVocabulariesComponents = subVocabularyIris.map((iri) => {
         //     return <Button key={iri} onClick={() => {

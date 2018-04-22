@@ -1,6 +1,7 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
 import com.google.gson.JsonObject;
+import cz.cvut.kbss.datasetdashboard.dao.util.JopaHelper;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
@@ -90,14 +91,6 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     }
 
 
-    private dataset_source createDatasetSource(int id) {
-        return JopaHelper.create(dataset_source.class, Vocabulary.s_c_dataset_source, id+"");
-    }
-
-    private dataset createDataset(int id) {
-        return JopaHelper.create(dataset.class, Vocabulary.s_c_dataset, id+"");
-    }
-
     /**
      * Registers a dataset source defined by an URL.
      *
@@ -109,8 +102,8 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         dataset_source ds = em.find(dataset_source.class, id + "");
 
         if (ds == null) {
-            final dataset dataset = createDataset(id);
-            ds = createDatasetSource(id);
+            final dataset dataset = JopaHelper.create(dataset.class,id+"");
+            ds = JopaHelper.create(dataset_source.class,id + "");
             ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
             ds.getProperties().put(Vocabulary.s_p_has_download_url, Collections.singleton(url));
             ds.setOffers_dataset(Collections.singleton(dataset));
@@ -161,8 +154,8 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     }
 
     private dataset_source initDatasetSource(int id, final EntityDescriptor d) {
-        final dataset_source ds = createDatasetSource(id);
-        final dataset dataset = createDataset(id);
+        final dataset_source ds = JopaHelper.create(dataset_source.class,id + "");
+        final dataset dataset = JopaHelper.create(dataset.class,id+"");
         ds.setOffers_dataset(Collections.singleton(dataset));
         dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
         em.persist(dataset, d);

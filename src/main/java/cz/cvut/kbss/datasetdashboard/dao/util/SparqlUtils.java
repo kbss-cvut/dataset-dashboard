@@ -1,17 +1,16 @@
-package cz.cvut.kbss.datasetdashboard.dao;
+package cz.cvut.kbss.datasetdashboard.dao.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URLEncoder;
 import java.util.Map;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.Query;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SparqlUtils {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(SparqlUtils.class);
 
     /**
      * Checks, whether the given string represents an IRI. I.e. whether it has the form < X > and X is a valid URI
@@ -47,5 +46,15 @@ public class SparqlUtils {
             }
         );
         return pss;
+    }
+
+    public static String getDescriptorGraphIri(final String descriptorType, final String originalGraphIri) {
+        try {
+            return new StringBuilder(descriptorType).append("--").append(
+                URLEncoder.encode(originalGraphIri, "utf-8")).toString();
+        } catch (UnsupportedEncodingException e) {
+            LOG.warn("Url Encoding failed, using original unencoded version");
+            return new StringBuilder(descriptorType).append("--").append(originalGraphIri).toString();
+        }
     }
 }

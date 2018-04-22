@@ -2,7 +2,7 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import { Checkbox} from "react-bootstrap";
+import {Checkbox} from "react-bootstrap";
 import Slider from "react-rangeslider";
 import GraphDefaults from "./vis/GraphDefaults";
 import SchemaUtils from "./SchemaUtils";
@@ -50,26 +50,42 @@ export default class SchemaWidget extends React.Component {
     // creates a new edge from srcNode to tgtNode using label prp.
     // fromToCount counts number of parallel edges srcNode to tgtNode and is
     // used to compute roundness of these edges
-    createEdge(srcNode, tgtNode, prp, fromToCount, weight) {
-        const edge = JSON.parse(JSON.stringify(GraphDefaults.edgeTemplate()));
-        edge.from = srcNode.id;
-        edge.to = tgtNode.id;
-        edge.label = NamespaceStore.getShortForm(prp);
-        if (this.state.showWeight) {
-            edge.width = Math.round(Math.log(weight) / Math.log(5));
-            edge.title = "" + weight;
-            edge.label = edge.label + " (" + weight + ")";
+    ensureEdgeCreated(edgeMap, srcNode, tgtNode, prp, fromToCount, weight) {
+        let edge = edgeMap[srcNode.id + prp + tgtNode.id];
+        if (!edge) {
+            edge = JSON.parse(JSON.stringify(GraphDefaults.edgeTemplate()));
+            edge.from = srcNode.id;
+            edge.to = tgtNode.id;
+            edge.label = NamespaceStore.getShortForm(prp);
+            if (this.state.showWeight) {
+                edge.width = Math.round(Math.log(weight) / Math.log(5));
+                edge.title = "" + weight;
+                edge.label = edge.label + " (" + weight + ")";
+            }
+            let count = fromToCount[srcNode.id + tgtNode.id];
+            if (!count) count = 0;
+            edge.smooth.roundness = SchemaUtils.getRoundnessForIthEdge(count, 8);
+            fromToCount[srcNode.id + tgtNode.id] = count + 1;
+            edgeMap[srcNode.id + prp + tgtNode.id] = edge;
         }
-        let count = fromToCount[srcNode.id + tgtNode.id];
-        if (!count) count = 0;
-        edge.smooth.roundness = SchemaUtils.getRoundnessForIthEdge(count, 8);
-        fromToCount[srcNode.id + tgtNode.id] = count + 1;
         return edge;
     };
+
+    updateLabel(node, prp, tgt, weight ) {
+        node['label'] += "\n"
+            + NamespaceStore.getShortForm(prp)
+            + " ► "
+            + NamespaceStore.getShortForm(tgt);
+        if (this.state.showWeight) {
+            node['label'] += " (" + weight + ")";
+        }
+    }
 
     // transform data to be used with vis js
     _constructGraphData(results) {
         const nodeMap = {};
+        const edgeMap = {};
+        const attrMap = {};
         const edges = [];
         const fromToCount = {};
         // transform triples to visjs nodes and edges
@@ -80,22 +96,17 @@ export default class SchemaWidget extends React.Component {
             const tgt = b[Rdf.NS + 'object'][0]['@id'];
             const weight = parseInt(b[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value']);
             if (SchemaUtils.isDataType(tgt)) {
-                if (this.state.showAttributes) {
-                    if (weight >= this.state.minWeight) {
-                        srcNode['label'] += "\n"
-                            + NamespaceStore.getShortForm(prp)
-                            + " ► "
-                            + NamespaceStore.getShortForm(tgt);
-                        if (this.state.showWeight) {
-                            srcNode['label'] += " (" + weight + ")";
-                        }
-                        nodesWithEdge.push(srcNode);
-                    }
+                const shouldAdd = this.state.showAttributes && !attrMap[srcNode.id + prp + tgt];
+                attrMap[srcNode.id + prp + tgt] = true;
+                if (shouldAdd && weight >= this.state.minWeight) {
+                    this.updateLabel(srcNode,prp, tgt, weight);
+                    nodesWithEdge.push(srcNode);
                 }
             } else {
                 const tgtNode = this.ensureNodeCreated(nodeMap, tgt);
-                const edge = this.createEdge(srcNode, tgtNode, prp, fromToCount, weight);
-                if (weight >= this.state.minWeight) {
+                const shouldAdd = !edgeMap[srcNode.id + prp + tgtNode.id];
+                const edge = this.ensureEdgeCreated(edgeMap, srcNode, tgtNode, prp, fromToCount, weight);
+                if (shouldAdd && weight >= this.state.minWeight) {
                     edges.push(edge);
                     nodesWithEdge.push(srcNode);
                     nodesWithEdge.push(tgtNode);
@@ -134,7 +145,7 @@ export default class SchemaWidget extends React.Component {
                 : <div/>}
             <Graph graph={this._constructGraphData(this.props.descriptorContent)}
                    options={graphOptions}
-                   style={{width: '100%', height: '690px' }}/>
+                   style={{width: '100%', height: '690px'}}/>
         </div>;
     };
 }

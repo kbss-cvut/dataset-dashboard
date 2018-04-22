@@ -26,6 +26,9 @@ export default class GraphDefaults {
 
     static graphOptions() {
         const options = {
+            physics: {
+                enabled: false
+            },
             layout: {
                 improvedLayout: true,
                 hierarchical: {

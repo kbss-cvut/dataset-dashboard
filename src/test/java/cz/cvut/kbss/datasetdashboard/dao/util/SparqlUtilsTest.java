@@ -1,5 +1,6 @@
-package cz.cvut.kbss.datasetdashboard.dao;
+package cz.cvut.kbss.datasetdashboard.dao.util;
 
+import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
 import java.util.Collections;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.ParameterizedSparqlString;

@@ -14,8 +14,9 @@ class WidgetPanel extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            descriptorTypeIri: this.props.descriptorTypeIri,
+            descriptorTypeIris: this.props.descriptorTypeIris,
             descriptorQuery: this.props.descriptorQuery,
+            selectedDescriptor: null,
             descriptors: []
         };
     }
@@ -35,21 +36,23 @@ class WidgetPanel extends React.Component {
         const datasetSource = DatasetSourceStore.getSelectedDatasetSource()
         if (datasetSource) {
             this.props.loadingOn();
-            Actions.getDescriptorsForDatasetSource(
-                datasetSource.id,
-                this.state.descriptorTypeIri);
-            this.setState({
-                datasetSource: datasetSource,
-                descriptorContent: null
+            this.state.descriptorTypeIris.forEach((i) => {
+                Actions.getDescriptorsForDatasetSource(
+                    datasetSource.id,
+                    i);
+                this.setState({
+                    datasetSource: datasetSource,
+                    descriptorContent: null
+                });
             });
         }
-    }
+    };
 
     _onDescriptorsLoaded = (data) => {
         if (data.action === Actions.selectDatasetSource) {
             this.getCurrentDatasetSource();
         } else if (data.action === Actions.getDescriptorsForDatasetSource) {
-            if (data.descriptorTypeId == this.state.descriptorTypeIri) {
+            if (this.state.descriptorTypeIris.includes(data.descriptorTypeId)) {
                 this.props.loadingOff();
                 const state = {
                     descriptors: data.descriptors,
@@ -73,7 +76,7 @@ class WidgetPanel extends React.Component {
                 });
             }
         } else if (data.action === Actions.computeDescriptorForDatasetSource) {
-            if (data.descriptorTypeId == this.state.descriptorTypeIri) {
+            if (this.state.descriptorTypeIris.includes(data.descriptorTypeId)) {
                 this.props.loadingOff();
 
                 const descriptors = this.state.descriptors;
@@ -100,11 +103,11 @@ class WidgetPanel extends React.Component {
         });
     }
 
-    handleExecute(event) {
+    handleExecute(t) {
         this.props.loadingOn();
         Actions.computeDescriptorForDatasetSource(
             this.state.datasetSource.id,
-            this.state.descriptorTypeIri
+            t
         );
     }
 
@@ -125,12 +128,15 @@ class WidgetPanel extends React.Component {
                 descriptor={this.state.selectedDescriptorId}/>
             );
         }
-        c.push(<Button
-            key="buttonExecute"
-            bsSize="small"
-            onClick={this.handleExecute.bind(this)}>
-            <Glyphicon glyph="play"/>
-        </Button>);
+        this.state.descriptorTypeIris.forEach((t) => {
+            c.push(<Button
+                key={"buttonExecute-"+t}
+                bsSize="small"
+                title={"Compute a descriptor of type "+t}
+                onClick={() => this.handleExecute(t)}>
+                <Glyphicon glyph="play"/>
+            </Button>);
+        });
 
         c.push(<Button
             key="buttonDelete"
