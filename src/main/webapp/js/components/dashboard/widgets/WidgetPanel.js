@@ -16,8 +16,12 @@ class WidgetPanel extends React.Component {
         this.state = {
             descriptorTypeIris: this.props.descriptorTypeIris,
             descriptorQuery: this.props.descriptorQuery,
-            selectedDescriptor: null,
-            descriptors: []
+            descriptors: [],
+            selectedDescriptor: {
+                id: null,
+                content: null
+            },
+            datasetSource: null
         };
     }
 
@@ -40,12 +44,25 @@ class WidgetPanel extends React.Component {
                 Actions.getDescriptorsForDatasetSource(
                     datasetSource.id,
                     i);
-                this.setState({
-                    datasetSource: datasetSource,
-                    descriptorContent: null
-                });
+            });
+            this.setState({
+                datasetSource: datasetSource,
             });
         }
+    };
+
+    selectDatasetSource(id, state) {
+        if (!state.selectedDescriptor) {
+            state.selectedDescriptor = {};
+        }
+        if (id) {
+            state.selectedDescriptor.id = id;
+            Actions.getDescriptorContent(id, this.state.descriptorQuery);
+        } else {
+            state.selectedDescriptor.id = null;
+            state.selectedDescriptor.content = null;
+        }
+        return state;
     };
 
     _onDescriptorsLoaded = (data) => {
@@ -56,24 +73,17 @@ class WidgetPanel extends React.Component {
                 this.props.loadingOff();
                 const state = {
                     descriptors: data.descriptors,
-                    descriptorContent: null
+                    selectedDescriptor: {id: null, content:null}
                 }
                 if (data.descriptors && data.descriptors[0]) {
-                    const id = data.descriptors[0].id;
-                    this.props.loadingOn();
-                    Actions.getDescriptorContent(id, this.state.descriptorQuery);
-                    state.selectedDescriptorId = id;
+                    this.selectDatasetSource(data.descriptors[0].id,state);
                 }
                 this.setState(state);
             }
         } else if (data.action === Actions.getDescriptorContent) {
-            if (data.descriptorId == this.state.selectedDescriptorId) {
+            if (this.state.selectedDescriptor && (data.descriptor.id == this.state.selectedDescriptor.id)) {
                 this.props.loadingOff();
-
-                this.setState({
-                    descriptorId: data.descriptorId,
-                    descriptorContent: data.jsonLD,
-                });
+                this.setState({ selectedDescriptor: data.descriptor });
             }
         } else if (data.action === Actions.computeDescriptorForDatasetSource) {
             if (this.state.descriptorTypeIris.includes(data.descriptorTypeId)) {
@@ -81,26 +91,31 @@ class WidgetPanel extends React.Component {
 
                 const descriptors = this.state.descriptors;
                 descriptors.push(data.descriptor);
-                this.setState({descriptors:descriptors});
+                const state = {descriptors: descriptors}
+                this.selectDatasetSource(data.descriptor.id, state);
+                this.setState(state);
             }
         } else if (data.action === Actions.removeDescriptorForDatasetSource) {
             this.props.loadingOff();
             const descriptors = this.state.descriptors.filter(function (obj) {
                 return obj.id !== data.datasetDescriptorIri;
             });
-            let nextIri = null;
+            let state = {}
+            state.selectedDescriptor = null;
+            let id = null;
             if ( descriptors && descriptors.length > 0) {
-                nextIri = descriptors[0].id;
+                id = descriptors[0].id;
+                state.selectedDescriptor.id = id;
             }
-            this.setState({descriptors:descriptors,selectedDescriptorId:nextIri});
+            state.descriptors = descriptors;
+            this.setState(state);
         }
     };
 
     handleChange(id) {
-        Actions.getDescriptorContent(id, this.state.descriptorQuery);
-        this.setState({
-            selectedDescriptorId: id
-        });
+        const state = {}
+        this.selectDatasetSource(id, state);
+        this.setState(state);
     }
 
     handleExecute(t) {
@@ -114,7 +129,7 @@ class WidgetPanel extends React.Component {
     handleRemove(event) {
         this.props.loadingOn();
         Actions.removeDescriptorForDatasetSource(
-            this.state.selectedDescriptorId
+            this.state.selectedDescriptor.id
         );
     }
 
@@ -123,9 +138,9 @@ class WidgetPanel extends React.Component {
         if (this.state.descriptors) {
             c.push(<DescriptorWidgetSelector
                 key="selector"
-                handleChangeDescriptor={this.handleChange.bind(this)}
+                handleChangeDescriptor={(id) => this.handleChange(id)}
                 descriptors={this.state.descriptors}
-                descriptor={this.state.selectedDescriptorId}/>
+                selectedDescriptorId={this.state.selectedDescriptor ? this.state.selectedDescriptor.id : null}/>
             );
         }
         this.state.descriptorTypeIris.forEach((t) => {
@@ -141,18 +156,20 @@ class WidgetPanel extends React.Component {
         c.push(<Button
             key="buttonDelete"
             bsSize="small"
-            onClick={this.handleRemove.bind(this)}>
+            onClick={this.handleRemove.bind(this)}
+            disabled={!this.state.selectedDescriptor}>
             <Glyphicon glyph="remove"/>
         </Button>);
 
+        const content = this.state.selectedDescriptor ? this.state.selectedDescriptor.content : null;
         return (
             <FullscreenWidgetPanelUI
                 title={this.props.title}
                 components={c}
-                widget={!this.state.descriptorContent ?
+                widget={!content ?
                     <div style={{textAlign: "center", verticalAlign: "center"}}>
                         No Dataset Descriptor Selected
-                    </div> : this.props.widget(this.state.descriptorContent)}/>);
+                    </div> : this.props.widget(content)}/>);
     };
 }
 

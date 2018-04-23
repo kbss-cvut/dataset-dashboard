@@ -47,13 +47,13 @@ class VocabularyWidget extends React.Component {
         } else {
             if (data.queryName === queryType) {
                 this.setState({
-                    type: data.jsonLD,
+                    type: data.content,
                 });
             } else if (data.queryName === queryLanguage) {
                 let languages = {};
 
-                if (data.jsonLD && data.jsonLD[0]) {
-                    const vocLanguages = data.jsonLD[0][voc+'hasVocabularyLanguage'];
+                if (data.content && data.content[0]) {
+                    const vocLanguages = data.content[0][voc+'hasVocabularyLanguage'];
                     if ( vocLanguages ) {
                         vocLanguages. forEach((item) => {
                             languages[item['@id']]=true;

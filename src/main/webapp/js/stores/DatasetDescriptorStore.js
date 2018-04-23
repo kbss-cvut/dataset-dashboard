@@ -16,7 +16,9 @@ const DatasetDescriptorStore = Reflux.createStore({
     onGetDescriptorContent: function (descriptorId, fileName) {
         const toSend = {
             action: Actions.getDescriptorContent,
-            descriptorId: descriptorId,
+            descriptor: {
+                id : descriptorId,
+            },
             fileName: fileName
         };
 
@@ -27,12 +29,12 @@ const DatasetDescriptorStore = Reflux.createStore({
         Ajax.get(url).end(function (data) {
             const that = this;
             jsonld.flatten(data, function (err, canonical) {
-                toSend.jsonLD = canonical;
+                toSend.descriptor.content = canonical;
                 that.trigger(toSend);
             });
         }.bind(this), function () {
             Logger.error('Unable to fetch descriptor id ' + descriptorId);
-            toSend.jsonLD = [];
+            toSend.descriptor.content = [];
             this.trigger(toSend);
         }.bind(this));
     },

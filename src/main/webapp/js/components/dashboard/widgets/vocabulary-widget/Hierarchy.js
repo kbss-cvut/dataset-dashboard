@@ -48,9 +48,9 @@ class Hierarchy extends React.Component {
             this.selectDatasetSource();
         } else {
             if (data.queryName === queryHierarchy) {
-                this.constructSkosTree(data.jsonLD)
+                this.constructSkosTree(data.content)
             } else if (data.queryName === queryHierarchy2) {
-                this.constructOwlTree(data.jsonLD)
+                this.constructOwlTree(data.content)
             }
             this.props.loadingOff();
         }
@@ -75,7 +75,7 @@ class Hierarchy extends React.Component {
         return vocabularyIriActiveMap;
     }
 
-    constructSkosTree(jsonLD) {
+    constructSkosTree(content) {
         let conceptSchemes = [];
         let conceptSchemeIriToConceptsMap = {};
         let conceptIriToConceptMap = {};
@@ -92,8 +92,8 @@ class Hierarchy extends React.Component {
         conceptSchemeIriToConceptsMap[defaultVocabulary.iri] = [];
         // }
 
-        if (jsonLD.length) {
-            jsonLD.forEach((item) => {
+        if (content.length) {
+            content.forEach((item) => {
                 let type = item['@type'];
                 if (type && type[0]) {
                     type = type[0];
@@ -141,7 +141,7 @@ class Hierarchy extends React.Component {
         });
     }
 
-    constructOwlTree(jsonLD) {
+    constructOwlTree(content) {
         let roots = this.state.tree;
         let conceptIriToConceptMap = {};
 
@@ -154,8 +154,8 @@ class Hierarchy extends React.Component {
         const iriToVocabularyMap = this.state.iriToVocabularyMap;
         iriToVocabularyMap[defaultVocabulary.iri] = defaultVocabulary;
 
-        if (jsonLD.length) {
-            jsonLD.forEach((item) => {
+        if (content.length) {
+            content.forEach((item) => {
                 let type = item['@type'];
                 if (type && type[0]) {
                     type = type[0];

@@ -33,7 +33,7 @@ class SingleSparqlWidget extends React.Component {
             this.selectDatasetSource()
         } else if (data.queryName === this.props.query) {
             this.setState({
-                data: data.jsonLD
+                data: data.content
             });
             this.props.loadingOff();
         }

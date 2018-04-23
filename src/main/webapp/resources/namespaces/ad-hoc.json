@@ -16,11 +16,13 @@
   "ruian-o": "http://ruian.linked.opendata.cz/ontology/",
   "ruian-s": "https://ruian.linked.opendata.cz/slovník/",
   "eurostat-geo": "http://ec.europa.eu/eurostat/ramon/ontologies/geographic.rdf#regionCode",
-  "ag" : "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/agendy/",
-  "ovm" : "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/",
-  "rpp" : "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/",
-  "rpp-pp" : "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/pravni-predpis/",
-  "rpp-a" : "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/agenda/",
-  "rpp-c" : "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/cinnost/",
-  "rpp-ovm" : "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/organ-verejne-moci/"
+  "ag": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/agendy/",
+  "ovm": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/ovm/",
+  "rpp": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/",
+  "rpp-pp": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/pravni-predpis/",
+  "rpp-a": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/agenda/",
+  "rpp-c": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/cinnost/",
+  "rpp-ovm": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/organ-verejne-moci/",
+  "pba": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/agendy-pba/",
+  "nku": "http://data.nku.cz/ontology/"
 }

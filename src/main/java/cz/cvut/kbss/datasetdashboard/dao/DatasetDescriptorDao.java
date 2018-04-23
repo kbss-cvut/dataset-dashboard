@@ -16,9 +16,7 @@ import cz.cvut.kbss.ddo.model.description;
 import cz.cvut.kbss.ddo.model.publisher;
 import cz.cvut.kbss.jopa.model.EntityManager;
 import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,7 +47,6 @@ import org.springframework.web.util.UriComponentsBuilder;
     @Autowired private Environment environment;
 
     @Autowired private RestTemplate restTemplate;
-
 
     public DatasetDescriptorDao() {
         super(dataset_descriptor.class);
@@ -205,7 +202,7 @@ import org.springframework.web.util.UriComponentsBuilder;
         ).equals(descriptorType)) {
             final Map map = new HashMap<String, String>();
             map.put("marginalsDefsFileUrl",
-                "file:///opt/projects/16gacr/wdr/cz-all.wdr-definitions-reduced.ttl");
+                environment.getProperty("spipes.service.wdrDefsFileUrl"));
             return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
                 "compute-spo-summary-with-marginals-descriptor", map);
         } else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)) {
@@ -364,7 +361,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
     private dataset_source getSourceForDescriptor(final dataset_descriptor datasetDescriptor) {
         return em.createNativeQuery(
-            "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource " + "?datasetSource. }",
+            "SELECT DISTINCT ?datasetSource { ?publication ?vocHasSource ?datasetSource. }",
             dataset_source.class)
                  .setParameter("vocHasSource", URI.create(Vocabulary.s_p_has_source))
                  .setParameter("publication", URI.create(

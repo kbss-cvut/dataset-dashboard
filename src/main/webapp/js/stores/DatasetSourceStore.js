@@ -165,7 +165,7 @@ const DatasetSourceStore = Reflux.createStore({
     onExecuteQueryForDatasetSource: function (datasetSourceId, queryName, params) {
         const _executeQueryFail = function (toSend) {
             Logger.error('Unable to execute query.');
-            toSend.jsonLD = []
+            toSend.content = []
             this.trigger(toSend);
         }.bind(this);
         const par = {}
@@ -186,7 +186,7 @@ const DatasetSourceStore = Reflux.createStore({
                     toSend.error = err
                     _executeQueryFail(toSend)
                 } else {
-                    toSend.jsonLD = canonical;
+                    toSend.content = canonical;
                     that.trigger(toSend);
                 }
             });

@@ -11,7 +11,7 @@ export default class DescriptorWidgetSelector extends React.Component {
             descriptors.push(<MenuItem eventKey={d.id} key={d.id}  onSelect={(key) => this.props.handleChangeDescriptor(key)}>{name}</MenuItem>);
         });
 
-        const name = this.props.descriptor ? this.props.descriptor.substring(54) : "-";
+        const name = this.props.selectedDescriptorId ? this.props.selectedDescriptorId.substring(54) : "-";
         return ( <Dropdown
             id="drpDescriptors"
             role="menuitem"

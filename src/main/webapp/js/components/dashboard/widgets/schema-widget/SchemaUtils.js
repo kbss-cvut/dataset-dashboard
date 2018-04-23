@@ -5,11 +5,10 @@ import Ddo from "../../../../vocabulary/Ddo";
 
 export default class SchemaUtils {
 
-
     // i - index of the edge
     // max - number of edges
     static getRoundnessForIthEdge(i, max) {
-        return ( ( i == 0 ) ? i : ( ( i % max ) * ( ( i % 2 ) - 0.5 ) / max ) )
+        return ( ( i == 0 ) ? 0 : ( ( i % max ) * 1.5 * ( ( i % 2 ) - 0.5 ) / max ) )
     };
 
     /**
@@ -40,5 +39,45 @@ export default class SchemaUtils {
             });
         }
         return max;
+    };
+
+    /**
+     * Returns an identifier of an unordered pair of graph nodes. It is used for counting the roundness of the edges.
+     *
+     * @param srcNode
+     * @param tgtNode
+     * @returns {*}
+     */
+    static getEdgeId(srcNode,tgtNode) {
+        if (srcNode < tgtNode ) {
+            return srcNode+tgtNode;
+        } else {
+            return tgtNode+srcNode;
+        }
+    }
+
+    /**
+     * Creates a new node with given uri or reuses an existing if present in nodeMap.
+     *
+     * @param nodeMap
+     * @param nodeIri
+     * @returns {*}
+     */
+    static ensureNodeExists(nodeMap, nodeIri, newNode, label) {
+        let n = nodeMap[nodeIri];
+        if (!n) { // the node is not created yet
+            n = newNode();
+            n.id = nodeIri;
+            n.label = label(nodeIri) + '\n';
+            nodeMap[nodeIri] = n;
+        }
+        return n;
+    };
+
+    /**
+     * Generates an edge with for the real width
+     */
+    static getWidth(weight) {
+        return Math.round(Math.log(weight) / Math.log(5));
     };
 }
