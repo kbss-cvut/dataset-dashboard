@@ -2,10 +2,12 @@ package cz.cvut.kbss.datasetdashboard.dao;
 
 import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.dao.util.IdCreator;
+import cz.cvut.kbss.datasetdashboard.dao.util.JopaHelper;
+import cz.cvut.kbss.datasetdashboard.dao.util.LocalIdCreator;
 import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
+import cz.cvut.kbss.datasetdashboard.dao.util.TimeSnapshotIdCreator;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
-import cz.cvut.kbss.datasetdashboard.util.ServiceUtils;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -19,9 +21,7 @@ import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
@@ -53,89 +53,84 @@ import org.springframework.web.util.UriComponentsBuilder;
     }
 
     private String getId(final dataset_source ds) {
+        final IdCreator creator;
         if (EntityToOwlClassMapper
             .isOfType(ds, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            return Vocabulary.s_c_dataset_source + "-" + (
-                getSingleProperty(ds, Vocabulary.s_p_has_endpoint_url) + getSingleProperty(ds,
-                    Vocabulary.s_p_has_graph_id)
-            ).hashCode();
+            creator = new LocalIdCreator((getSingleProperty(ds, Vocabulary.s_p_has_endpoint_url)
+                + getSingleProperty(ds,
+                    Vocabulary.s_p_has_graph_id)).hashCode()+"");
         } else if (EntityToOwlClassMapper
             .isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            return Vocabulary.s_c_dataset_source + "-" + (getSingleProperty(ds,
-                Vocabulary.s_p_has_endpoint_url)
-            ).hashCode();
+            creator = new LocalIdCreator(getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url).hashCode()+"");
         } else {
             throw new IllegalArgumentException("Dataset source of unsupported type " + ds);
         }
+        return creator.createInstanceOf(Vocabulary.s_c_dataset_source);
     }
 
     private description createDescription(final dataset_source indDatasetSource,
                                           final String type) {
-        IdCreator idCreator = IdCreator.create();
+        IdCreator idCreator = TimeSnapshotIdCreator.create();
 
-        dataset indDataset = new dataset();
+        final dataset indDataset = new dataset();
         indDataset.setInv_dot_offers_dataset(Collections.singleton(indDatasetSource));
-
-        final dataset_descriptor iDescriptor = new dataset_descriptor();
-        iDescriptor.setId(idCreator.create(Vocabulary.s_c_dataset_descriptor));
-        iDescriptor.setHas_dataset(Collections.singleton(indDataset));
-        final Set<String> types = new HashSet<>();
-        types.add(Vocabulary.s_c_dataset_descriptor);
-        types.add(type);
-        iDescriptor.setTypes(types);
-        final Map<String, Set<String>> properties = new HashMap<>();
-        iDescriptor.setProperties(properties);
-
-        final description iDescription = new description();
-        iDescription.setId(idCreator.create(Vocabulary.s_c_description));
-        iDescription.setHas_dataset_descriptor(iDescriptor);
-        iDescriptor.setInv_dot_has_dataset_descriptor(iDescription);
-        iDescription.setHas_source(Collections.singleton(indDatasetSource));
 
         indDatasetSource.setOffers_dataset(Collections.singleton(indDataset));
 
-        final described_data_artifact iArtifact = new described_data_artifact();
-        iArtifact.setId(idCreator.create(Vocabulary.s_c_dataset_snapshot));
-        iArtifact.setTypes(Collections.singleton(Vocabulary.s_c_dataset_snapshot));
-        iArtifact.setInv_dot_is_description_of(Collections.singleton(iDescription));
-        iArtifact.setInv_dot_describes(Collections.singleton(iDescriptor));
-        iDescription.setIs_description_of(iArtifact);
+        final dataset_descriptor indDescriptor = new dataset_descriptor();
+        indDescriptor.setId(idCreator.createInstanceOf(type));
+        indDescriptor.setHas_dataset(Collections.singleton(indDataset));
+        JopaHelper.addType(indDescriptor,Vocabulary.s_c_dataset_descriptor);
+        JopaHelper.addType(indDescriptor,type);
 
-        iDescriptor.setDescribes(iArtifact);
+        final description indDescription = new description();
+        indDescription.setId(idCreator.createInstanceOf(Vocabulary.s_c_description));
+        indDescription.setHas_dataset_descriptor(indDescriptor);
+        indDescription.setHas_source(Collections.singleton(indDatasetSource));
 
-        return iDescription;
+        indDescriptor.setInv_dot_has_dataset_descriptor(indDescription);
+
+        final described_data_artifact indArtifact = JopaHelper.create(described_data_artifact.class,Vocabulary.s_c_dataset_snapshot);
+        JopaHelper.addType(indArtifact,Vocabulary.s_c_dataset_snapshot);
+        indArtifact.setInv_dot_is_description_of(Collections.singleton(indDescription));
+        indArtifact.setInv_dot_describes(Collections.singleton(indDescriptor));
+
+        indDescription.setIs_description_of(indArtifact);
+
+        indDescriptor.setDescribes(indArtifact);
+
+        return indDescription;
     }
 
     private String getDescriptorsEndpointForRealEndpoint(final String realEndpoint) {
         final String rdf4jServer = environment.getProperty("rdf4jServerForDescriptors");
         return new StringBuilder(rdf4jServer).append("/repositories/").append(
-            ServiceUtils.getRepositoryIdForSparqlEndpoint(realEndpoint)).toString();
+            SparqlUtils.getRepositoryIdForSparqlEndpoint(realEndpoint)).toString();
     }
 
-    private dataset_publication createPublication(final dataset_descriptor descriptor, final String descriptorType) {
-        final IdCreator idCreator = IdCreator.create();
+    private dataset_publication createPublication(final dataset_descriptor indDescriptor, final String descriptorType) {
+        final IdCreator idCreator = TimeSnapshotIdCreator.create();
 
         final dataset_publication indPublication = new dataset_publication();
-        indPublication.setId(idCreator.create(Vocabulary.s_c_dataset_publication));
-        indPublication.setHas_published_dataset_snapshot(descriptor);
+        indPublication.setId(idCreator.createInstanceOf(Vocabulary.s_c_dataset_publication));
+        indPublication.setHas_published_dataset_snapshot(indDescriptor);
 
-        final Map<String, Set<String>> datasetSourceProperties = new HashMap<>();
-        final described_data_artifact dds = descriptor.getDescribes();
+//        final Map<String, Set<String>> datasetSourceProperties = new HashMap<>();
+        final described_data_artifact dds = indDescriptor.getDescribes();
         final dataset_source dsx =
             (dataset_source) dds.getInv_dot_is_description_of().iterator().next().getHas_source()
                                 .iterator().next();
-        datasetSourceProperties.put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(
-            getDescriptorsEndpointForRealEndpoint(
-                getSingleProperty(dsx, Vocabulary.s_p_has_endpoint_url))));
 
-        datasetSourceProperties
-            .put(Vocabulary.s_p_has_graph_id, Collections.singleton(SparqlUtils.getDescriptorGraphIri(descriptorType, dsx.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next())));
-        final Set<String> datasetSourceTypes = new HashSet<>();
-        datasetSourceTypes.add(Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-        datasetSourceTypes.add(Vocabulary.s_c_single_snapshot_dataset_source);
         dataset_source indDatasetSource = new dataset_source();
-        indDatasetSource.setProperties(datasetSourceProperties);
-        indDatasetSource.setTypes(datasetSourceTypes);
+        JopaHelper.addType(indDatasetSource,Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
+        JopaHelper.addType(indDatasetSource,Vocabulary.s_c_single_snapshot_dataset_source);
+        JopaHelper.addObjectPropertyValue(indDatasetSource,Vocabulary.s_p_has_endpoint_url,
+            getDescriptorsEndpointForRealEndpoint(
+            getSingleProperty(dsx, Vocabulary.s_p_has_endpoint_url)));
+        JopaHelper.addObjectPropertyValue(indDatasetSource,Vocabulary.s_p_has_graph_id,
+            SparqlUtils.getDescriptorGraphIri(descriptorType,
+                getSingleProperty(dsx,Vocabulary.s_p_has_graph_id)));
+
         String id = getId(indDatasetSource);
 
         final EntityDescriptor desc = new EntityDescriptor(URI.create(id));
@@ -151,12 +146,14 @@ import org.springframework.web.util.UriComponentsBuilder;
         indDatasetSource.setOffers_dataset(Collections.singleton(ds));
 
         indPublication.setHas_source(Collections.singleton(indDatasetSource));
+
         publisher indPublisher = new publisher();
         indPublisher.setId(Vocabulary.ONTOLOGY_IRI_dataset_descriptor + "/ctu");
         indPublisher.setInv_dot_has_publisher(Collections.singleton(indPublication));
 
         indPublication.setHas_publisher(Collections.singleton(indPublisher));
-        descriptor.setInv_dot_has_published_dataset_snapshot(indPublication);
+
+        indDescriptor.setInv_dot_has_published_dataset_snapshot(indPublication);
 
         return indPublication;
     }
@@ -322,7 +319,7 @@ import org.springframework.web.util.UriComponentsBuilder;
             final HttpEntity<Object> entity = new HttpEntity<>(s, headers);
             LOG.trace("Putting remote data using {}", urlWithQuery.toString());
             final ResponseEntity<String> result =
-                restTemplate.exchange(urlWithQuery, HttpMethod.POST, entity, String.class);
+                restTemplate.exchange(urlWithQuery, HttpMethod.PUT, entity, String.class);
         } catch (HttpServerErrorException e) {
             LOG.error("Error when putting remote data, url: {}. Response Status: {}\n, " + "Body:",
                 urlWithQuery.toString(), e.getStatusCode(), e.getResponseBodyAsString());

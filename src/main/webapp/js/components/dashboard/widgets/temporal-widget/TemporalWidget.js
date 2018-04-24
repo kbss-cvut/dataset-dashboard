@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import Ddo from "../../../../vocabulary/Ddo";
+
 class TemporalWidget extends React.Component {
 
     constructor(props) {
@@ -9,28 +11,26 @@ class TemporalWidget extends React.Component {
     };
 
     computeMinMaxDates(results){
-        if (results) {
+        if (results && results[0]) {
             const b = results[0];
-            const minD = b['http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/hasMinDate'][0]['@value'];
-            const maxD = b['http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/hasMaxDate'][0]['@value'];
-            return [minD,maxD];
+            const minD = b[Ddo.NS+'temporal-v1/hasMinDate'][0]['@value'];
+            const maxD = b[Ddo.NS+'temporal-v1/hasMaxDate'][0]['@value'];
+            return {min: minD, max: maxD };
         } else {
-            return [0,0];
+            return null;
         }
     }
 
     render() {
-        let [min,max] = this.computeMinMaxDates(this.props.descriptorContent);
+        let range = this.computeMinMaxDates(this.props.descriptorContent);
 
         return <div>
-                    <p>
-                        <span className="badge">Max Date: {max}</span>
-                    </p>
-                    <p>
-                        <span className="badge">Min Date: {min}</span>
+                    <p> {(range) ?
+                        <span><span className="badge">From {range.min}</span>
+                        <span className="badge">To {range.max}</span></span>
+                        : <span>No temporal information available</span>}
                     </p>
                 </div>
-
     };
 }
 

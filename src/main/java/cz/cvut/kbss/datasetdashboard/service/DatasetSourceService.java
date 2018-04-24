@@ -12,6 +12,8 @@ import cz.cvut.kbss.ddo.model.dataset_descriptor;
 import cz.cvut.kbss.ddo.model.dataset_source;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,16 +117,18 @@ import org.springframework.transaction.annotation.Transactional;
     }
 
     @Transactional public RawJson getDescriptorsForDatasetSource(final String sourceId,
-                                                                 final String descriptorTypeIri)
+                                                                 final String descriptorTypeIrisCommaSeparated)
         throws DatasetSourceServiceException {
         try {
-            return new RawJson(ServiceUtils.outputDescriptors(
-                datasetSourceDao.getDescriptors(sourceId, descriptorTypeIri)).toString()
+            final List<dataset_descriptor> descriptors = new ArrayList<>();
+            Arrays.stream(descriptorTypeIrisCommaSeparated.split(","))
+                  .forEach(dt -> descriptors.addAll(datasetSourceDao.getDescriptors(sourceId, dt)));
+            return new RawJson(ServiceUtils.outputDescriptors(descriptors).toString()
             );
         } catch (Exception e) {
             throw new DatasetSourceServiceException(MessageFormat
                 .format("Error in getting descriptors of type {0} for a dataset source {1}",
-                    descriptorTypeIri, sourceId), e);
+                    descriptorTypeIrisCommaSeparated, sourceId), e);
         }
     }
 

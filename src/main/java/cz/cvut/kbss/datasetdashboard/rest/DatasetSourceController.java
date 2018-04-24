@@ -75,13 +75,13 @@ public class DatasetSourceController {
      * Return a list of dataset descriptors.
      *
      * @param id                Identifier (IRI) of the dataset source
-     * @param descriptorTypeIri IRI of the descriptor type
+     * @param descriptorTypeIris comma-separated list of IRIs of the descriptor types
      * @return a JSON-LD formatted list of dataset descriptors
      */
     @RequestMapping(path = "/descriptor", method = RequestMethod.GET, produces = MediaType
         .APPLICATION_JSON_VALUE)
     public RawJson getDescriptorsForDatasetSource(@RequestParam String id, @RequestParam String
-        descriptorTypeIri) {
-        return datasetSourceService.getDescriptorsForDatasetSource(id, descriptorTypeIri);
+        descriptorTypeIris) {
+        return datasetSourceService.getDescriptorsForDatasetSource(id, descriptorTypeIris);
     }
 }

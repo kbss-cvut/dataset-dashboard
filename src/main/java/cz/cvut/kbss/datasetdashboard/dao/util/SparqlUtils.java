@@ -13,7 +13,7 @@ public class SparqlUtils {
     protected static final Logger LOG = LoggerFactory.getLogger(SparqlUtils.class);
 
     /**
-     * Checks, whether the given string represents an IRI. I.e. whether it has the form < X > and X is a valid URI
+     * Checks, whether the given string represents an IRI. i.e. whether it has the form < X > and X is a valid URI
      *
      * @param val
      * @return
@@ -55,6 +55,20 @@ public class SparqlUtils {
         } catch (UnsupportedEncodingException e) {
             LOG.warn("Url Encoding failed, using original unencoded version");
             return new StringBuilder(descriptorType).append("--").append(originalGraphIri).toString();
+        }
+    }
+
+    private static String normalizeUrl(final String url) {
+        return url.replace("/","_").replace(".","_");
+    }
+
+    public static String getRepositoryIdForSparqlEndpoint(final String endpointUrl) {
+        if(endpointUrl.matches("http://(.*)")) {
+            return normalizeUrl(endpointUrl.substring(7));
+        } else if (endpointUrl.matches("http(s)?://(.*)")) {
+            return normalizeUrl("s-"+endpointUrl.substring(8));
+        } else {
+            throw new IllegalArgumentException();
         }
     }
 }

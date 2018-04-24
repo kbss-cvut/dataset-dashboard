@@ -193,20 +193,20 @@ const DatasetSourceStore = Reflux.createStore({
         }.bind(this), () => _executeQueryFail(toSend));
     },
 
-    onGetDescriptorsForDatasetSource: function (datasetSourceId, descriptorTypeId) {
+    onGetDescriptorsForDatasetSource: function (datasetSourceId, descriptorTypeIris) {
         const toSend = {
             action: Actions.getDescriptorsForDatasetSource,
-            descriptorTypeId: descriptorTypeId,
+            descriptorTypeIris: descriptorTypeIris,
             datasetSourceId: datasetSourceId
         };
         Ajax.get(this.requestURL("descriptor", {
             id: datasetSourceId,
-            descriptorTypeIri: descriptorTypeId
+            descriptorTypeIris: descriptorTypeIris.join(",")
         })).end(function (data) {
             toSend.descriptors = data;
             this.trigger(toSend);
         }.bind(this), function () {
-            Logger.error('Unable to fetch descriptors of type ' + descriptorTypeId + ' for the dataset source id ' + datasetSourceId);
+            Logger.error('Unable to fetch descriptors of type ' + descriptorTypeIris + ' for the dataset source id ' + datasetSourceId);
             toSend.descriptors = [];
             this.trigger(toSend);
         }.bind(this));

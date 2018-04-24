@@ -1,4 +1,4 @@
-package cz.cvut.kbss.datasetdashboard.util;
+package cz.cvut.kbss.datasetdashboard.dao.util;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class ServiceUtilsTest {
+public class SparqlUtilsRepoTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
@@ -21,13 +21,12 @@ public class ServiceUtilsTest {
     private String endpointUrl;
     private String repositoryId;
 
-    public ServiceUtilsTest(final String endpointUrl, final String repositoryId) {
+    public SparqlUtilsRepoTest(final String endpointUrl, final String repositoryId) {
         this.endpointUrl = endpointUrl;
         this.repositoryId = repositoryId;
     }
-
     @Test
     public void testGetRepositoryIdForSparqlEndpoint() {
-        Assert.assertEquals(repositoryId,ServiceUtils.getRepositoryIdForSparqlEndpoint(endpointUrl));
+        Assert.assertEquals(repositoryId, SparqlUtils.getRepositoryIdForSparqlEndpoint(endpointUrl));
     }
 }

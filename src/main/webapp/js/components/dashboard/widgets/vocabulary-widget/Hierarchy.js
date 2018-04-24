@@ -189,10 +189,10 @@ class Hierarchy extends React.Component {
         const pathId = path.join("-") + "-" + current.iri;
 
         if (!children || ( children.length == 0 )) {
-            return (<TreeNode key={current.iri} title={label} disableCheckbox/> );
+            return (<TreeNode key={pathId} title={label} disableCheckbox/> );
 
         } else {
-            return (<TreeNode key={current.iri} title={label} disableCheckbox
+            return (<TreeNode key={pathId} title={label} disableCheckbox
                               isLeaf={!children || children.empty}>{children}</TreeNode> );
         }
     };

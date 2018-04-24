@@ -40,11 +40,9 @@ class WidgetPanel extends React.Component {
         const datasetSource = DatasetSourceStore.getSelectedDatasetSource()
         if (datasetSource) {
             this.props.loadingOn();
-            this.state.descriptorTypeIris.forEach((i) => {
-                Actions.getDescriptorsForDatasetSource(
-                    datasetSource.id,
-                    i);
-            });
+            Actions.getDescriptorsForDatasetSource(
+                datasetSource.id,
+                this.state.descriptorTypeIris);
             this.setState({
                 datasetSource: datasetSource,
             });
@@ -69,21 +67,21 @@ class WidgetPanel extends React.Component {
         if (data.action === Actions.selectDatasetSource) {
             this.getCurrentDatasetSource();
         } else if (data.action === Actions.getDescriptorsForDatasetSource) {
-            if (this.state.descriptorTypeIris.includes(data.descriptorTypeId)) {
+            if (this.state.descriptorTypeIris == data.descriptorTypeIris) {
                 this.props.loadingOff();
                 const state = {
                     descriptors: data.descriptors,
-                    selectedDescriptor: {id: null, content:null}
+                    selectedDescriptor: {id: null, content: null}
                 }
                 if (data.descriptors && data.descriptors[0]) {
-                    this.selectDatasetSource(data.descriptors[0].id,state);
+                    this.selectDatasetSource(data.descriptors[0].id, state);
                 }
                 this.setState(state);
             }
         } else if (data.action === Actions.getDescriptorContent) {
             if (this.state.selectedDescriptor && (data.descriptor.id == this.state.selectedDescriptor.id)) {
                 this.props.loadingOff();
-                this.setState({ selectedDescriptor: data.descriptor });
+                this.setState({selectedDescriptor: data.descriptor});
             }
         } else if (data.action === Actions.computeDescriptorForDatasetSource) {
             if (this.state.descriptorTypeIris.includes(data.descriptorTypeId)) {
@@ -102,10 +100,8 @@ class WidgetPanel extends React.Component {
             });
             let state = {}
             state.selectedDescriptor = null;
-            let id = null;
-            if ( descriptors && descriptors.length > 0) {
-                id = descriptors[0].id;
-                state.selectedDescriptor.id = id;
+            if (descriptors && descriptors.length > 0) {
+                this.selectDatasetSource(descriptors[0].id, state);
             }
             state.descriptors = descriptors;
             this.setState(state);
@@ -140,14 +136,14 @@ class WidgetPanel extends React.Component {
                 key="selector"
                 handleChangeDescriptor={(id) => this.handleChange(id)}
                 descriptors={this.state.descriptors}
-                selectedDescriptorId={this.state.selectedDescriptor ? this.state.selectedDescriptor.id : null}/>
+                selectedDescriptor={this.state.selectedDescriptor}/>
             );
         }
         this.state.descriptorTypeIris.forEach((t) => {
             c.push(<Button
-                key={"buttonExecute-"+t}
+                key={"buttonExecute-" + t}
                 bsSize="small"
-                title={"Compute a descriptor of type "+t}
+                title={"Compute a descriptor of type " + t}
                 onClick={() => this.handleExecute(t)}>
                 <Glyphicon glyph="play"/>
             </Button>);

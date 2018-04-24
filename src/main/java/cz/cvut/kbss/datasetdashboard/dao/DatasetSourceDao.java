@@ -216,11 +216,14 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
      */
     public List<dataset_descriptor> getDescriptors(final String datasetSourceId,
                                                    final String descriptorType) {
-        return getTypedQuery(
+        List<dataset_descriptor> x= getTypedQuery(
             dataset_descriptor.class,
             "query/get_descriptors_for_dataset_source.rq",
             URI.create(datasetSourceId),
             URI.create(descriptorType));
+        System.out.println("RETURNING DESCRIPTORS OF TYPE " + descriptorType);
+        x.forEach(d -> System.out.println(" - " + d.getId()));
+        return x;
     }
 
     /**
