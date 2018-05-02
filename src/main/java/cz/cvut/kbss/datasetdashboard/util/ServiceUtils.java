@@ -31,7 +31,7 @@ public class ServiceUtils {
             try {
                 result.add(outputDescriptor(v));
             } catch (Exception e) {
-                LOG.error("Invalid source {}, skipping", v.getId());
+                LOG.error("Invalid source {}, skipping", v.getId(),e);
             }
         });
         return result;

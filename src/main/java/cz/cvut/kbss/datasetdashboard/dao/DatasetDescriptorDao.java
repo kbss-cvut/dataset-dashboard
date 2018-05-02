@@ -1,13 +1,15 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
 import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
+import cz.cvut.kbss.datasetdashboard.dao.descriptors.DescriptorComputerParameterRegistry;
+import cz.cvut.kbss.datasetdashboard.dao.descriptors.DescriptorComputerSpecification;
 import cz.cvut.kbss.datasetdashboard.dao.util.IdCreator;
-import cz.cvut.kbss.datasetdashboard.dao.util.JopaHelper;
+import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.datasetdashboard.dao.util.LocalIdCreator;
 import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
 import cz.cvut.kbss.datasetdashboard.dao.util.TimeSnapshotIdCreator;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
-import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
+import cz.cvut.kbss.datasetdashboard.model.util.DatasetSourceHelper;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -35,6 +37,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectPropertyValue;
+
 @Repository @PropertySource("classpath:config.properties") public class DatasetDescriptorDao
     extends BaseDao<dataset_descriptor> {
 
@@ -48,24 +54,19 @@ import org.springframework.web.util.UriComponentsBuilder;
 
     @Autowired private RestTemplate restTemplate;
 
+    @Autowired private DescriptorComputerParameterRegistry registry;
+
     public DatasetDescriptorDao() {
         super(dataset_descriptor.class);
     }
 
     private String getId(final dataset_source ds) {
-        final IdCreator creator;
-        if (EntityToOwlClassMapper
-            .isOfType(ds, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-            creator = new LocalIdCreator((getSingleProperty(ds, Vocabulary.s_p_has_endpoint_url)
-                + getSingleProperty(ds,
-                    Vocabulary.s_p_has_graph_id)).hashCode()+"");
-        } else if (EntityToOwlClassMapper
-            .isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-            creator = new LocalIdCreator(getSingleProperty(ds,Vocabulary.s_p_has_endpoint_url).hashCode()+"");
+        final String id = DatasetSourceHelper.getHashCode(ds);
+        if ( id != null ) {
+            return new LocalIdCreator(id).createInstanceOf(Vocabulary.s_c_dataset_source);
         } else {
             throw new IllegalArgumentException("Dataset source of unsupported type " + ds);
         }
-        return creator.createInstanceOf(Vocabulary.s_c_dataset_source);
     }
 
     private description createDescription(final dataset_source indDatasetSource,
@@ -80,8 +81,8 @@ import org.springframework.web.util.UriComponentsBuilder;
         final dataset_descriptor indDescriptor = new dataset_descriptor();
         indDescriptor.setId(idCreator.createInstanceOf(type));
         indDescriptor.setHas_dataset(Collections.singleton(indDataset));
-        JopaHelper.addType(indDescriptor,Vocabulary.s_c_dataset_descriptor);
-        JopaHelper.addType(indDescriptor,type);
+        addType(indDescriptor,Vocabulary.s_c_dataset_descriptor);
+        addType(indDescriptor,type);
 
         final description indDescription = new description();
         indDescription.setId(idCreator.createInstanceOf(Vocabulary.s_c_description));
@@ -90,8 +91,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
         indDescriptor.setInv_dot_has_dataset_descriptor(indDescription);
 
-        final described_data_artifact indArtifact = JopaHelper.create(described_data_artifact.class,Vocabulary.s_c_dataset_snapshot);
-        JopaHelper.addType(indArtifact,Vocabulary.s_c_dataset_snapshot);
+        final described_data_artifact indArtifact = ModelHelper
+            .create(described_data_artifact.class,Vocabulary.s_c_dataset_snapshot);
+        addType(indArtifact,Vocabulary.s_c_dataset_snapshot);
         indArtifact.setInv_dot_is_description_of(Collections.singleton(indDescription));
         indArtifact.setInv_dot_describes(Collections.singleton(indDescriptor));
 
@@ -122,14 +124,21 @@ import org.springframework.web.util.UriComponentsBuilder;
                                 .iterator().next();
 
         dataset_source indDatasetSource = new dataset_source();
-        JopaHelper.addType(indDatasetSource,Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-        JopaHelper.addType(indDatasetSource,Vocabulary.s_c_single_snapshot_dataset_source);
-        JopaHelper.addObjectPropertyValue(indDatasetSource,Vocabulary.s_p_has_endpoint_url,
-            getDescriptorsEndpointForRealEndpoint(
-            getSingleProperty(dsx, Vocabulary.s_p_has_endpoint_url)));
-        JopaHelper.addObjectPropertyValue(indDatasetSource,Vocabulary.s_p_has_graph_id,
-            SparqlUtils.getDescriptorGraphIri(descriptorType,
-                getSingleProperty(dsx,Vocabulary.s_p_has_graph_id)));
+        // TODO what to do for other dataset sources (downloadUrl). Should be outside of this method.
+        addType(indDatasetSource,Vocabulary.s_c_single_snapshot_dataset_source);
+        String eid = getSingleProperty(dsx, Vocabulary.s_p_has_endpoint_url);
+        if (eid != null ) {
+            addObjectPropertyValue(indDatasetSource, Vocabulary.s_p_has_endpoint_url,
+                getDescriptorsEndpointForRealEndpoint(eid));
+            final String gid = getSingleProperty(dsx, Vocabulary.s_p_has_graph_id);
+            if (gid == null) {
+                addType(indDatasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source);
+            } else {
+                addType(indDatasetSource, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
+                addObjectPropertyValue(indDatasetSource, Vocabulary.s_p_has_graph_id,
+                    SparqlUtils.getDescriptorGraphIri(descriptorType, gid));
+            }
+        }
 
         String id = getId(indDatasetSource);
 
@@ -191,20 +200,11 @@ import org.springframework.web.util.UriComponentsBuilder;
      */
     public dataset_descriptor computeDescriptorForDatasetSource(final String datasetSourceId,
                                                                 final String descriptorType) {
-        if (Vocabulary.s_c_spo_summary_descriptor.equals(descriptorType)) {
-            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
-                "compute-spo-summary-descriptor");
-        } else if ((Vocabulary.ONTOLOGY_IRI_dataset_descriptor
-                    + "/spo-summary-with-marginals-descriptor"
-        ).equals(descriptorType)) {
-            final Map map = new HashMap<String, String>();
-            map.put("marginalsDefsFileUrl",
-                environment.getProperty("spipes.service.wdrDefsFileUrl"));
-            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
-                "compute-spo-summary-with-marginals-descriptor", map);
-        } else if (Vocabulary.s_c_temporal_dataset_descriptor.equals(descriptorType)) {
-            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType,
-                "compute-temporal-v1-descriptor");
+        final DescriptorComputerSpecification spec = registry.get(descriptorType);
+
+
+        if ( spec != null) {
+            return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType, spec);
         } else {
             LOG.error("Unknown descriptor type {}, not computing", descriptorType);
             return null;
@@ -236,7 +236,10 @@ import org.springframework.web.util.UriComponentsBuilder;
         final String graphIri = getSingleProperty(ds, Vocabulary.s_p_has_graph_id);
 
         final UriComponentsBuilder builder =
-            UriComponentsBuilder.fromUriString(uri).queryParam("context", "<" + graphIri + ">");
+            UriComponentsBuilder.fromUriString(uri);
+        if (graphIri != null) {
+            builder.queryParam("context", "<" + graphIri + ">");
+        }
         final URI urlWithQuery = URI.create(builder.build().encode().toUriString());
         return urlWithQuery;
     }
@@ -264,20 +267,12 @@ import org.springframework.web.util.UriComponentsBuilder;
      * Computes a new descriptor of given type for the given dataset source.
      *
      * @param datasetSourceId IRI of the dataset source to compute
-     * @param descriptorType  IRI of the descriptor type
+     * @param spec dataset source specification
      * @return new dataset descriptor
      */
     public dataset_descriptor _computeDescriptorForDatasetSource(final String datasetSourceId,
                                                                  final String descriptorType,
-                                                                 final String function) {
-        return _computeDescriptorForDatasetSource(datasetSourceId, descriptorType, function,
-            Collections.emptyMap());
-    }
-
-    public dataset_descriptor _computeDescriptorForDatasetSource(final String datasetSourceId,
-                                                                 final String descriptorType,
-                                                                 final String function,
-                                                                 final Map<String, String> args) {
+                                                                 final DescriptorComputerSpecification spec) {
         final URI datasetSourceIri = URI.create(datasetSourceId);
         final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
@@ -285,12 +280,12 @@ import org.springframework.web.util.UriComponentsBuilder;
             new StringBuilder(environment.getProperty("spipes.service"));
         // not using params - order is important
 
-        urlBuilder.append("?id=").append(function);
+        urlBuilder.append("?id=").append(spec.getFunctionId());
 
-        if (EntityToOwlClassMapper.isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
+        if (ModelHelper.isOfType(ds, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
             urlBuilder.append("&datasetEndpointUrl=")
                       .append(getSingleProperty(ds, Vocabulary.s_p_has_endpoint_url));
-        } else if (EntityToOwlClassMapper
+        } else if (ModelHelper
             .isOfType(ds, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
             urlBuilder.append("&datasetEndpointUrl=")
                       .append(getSingleProperty(ds, Vocabulary.s_p_has_endpoint_url));
@@ -298,7 +293,7 @@ import org.springframework.web.util.UriComponentsBuilder;
                       .append(getSingleProperty(ds, Vocabulary.s_p_has_graph_id));
         }
 
-        for (final Map.Entry<String, String> e : args.entrySet()) {
+        for (final Map.Entry<String, String> e : spec.getMap().entrySet()) {
             urlBuilder.append("&" + e.getKey() + "=" + e.getValue());
         }
 

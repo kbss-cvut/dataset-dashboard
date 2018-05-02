@@ -1,7 +1,7 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
 import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
-import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
+import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.datasetdashboard.persistence.PersistenceException;
 import cz.cvut.kbss.ddo.model.Thing;
 import cz.cvut.kbss.jopa.model.EntityManager;
@@ -10,6 +10,8 @@ import cz.cvut.kbss.jopa.model.query.TypedQuery;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public abstract class BaseDao<T> implements GenericDao<T> {
 
     protected BaseDao(Class<T> type) {
         this.type = type;
-        this.typeUri = URI.create(EntityToOwlClassMapper.getOwlClassForEntity(type));
+        this.typeUri = URI.create(ModelHelper.getOwlClassForEntity(type));
     }
 
     public T find(URI uri) {
@@ -177,13 +179,13 @@ public abstract class BaseDao<T> implements GenericDao<T> {
         }
         final List<T> result = q.getResultList();
         result.forEach((r) -> {
-            r.getTypes();
-            r.getProperties();
+            if ( r.getTypes() == null ) {
+                r.setTypes(new HashSet<>());
+            }
+            if ( r.getProperties() == null ) {
+                r.setProperties(new HashMap<>());
+            }
         });
         return result;
-    }
-
-    public <T extends Thing> String getSingleProperty(final T entity, final String propertyName) {
-        return entity.getProperties().get(propertyName).iterator().next();
     }
 }

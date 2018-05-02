@@ -113,26 +113,32 @@ const DatasetSourceStore = Reflux.createStore({
         const roots = {}
         dss.forEach((ds) => {
             if (ds.type == Ddo.SparqlEndpointDatasetSource) {
-                if (roots[ds.endpointUrl]) {
-                    if (roots[ds.endpointUrl].generated) {
-                        roots[ds.endpointUrl] = ds;
+                if (roots[ds.tempid]) {
+                    if (roots[ds.tempid].generated) {
+                        roots[ds.tempid] = ds;
                     } else {
                         console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
                     }
                 } else {
-                    roots[ds.endpointUrl] = ds;
+                    roots[ds.tempid] = ds;
                 }
             }
         });
 
         dss.forEach((ds) => {
             if (ds.type == Ddo.NamedGraphSparqlEndpointDatasetSource) {
-                if (!roots[ds.endpointUrl]) {
-                    roots[ds.endpointUrl] = new SparqlEndpointDatasetSource(ds.endpointUrl);
-                    roots[ds.endpointUrl].generated = true;
-                    roots[ds.endpointUrl]._id = ds.endpointUrl;
+                const endpointUrls= Object.keys(roots).filter(c => (roots[c].endpointUrl == ds.endpointUrl));
+                let root;
+                if ( endpointUrls.length < 1) {
+                    root = new SparqlEndpointDatasetSource(ds.endpointUrl);
+                    roots[ds.endpointUrl] = root;
+                    root.tempid = ds.endpointUrl;
+                    root.generated = true;
+                } else {
+                    // TODO currently taking first occurrence
+                    root = roots[endpointUrls[0]]
                 }
-                roots[ds.endpointUrl].parts.push(ds);
+                root.addPart(ds);
             }
         });
         return roots;
@@ -147,6 +153,7 @@ const DatasetSourceStore = Reflux.createStore({
             this.refreshing = true
             Ajax.get(this.requestURL("", {})).end(function (data) {
                 let dss = data.map(DatasetSourceUtils.create);
+                dss.forEach(d => d.tempid = d.id);
                 let roots = this.hierarchizeDS(dss);
                 console.log("Root objects: " + Object.values(roots).length);
                 toSend.datasetSources = Object.values(roots)

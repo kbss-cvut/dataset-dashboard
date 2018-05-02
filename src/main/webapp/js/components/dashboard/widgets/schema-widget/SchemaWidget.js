@@ -24,7 +24,7 @@ export default class SchemaWidget extends React.Component {
             /**
              * Whether to show attributes in nodes
              */
-            showAttributes: true,
+            showAttributes: false,
             /**
              * Which classes to hide
              */

@@ -3,7 +3,7 @@ package cz.cvut.kbss.datasetdashboard.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
-import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
+import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.util.JsonLd;
 import cz.cvut.kbss.datasetdashboard.util.ServiceUtils;
@@ -16,11 +16,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service public class DatasetSourceService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DatasetSourceService.class);
 
     @Autowired private DatasetSourceDao datasetSourceDao;
 
@@ -34,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
         try {
             return datasetSourceDao.register(url).getId();
         } catch (Exception e) {
+            LOG.error("Unknown error while registering dataset.",e);
             throw new DatasetSourceServiceException(
                 MessageFormat.format("Error in registering a URL dataset source {0}", url), e);
         }
@@ -52,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
         try {
             return datasetSourceDao.register(endpointUrl, graphIri).getId();
         } catch (Exception e) {
+            LOG.error("Unknown error while registering dataset.",e);
             throw new DatasetSourceServiceException(MessageFormat.format(
                 "Error in registering a Named Graph Sparql Endpoint dataset source {0} : {1}",
                 endpointUrl, graphIri), e);
@@ -67,6 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
         try {
             return new RawJson(outputSources(datasetSourceDao.getAll()).toString());
         } catch (Exception e) {
+            LOG.error("Unknown error while getting dataset sources.",e);
             throw new DatasetSourceServiceException(
                 "Error in registering a Named Graph Sparql Endpoint dataset source", e);
         }
@@ -83,7 +90,7 @@ import org.springframework.transaction.annotation.Transactional;
             try {
                 final JsonObject ds = new JsonObject();
                 ds.addProperty("id", v.getId());
-                if (EntityToOwlClassMapper
+                if (ModelHelper
                     .isOfType(v, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
                     ds.addProperty("type",
                         Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
@@ -93,13 +100,13 @@ import org.springframework.transaction.annotation.Transactional;
                     ds.addProperty("graphId",
                         v.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next()
                          .toString());
-                } else if (EntityToOwlClassMapper
+                } else if (ModelHelper
                     .isOfType(v, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
                     ds.addProperty("type", Vocabulary.s_c_sparql_endpoint_dataset_source);
                     ds.addProperty("endpointUrl",
                         v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
                          .toString());
-                } else if (EntityToOwlClassMapper.isOfType(v, Vocabulary.s_c_url_dataset_source)) {
+                } else if (ModelHelper.isOfType(v, Vocabulary.s_c_url_dataset_source)) {
                     ds.addProperty("type", Vocabulary.s_c_url_dataset_source);
                     ds.addProperty("downloadUrl",
                         v.getProperties().get(Vocabulary.s_p_has_download_url).iterator().next()
@@ -109,8 +116,7 @@ import org.springframework.transaction.annotation.Transactional;
                 }
                 result.add(ds);
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid source " + v.getId() + " , skipping");
+                LOG.error("Invalid source " + v.getId() + " , skipping",e);
             }
         });
         return result;
@@ -126,6 +132,7 @@ import org.springframework.transaction.annotation.Transactional;
             return new RawJson(ServiceUtils.outputDescriptors(descriptors).toString()
             );
         } catch (Exception e) {
+            LOG.error("Unknown error",e);
             throw new DatasetSourceServiceException(MessageFormat
                 .format("Error in getting descriptors of type {0} for a dataset source {1}",
                     descriptorTypeIrisCommaSeparated, sourceId), e);
@@ -149,6 +156,7 @@ import org.springframework.transaction.annotation.Transactional;
                 .getSparqlConstructResult(datasetSourceDao.find(URI.create(id)), queryFile,
                     bindings)));
         } catch (Exception e) {
+            LOG.error("Unknown error",e);
             throw new DatasetSourceServiceException(MessageFormat
                 .format("Error in executing query {0} with bindings {1} for a dataset source {2}",
                     queryFile, bindings, id), e);

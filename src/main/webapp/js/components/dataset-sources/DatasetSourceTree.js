@@ -59,7 +59,7 @@ class DatasetSourceTree extends React.Component {
                 expandable={true}
                 showIcon={false}
                 treeCheckable={false}
-                createKey={(item) => item.endpointUrl + " " + item.graphId}
+                createKey={(item) => item.tempid + " " + item.endpointUrl + " " + item.graphId}
                 createView={(item) => <DatasetSourceLink datasetSource={item}/>}
             /> : <div>No data</div>);
     }

@@ -1,8 +1,7 @@
 package cz.cvut.kbss.datasetdashboard.dao;
 
 import com.google.gson.JsonObject;
-import cz.cvut.kbss.datasetdashboard.dao.util.JopaHelper;
-import cz.cvut.kbss.datasetdashboard.model.util.EntityToOwlClassMapper;
+import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -22,6 +21,10 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
+
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.create;
 
 @Repository
 @PropertySource("classpath:config.properties")
@@ -102,9 +105,9 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         dataset_source ds = em.find(dataset_source.class, id + "");
 
         if (ds == null) {
-            final dataset dataset = JopaHelper.create(dataset.class,id+"");
-            ds = JopaHelper.create(dataset_source.class,id + "");
-            ds.getTypes().add(Vocabulary.s_c_url_dataset_source);
+            final dataset dataset = create(dataset.class, id + "");
+            ds = create(dataset_source.class, id + "");
+            addType(ds,Vocabulary.s_c_url_dataset_source);
             ds.getProperties().put(Vocabulary.s_p_has_download_url, Collections.singleton(url));
             ds.setOffers_dataset(Collections.singleton(dataset));
             dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
@@ -154,8 +157,8 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     }
 
     private dataset_source initDatasetSource(int id, final EntityDescriptor d) {
-        final dataset_source ds = JopaHelper.create(dataset_source.class,id + "");
-        final dataset dataset = JopaHelper.create(dataset.class,id+"");
+        final dataset_source ds = create(dataset_source.class, id + "");
+        final dataset dataset = create(dataset.class, id + "");
         ds.setOffers_dataset(Collections.singleton(dataset));
         dataset.setInv_dot_offers_dataset(Collections.singleton(ds));
         em.persist(dataset, d);
@@ -239,13 +242,13 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
                                            final Map<String, String> bindings) {
         final dataset_source datasetSource = this.find(URI.create(ds.getId()));
 
-        if (EntityToOwlClassMapper
+        if (ModelHelper
             .isOfType(datasetSource, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
             final String endpointUrl = getSingleProperty(datasetSource,Vocabulary.s_p_has_endpoint_url);
             final String graphIri = getSingleProperty(datasetSource,Vocabulary.s_p_has_graph_id);
             return sparqlAccessor
                 .getSparqlResult(queryFile, bindings, endpointUrl, graphIri, "text/turtle");
-        } else if (EntityToOwlClassMapper
+        } else if (ModelHelper
             .isOfType(datasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
             final String endpointUrl = getSingleProperty(datasetSource,Vocabulary.s_p_has_endpoint_url);
             return sparqlAccessor
