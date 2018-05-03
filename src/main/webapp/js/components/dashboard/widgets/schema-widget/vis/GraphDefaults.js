@@ -30,7 +30,7 @@ export default class GraphDefaults {
                 enabled: false
             },
             layout: {
-                improvedLayout: true,
+                improvedLayout: false,
                 hierarchical: {
                     enabled: false,
                     direction: 'UD',
@@ -43,6 +43,7 @@ export default class GraphDefaults {
             interaction: {
                 hover: true,
                 multiselect: true,
+                navigationButtons: true,
                 selectConnectedEdges: true,
                 hoverConnectedEdges: true,
                 zoomView: true,

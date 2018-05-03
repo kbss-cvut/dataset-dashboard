@@ -190,8 +190,11 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
             ds = _registerEndpointDatasetSource(d, id, endpointUrl);
             em.persist(ds, d);
         } else {
-            ds = datasetSources.iterator().next();
             LOG.warn("The datasource {} has already been registered.", id);
+            if ( datasetSources.size() > 1 ) {
+                LOG.warn("There are {} registered dataset sources of the same endpointUrl, taking an arbitrary one.", datasetSources.size());
+            }
+            ds = datasetSources.iterator().next();
         }
         return ds;
     }

@@ -71,4 +71,12 @@ public class SparqlUtils {
             throw new IllegalArgumentException();
         }
     }
+
+    public static  String createUrlString(final Map<String,String> map) {
+        final StringBuilder urlBuilder = new StringBuilder();
+        for (final Map.Entry<String, String> e : map.entrySet()) {
+            urlBuilder.append("&" + e.getKey() + "=" + e.getValue());
+        }
+        return urlBuilder.toString();
+    }
 }

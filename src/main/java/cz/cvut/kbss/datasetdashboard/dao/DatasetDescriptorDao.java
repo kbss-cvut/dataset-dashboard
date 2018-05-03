@@ -293,18 +293,16 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
                       .append(getSingleProperty(ds, Vocabulary.s_p_has_graph_id));
         }
 
-        for (final Map.Entry<String, String> e : spec.getMap().entrySet()) {
-            urlBuilder.append("&" + e.getKey() + "=" + e.getValue());
-        }
+        urlBuilder.append(SparqlUtils.createUrlString(spec.getMap()));
 
         final dataset_publication p = storeMetadata(ds, descriptorType);
-        final dataset_source publishedDatasetSource =
-            (dataset_source) p.getHas_source().iterator().next();
 
         LOG.info("Computing descriptor of type {}: {}", descriptorType, urlBuilder.toString());
         String s = remoteLoader.loadData(urlBuilder.toString(), new HashMap<>());
         LOG.info(" - done. Response length {}", s.length());
 
+        final dataset_source publishedDatasetSource =
+            (dataset_source) p.getHas_source().iterator().next();
         final URI urlWithQuery =
             createUrlForNamedGraphSparqlEndpointDatasetSource(publishedDatasetSource);
 

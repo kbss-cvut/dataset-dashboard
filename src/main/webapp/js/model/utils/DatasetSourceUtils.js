@@ -1,7 +1,6 @@
 'use strict';
 
 import Ddo from '../../vocabulary/Ddo';
-import DatasetSource from '../DatasetSource';
 import NamedGraphSparqlEndpointDatasetSource from '../NamedGraphSparqlEndpointDatasetSource';
 import SparqlEndpointDatasetSource from '../SparqlEndpointDatasetSource';
 

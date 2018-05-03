@@ -1,15 +1,10 @@
 package cz.cvut.kbss.datasetdashboard.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
-import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.util.JsonLd;
 import cz.cvut.kbss.datasetdashboard.util.ServiceUtils;
-import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
-import cz.cvut.kbss.ddo.model.dataset_source;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -71,55 +66,12 @@ import org.springframework.transaction.annotation.Transactional;
      */
     @Transactional public RawJson getDataSources() throws DatasetSourceServiceException {
         try {
-            return new RawJson(outputSources(datasetSourceDao.getAll()).toString());
+            return new RawJson(ServiceUtils.outputSources(datasetSourceDao.getAll()).toString());
         } catch (Exception e) {
             LOG.error("Unknown error while getting dataset sources.",e);
             throw new DatasetSourceServiceException(
                 "Error in registering a Named Graph Sparql Endpoint dataset source", e);
         }
-    }
-
-    /**
-     * Returns all registered data sources.
-     *
-     * @return a list of data sources.
-     */
-    private JsonArray outputSources(final List<dataset_source> datasetSources) {
-        final JsonArray result = new JsonArray();
-        datasetSources.forEach((v) -> {
-            try {
-                final JsonObject ds = new JsonObject();
-                ds.addProperty("id", v.getId());
-                if (ModelHelper
-                    .isOfType(v, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source)) {
-                    ds.addProperty("type",
-                        Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-                    ds.addProperty("endpointUrl",
-                        v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
-                         .toString());
-                    ds.addProperty("graphId",
-                        v.getProperties().get(Vocabulary.s_p_has_graph_id).iterator().next()
-                         .toString());
-                } else if (ModelHelper
-                    .isOfType(v, Vocabulary.s_c_sparql_endpoint_dataset_source)) {
-                    ds.addProperty("type", Vocabulary.s_c_sparql_endpoint_dataset_source);
-                    ds.addProperty("endpointUrl",
-                        v.getProperties().get(Vocabulary.s_p_has_endpoint_url).iterator().next()
-                         .toString());
-                } else if (ModelHelper.isOfType(v, Vocabulary.s_c_url_dataset_source)) {
-                    ds.addProperty("type", Vocabulary.s_c_url_dataset_source);
-                    ds.addProperty("downloadUrl",
-                        v.getProperties().get(Vocabulary.s_p_has_download_url).iterator().next()
-                         .toString());
-                } else {
-                    ds.addProperty("type", Vocabulary.s_c_dataset_source);
-                }
-                result.add(ds);
-            } catch (Exception e) {
-                LOG.error("Invalid source " + v.getId() + " , skipping",e);
-            }
-        });
-        return result;
     }
 
     @Transactional public RawJson getDescriptorsForDatasetSource(final String sourceId,
