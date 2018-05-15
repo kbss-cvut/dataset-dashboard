@@ -47,14 +47,14 @@ export default class DashboardController extends React.Component {
                     rowHeight={210}>
                     <div key="main">{<WidgetPanel
                         title="Summary Schema"
-                        widget={(content) => <SchemaWidget descriptorContent={content}/>}
+                        widget={(content, excludedEntities) => <SchemaWidget descriptorContent={content} excludedEntities={excludedEntities}/>}
                         descriptorQuery="spo/spo-summary"
                         descriptorTypeIris={[Ddo.NS + "spo-summary-with-marginals-descriptor", Ddo.NS + "spo-summary-descriptor"]}/>}</div>
                     <div key="righttop">{<FullscreenWidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
                     <div key="rightcenter">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
                     <div key="rightbottom">{<WidgetPanel
                         title="Temporal"
-                        widget={(content) => <TemporalWidget descriptorContent={content}/>}
+                        widget={(content, excludedEntities) => <TemporalWidget descriptorContent={content} excludedEntities={excludedEntities}/>}
                         descriptorQuery="temporal/get_coverage"
                         descriptorTypeIris={[Ddo.NS + "temporal-function"]}/>}</div>
                     <div key="downleft">{<FullscreenWidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
+import DashboardContextStore from "../../../stores/DashboardContextStore";
 import Actions from "../../../actions/Actions";
 import LoadingWrapper from "../../misc/LoadingWrapper";
 
@@ -10,12 +11,17 @@ class SingleSparqlWidget extends React.Component {
         super(props);
         this.state = {
             data: [],
+            excludedEntities: []
         }
     };
 
     componentDidMount() {
-        this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
+        this.unsubscribe1 = DatasetSourceStore.listen((data) => this._onDataLoaded(data));
+        this.unsubscribe2 = DashboardContextStore.listen((data) => this._onDataLoaded(data));
         this.selectDatasetSource();
+        this.setState({
+            excludedEntities: DashboardContextStore.getExcludedEntities()
+        });
     };
 
     selectDatasetSource() {
@@ -31,6 +37,10 @@ class SingleSparqlWidget extends React.Component {
         }
         if (data.action === Actions.selectDatasetSource) {
             this.selectDatasetSource()
+        } else if (data.action === Actions.excludeEntities) {
+            this.setState({
+                excludedEntities: data.entities
+            });
         } else if (data.queryName === this.props.query) {
             this.setState({
                 data: data.content
@@ -40,14 +50,20 @@ class SingleSparqlWidget extends React.Component {
     };
 
     componentWillUnmount() {
-        this.unsubscribe();
+        this.props.loadingOff();
+        this.unsubscribe1();
+        this.unsubscribe2();
     };
 
     render() {
         if (this.state.data.length === 0) {
             return <div/>;
         }
-        return( <div> {this.props.widget(this.state.data)} </div>);
+        return( <div> {this.props.widget(
+            this.state.data,
+            this.state.excludedEntities,
+            (entities) => Actions.excludeEntities(entities))}
+        </div>);
     };
 }
 

@@ -3,6 +3,7 @@
 import React from "react";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
 import DatasetDescriptorStore from "../../../stores/DatasetDescriptorStore";
+import DashboardContextStore from "../../../stores/DashboardContextStore";
 import Actions from "../../../actions/Actions";
 import DescriptorWidgetSelector from "./DescriptorWidgetSelector";
 import FullscreenWidgetPanelUI from "./FullscreenWidgetPanelUI";
@@ -14,6 +15,7 @@ class WidgetPanel extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            excludedEntities: [],
             descriptorTypeIris: this.props.descriptorTypeIris,
             descriptorQuery: this.props.descriptorQuery,
             descriptors: [],
@@ -28,12 +30,22 @@ class WidgetPanel extends React.Component {
     componentWillMount() {
         this.unsubscribe1 = DatasetSourceStore.listen(this._onDescriptorsLoaded.bind(this));
         this.unsubscribe2 = DatasetDescriptorStore.listen(this._onDescriptorsLoaded.bind(this));
+        this.unsubscribe3 = DashboardContextStore.listen(this._onDescriptorsLoaded.bind(this));
         this.getCurrentDatasetSource();
+        this.setExcludedEntities(DashboardContextStore.getExcludedEntities());
     };
+
+    setExcludedEntities(entities) {
+        const entities2 = entities.slice(0);
+        this.setState({
+            excludedEntities : entities
+        });
+    }
 
     componentWillUnmount() {
         this.unsubscribe1();
         this.unsubscribe2();
+        this.unsubscribe3();
     };
 
     getCurrentDatasetSource() {
@@ -66,6 +78,8 @@ class WidgetPanel extends React.Component {
     _onDescriptorsLoaded = (data) => {
         if (data.action === Actions.selectDatasetSource) {
             this.getCurrentDatasetSource();
+        } else if (data.action === Actions.excludeEntities) {
+            this.setExcludedEntities( data.entities );
         } else if (data.action === Actions.getDescriptorsForDatasetSource) {
             if (this.state.descriptorTypeIris == data.descriptorTypeIris) {
                 this.props.loadingOff();
@@ -165,7 +179,7 @@ class WidgetPanel extends React.Component {
                 widget={!content ?
                     <div style={{textAlign: "center", verticalAlign: "center"}}>
                         No Dataset Descriptor Selected
-                    </div> : this.props.widget(content)}/>);
+                    </div> : this.props.widget(content, this.state.excludedEntities)}/>);
     };
 }
 

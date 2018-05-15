@@ -63,12 +63,26 @@ export default class SchemaUtils {
      * @param nodeIri
      * @returns {*}
      */
-    static ensureNodeExists(nodeMap, nodeIri, newNode, label) {
+    static ensureNodeExists(nodeMap, nodeIri, newNode, label, datasetSources) {
         let n = nodeMap[nodeIri];
         if (!n) { // the node is not created yet
             n = newNode();
             n.id = nodeIri;
-            n.label = label(nodeIri) + '\n';
+            n.label = '<b>'+label(nodeIri)+'</b>' ;
+            n.datasetSources = datasetSources.filter(ds => ds).map( ds => {
+                // if (ds.contains('graphIri')) {
+                //     // TODO nasty hack, should be passed from the server
+                // }
+                if (ds.endsWith("dataset/snapshot")) {
+                    ds = ds.substring(0,ds.length-16);
+                }
+
+                return ds;
+            });
+            if (n.datasetSources.length > 0) {
+                n.label = n.label + ' \n( in ' + n.datasetSources.length + ' other datasets )';
+            }
+            n.label = n.label + '\n';
             nodeMap[nodeIri] = n;
         }
         return n;

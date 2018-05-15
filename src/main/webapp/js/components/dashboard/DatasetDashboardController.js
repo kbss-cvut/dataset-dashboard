@@ -6,6 +6,7 @@ import DatasetDashboard from "./DatasetDashboard";
 import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import MainNavBar from "../navigation/MainNavBar";
 import Actions from "../../actions/Actions";
+import EntityFilter from "./EntityFilter";
 
 export default class DatasetDashboardController extends React.Component {
 
@@ -37,9 +38,13 @@ export default class DatasetDashboardController extends React.Component {
         return (
             <div><MainNavBar/>
                 {this.state.datasetSource ? <Grid fluid={true}>
-                        <Row>
-                            <DatasetDashboard datasetSource={this.state.datasetSource}/>
-                        </Row>
+                    <Row>
+                        <EntityFilter/>
+                    </Row>
+                    <Row>
+                        <DatasetDashboard
+                            datasetSource={this.state.datasetSource}/>
+                    </Row>
                     </Grid> :
                     <Jumbotron>
                         <h1>Welcome</h1>

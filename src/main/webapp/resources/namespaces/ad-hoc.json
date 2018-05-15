@@ -24,5 +24,9 @@
   "rpp-c": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/cinnost/",
   "rpp-ovm": "http://onto.fel.cvut.cz/ontologies/cz/gov/rpp/organ-verejne-moci/",
   "pba": "http://linked.opendata.cz/ontology/domain/seznam.gov.cz/agendy-pba/",
-  "nku": "http://data.nku.cz/ontology/"
+  "nku": "http://data.nku.cz/ontology/",
+  "s-ppcm-2013-5" : "http://schema.semantic-web.at/ppcm/2013/5/",
+  "s-sparql-1.0-list" : "http://schema.semantic-web.at/sparql/1.0/list/",
+  "s-users" : "http://schema.semantic-web.at/users/",
+  "s-ppt-history" : "http://schema.semantic-web.at/ppt/history#"
 }

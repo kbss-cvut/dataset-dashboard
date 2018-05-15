@@ -1,14 +1,28 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX spo: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary/>
+PREFIX enh-spo-sum-desc: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/spo-summary-with-marginals/model/>
+
 CONSTRUCT {
     ?t rdf:subject ?s;
        rdf:predicate ?p;
        rdf:object ?o;
-       <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary/hasWeight> ?w .
+       spo:hasWeight ?w ;
+       spo:hasSubjectDatasetSource ?ds ;
+       spo:hasObjectDatasetSource ?do .
 } WHERE {
-    ?t rdf:subject ?_s;
-      rdf:predicate ?p;
-      rdf:object ?_o;
-      <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/s-p-o-summary/hasWeight> ?w .
-    ?_s a ?s.
-    ?_o a ?o.
+    SELECT (sample(?tx) AS ?t) ?s ?p ?o (sample(?wx) AS ?w)
+    (GROUP_CONCAT(?dsx;separator=',') AS ?ds) (GROUP_CONCAT(?dox;separator=',') AS ?do) {
+        ?tx rdf:subject ?_s;
+            rdf:predicate ?p;
+            rdf:object ?_o;
+            spo:hasWeight ?wx .
+        ?_s a ?s.
+        ?_o a ?o.
+        OPTIONAL {
+            ?_s enh-spo-sum-desc:hasDatasetSource ?dsx .
+        }
+        OPTIONAL {
+            ?_o enh-spo-sum-desc:hasDatasetSource ?dox .
+        }
+    } GROUP BY ?s ?p ?o
 }

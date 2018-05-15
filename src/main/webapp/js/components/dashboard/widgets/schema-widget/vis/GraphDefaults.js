@@ -4,11 +4,25 @@ export default class GraphDefaults {
     static nodeTemplate() {
         return {
             size: 150,
-            color: "#f3ffc2",
+            color: {
+                background : "#ffffcc",
+                border: "#f49842",
+                hover : {
+                    background: "#ffffcc",
+                    border: "#f48241"
+                },
+                highlight : {
+                    background: "#f48241",
+                    border: "#f4c741"
+                }
+            },
             shape: 'box',
+            borderWidthSelected : 3,
+            labelHighlightBold: false,
             font: {
-                face: 'monospace',
-                align: 'left'
+                face: 'FontAwesome',
+                align: 'left',
+                multi: 'html'
             }
         }
     };
@@ -32,11 +46,11 @@ export default class GraphDefaults {
             layout: {
                 improvedLayout: false,
                 hierarchical: {
-                    enabled: false,
+                    enabled: true,
                     direction: 'UD',
                     edgeMinimization: true,
-                    levelSeparation: 300,
-                    nodeSpacing: 400,
+                    levelSeparation: 200,
+                    nodeSpacing: 200,
                     treeSpacing: 200,
                 }
             },
@@ -54,6 +68,7 @@ export default class GraphDefaults {
                 color: "#000000"
             },
             configure: {
+                enabled : true,
                 showButton: false
             }
         }

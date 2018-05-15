@@ -8,6 +8,8 @@ import SingleSparqlWidget from '../SingleSparqlWidget';
 const ClassPartitionWidget = () =>
     ( <SingleSparqlWidget
         query="void/class_partitions"
-        widget={(data) => ( <ClassPartitionWidgetComponent data={data}/>)}/> );
+        widget={(data, entities, onExcludeEntites) => ( <ClassPartitionWidgetComponent data={data}
+                                                                    excludedEntities={entities}
+                                                                    onExcludeEntities={onExcludeEntites}/>)}/> );
 
 export default ClassPartitionWidget;

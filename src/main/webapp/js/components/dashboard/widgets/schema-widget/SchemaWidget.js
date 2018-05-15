@@ -2,7 +2,7 @@
 
 import React from "react";
 import Graph from "react-graph-vis";
-import {Checkbox} from "react-bootstrap";
+import {Modal,Checkbox} from "react-bootstrap";
 import Slider from "react-rangeslider";
 import GraphDefaults from "./vis/GraphDefaults";
 import SchemaUtils from "./SchemaUtils";
@@ -28,7 +28,7 @@ export default class SchemaWidget extends React.Component {
             /**
              * Which classes to hide
              */
-            hiddenClasses: ["http://onto.fel.cvut.cz/ontologies/dataset-descriptor/weakly-described-resource"],
+            hiddenClasses: [Ddo.NS+'weakly-described-resource'],
             /**
              * Whether to show weight of edges
              */
@@ -37,6 +37,15 @@ export default class SchemaWidget extends React.Component {
              * Minimal weight - edges below this weight will be discarded from the graph
              */
             minWeight: 0,
+            /**
+             * State for dataset sources dialog
+             */
+            show:false,
+            /**
+             * Node selected
+             */
+            selectedNode: null,
+            redirect : null
         };
     };
 
@@ -86,90 +95,136 @@ export default class SchemaWidget extends React.Component {
         }
     }
 
+    // parse(results) {
+    //     const edges=[];
+    //     const nodeIri2DS=[];
+    //     const ds2source=[];
+    //     results.forEach( b => {
+    //         // normal edge
+    //         if ( b[Rdf.NS + 'subject'] ) {
+    //             edges.push(b);
+    //         }
+    //         // dataset source specification
+    //         else if (b[Rdf.NS + 's-p-o-summary/hasDatasetSource']) {
+    //             const parseDS = (s) => s[0]['@value'];
+    //             parseDS(b[Ddo.NS + 's-p-o-summary/hasDatasetSource']).forEach( ds => {
+    //                 nodeIri2DS[b['@id']] = ds['@id']
+    //             });
+    //         }
+    //         // dataset source definition
+    //         else if (b[Rdf.NS + 's-p-o-summary/has-endpoint-url']) {
+    //             if (b[Rdf.NS + 's-p-o-summary/has-graph-iri']) {
+    //                 ds2source[b['@id']] = new NamedGraphSparqlEndpointDatasetSource(b[Rdf.NS + 's-p-o-summary/has-endpoint-url'],b[Rdf.NS + 's-p-o-summary/has-graph-iri'] );
+    //             } else {
+    //                 ds2source[b['@id']] = new SparqlEndpointDatasetSource(b[Rdf.NS + 's-p-o-summary/has-endpoint-url']);
+    //             }
+    //         }
+    //     });
+    //
+    //     console.log(edges)
+    //     console.log(nodeIri2DS)
+    //     console.log(ds2source)
+    //
+    //     return {
+    //         edges:edges,
+    //         nodeIri2DS: nodeIri2DS,
+    //         ds2source : ds2source
+    //     }
+    // }
+
     // transform data to be used with vis js
     _constructGraphData(results) {
         const newNode = () => JSON.parse(JSON.stringify(GraphDefaults.nodeTemplate()));
-        const label = (iri) => NamespaceStore.getShortForm(iri);
+        const labelFn = (iri) => NamespaceStore.getShortForm(iri);
         const nodeMap = {};
-        const tripleExists = {};
         const edges = [];
         const fromToCount = {};
-        // transform triples to visjs nodes and edges
         const nodesWithEdge = [];
+
+        // const x = this.parse(results);
+
         results.forEach(function (b) {
-            const from = b[Rdf.NS + 'subject'][0]['@id'];
-            const prp = b[Rdf.NS + 'predicate'][0]['@id'];
-            const to = b[Rdf.NS + 'object'][0]['@id'];
-            if (tripleExists[from + prp + to]) {
-                return;
-            }
-            tripleExists[from + prp + to] = true;
+            const from = b[Rdf.NS + 'subject'][0];
+            const fromId = from['@id'];
+            const pred = b[Rdf.NS + 'predicate'][0];
+            const predId = pred['@id'];
+            const to = b[Rdf.NS + 'object'][0];
+            const toId = to['@id'];
+
             const weight = parseInt(b[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value']);
-            const fromNode = SchemaUtils.ensureNodeExists(nodeMap, from, newNode, label);
-            if (SchemaUtils.isDataType(to)) {
-                this._addDataProperty(fromNode, prp, to, nodesWithEdge, weight)
+
+            const parseDS = (s) => s[0]['@value'].split(",");
+
+            const sDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasSubjectDatasetSource']);
+            const oDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasObjectDatasetSource']);
+
+            const fromNode = SchemaUtils.ensureNodeExists(nodeMap, fromId, newNode, labelFn, sDatasetSources);
+            if (SchemaUtils.isDataType(toId)) {
+                this._addDataProperty(fromNode, predId, toId, nodesWithEdge, weight)
             } else {
-                const tgtNode = SchemaUtils.ensureNodeExists(nodeMap, to, newNode, label);
-                this._addObjectProperty(fromNode, prp, tgtNode, nodesWithEdge,
+                const tgtNode = SchemaUtils.ensureNodeExists(nodeMap, toId, newNode, labelFn, oDatasetSources);
+                this._addObjectProperty(fromNode, predId, tgtNode, nodesWithEdge,
                     weight, fromToCount, edges);
             }
         }.bind(this));
         return {
-            'nodes': Utils.unique(nodesWithEdge.filter(n => (!this.state.hiddenClasses.includes(n.id)))),
-            'edges': edges
+            'nodes': Utils.unique(nodesWithEdge.filter(n => (!this.props.excludedEntities.includes(n.id)))),
+            'edges': edges,
+            nodeMap : nodeMap
         };
     };
-
-    _createCheckBox(lbl, hiddenClass) {
-        return (
-        <Checkbox key={"CHBHC_"+hiddenClass}
-                  checked={!this.state.hiddenClasses.includes(hiddenClass)}
-                  onChange={(e) => {
-                      let hiddenClasses = this.state.hiddenClasses;
-                      const index = hiddenClasses.indexOf(hiddenClass);
-                      if ( index > -1 ) {
-                          delete hiddenClasses[index];
-                      } else {
-                          hiddenClasses.push(hiddenClass);
-                      }
-                      this.setState({hiddenClasses: hiddenClasses});
-                  }}>
-            {lbl}
-        </Checkbox> );
-    }
 
     render() {
         const maxLimitWeight = SchemaUtils.computeMaxEdgeWeight(this.props.descriptorContent)
         const graphOptions = GraphDefaults.graphOptions();
-        graphOptions.configure.enabled = true;
-        const checkboxes=[];
-        checkboxes.push(this._createCheckBox('Show owl:Thing',Owl.THING))
-        checkboxes.push(this._createCheckBox('Show skos:Concept',Skos.CONCEPT));
+        const {nodes,edges,nodeMap} = this._constructGraphData(this.props.descriptorContent);
+        const events = {
+            select : (event) => {
+                const { nodes, edges } = event;
+                this.setState({ show: true, selectedNode: nodeMap[nodes[0]] });
+            }
+        };
+
+        const b = []
+        if ( this.state.selectedNode) {
+            this.state.selectedNode.datasetSources.map(ds => {
+                // TODO remove this nasty hack
+                b.push(<li key={ds}>
+                    {/*<Button bsStyle="link" onClick={() => this.setState({redirect: ds})}>{ds}</Button>*/}
+                    <a href={'#/dashboard/online?endpointUrl='+ds}>{ds}</a>
+                </li>);
+            });
+        }
+
+        // if (this.state.redirect) {
+        //     return <Redirect to={this.state.redirect} />
+        // }
+
         return <div>
+            <Modal show={this.state.show} onHide={() => this.setState({ show: false })}>
+            <Modal.Header closeButton>
+                <Modal.Title>Modal title</Modal.Title>
+            </Modal.Header>
+                <Modal.Body><ul>{b}</ul></Modal.Body>
+            </Modal>
             <Checkbox checked={this.state.showAttributes}
-                      onChange={(e) => {
-                          this.setState({showAttributes: e.target.checked});
-                      }}>
+                      onChange={(e) => this.setState({showAttributes: e.target.checked}) }>
                 Show attributes
             </Checkbox>
             <Checkbox checked={this.state.showWeight}
-                      onChange={(e) => {
-                          this.setState({showWeight: e.target.checked});
-                      }}>
+                      onChange={(e) => this.setState({showWeight: e.target.checked})}>
                 Show weight
             </Checkbox>
-            {checkboxes}
             {this.state.showWeight ?
                 <Slider
                     min={0}
                     max={maxLimitWeight}
                     value={this.state.minWeight}
-                    onChange={(value) => {
-                        this.setState({minWeight: value});
-                    }}/>
+                    onChange={(value) => this.setState({minWeight: value})}/>
                 : <div/>}
-            <Graph graph={this._constructGraphData(this.props.descriptorContent)}
+            <Graph graph={{nodes:nodes, edges:edges}}
                    options={graphOptions}
+                   events={events}
                    style={{width: '100%', height: '690px'}}/>
         </div>;
     };
