@@ -29,7 +29,7 @@ public class DescriptorComputerParameterRegistry {
         final DescriptorComputerSpecification sSpoEnh = new DescriptorComputerSpecification("compute-spo-summary-with-marginals-descriptor");
         sSpoEnh.add("marginalsDefsFileUrl", environment.getProperty("spipes.service.wdrDefsFileUrl") );
         register(Vocabulary.ONTOLOGY_IRI_dataset_descriptor
-                 + "/spo-summary-with-marginals-descriptor", sSpo );
+                 + "/spo-summary-with-marginals-descriptor", sSpoEnh );
 
         final DescriptorComputerSpecification sTemporal = new DescriptorComputerSpecification("compute-temporal-v1-descriptor");
         register(Vocabulary.s_c_temporal_dataset_descriptor, sTemporal );
