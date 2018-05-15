@@ -46,7 +46,7 @@ describe("A SchemaUtils Test", function() {
     it("ensureNodeExists - creating the same node twice", function() {
         const iri = "http://example.org/x";
         const map = {};
-        const run = () => SchemaUtils.ensureNodeExists(map,iri,()=>{return {}},i=>i)
+        const run = () => SchemaUtils.ensureNodeExists(map,iri,()=>{return {}},i=>i,[])
         const eid1 = run();
         expect(Object.keys(map).length == 1).toBeTruthy();
         const eid2 = run();
