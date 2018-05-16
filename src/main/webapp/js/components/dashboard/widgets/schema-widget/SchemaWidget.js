@@ -1,6 +1,7 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 import Graph from "react-graph-vis";
 import {Modal,Checkbox} from "react-bootstrap";
 import Slider from "react-rangeslider";
@@ -9,13 +10,13 @@ import SchemaUtils from "./SchemaUtils";
 
 import NamespaceStore from "../../../../stores/NamespaceStore";
 
-import Utils from "../../Utils";
+import Utils from "../../../../utils/Utils";
 import Rdf from "../../../../vocabulary/Rdf";
 import Ddo from "../../../../vocabulary/Ddo";
 import Skos from "../../../../vocabulary/Skos";
 import Owl from "../../../../vocabulary/Owl";
 
-export default class SchemaWidget extends React.Component {
+export default class SchemaWidget extends Reflux.Component {
 
     constructor(props) {
         super(props);
@@ -25,10 +26,6 @@ export default class SchemaWidget extends React.Component {
              * Whether to show attributes in nodes
              */
             showAttributes: false,
-            /**
-             * Which classes to hide
-             */
-            hiddenClasses: [Ddo.NS+'weakly-described-resource'],
             /**
              * Whether to show weight of edges
              */
@@ -47,7 +44,12 @@ export default class SchemaWidget extends React.Component {
             selectedNode: null,
             redirect : null
         };
+        this.store=NamespaceStore;
     };
+
+    s(iri) {
+        return Utils.getShortForm(this.state.namespaces,iri);
+    }
 
     // creates a new edge from srcNode to tgtNode using label prp.
     // fromToCount counts number of parallel edges srcNode to tgtNode and is
@@ -56,7 +58,7 @@ export default class SchemaWidget extends React.Component {
         const edge = JSON.parse(JSON.stringify(GraphDefaults.edgeTemplate()));
         edge.from = srcNode.id;
         edge.to = tgtNode.id;
-        edge.label = NamespaceStore.getShortForm(prp);
+        edge.label = this.s(prp);
         if (this.state.showWeight) {
             edge.width = SchemaUtils.getWidth(weight);
             edge.title = "" + weight;
@@ -71,9 +73,9 @@ export default class SchemaWidget extends React.Component {
 
     _updateLabel(node, prp, tgt, weight) {
         node.label += "\n"
-            + NamespaceStore.getShortForm(prp)
+            + this.s(prp)
             + " ► "
-            + NamespaceStore.getShortForm(tgt);
+            + this.s(tgt);
         if (this.state.showWeight) {
             node.label += " (" + weight + ")";
         }
@@ -135,7 +137,7 @@ export default class SchemaWidget extends React.Component {
     // transform data to be used with vis js
     _constructGraphData(results) {
         const newNode = () => JSON.parse(JSON.stringify(GraphDefaults.nodeTemplate()));
-        const labelFn = (iri) => NamespaceStore.getShortForm(iri);
+        const labelFn = (iri) => Utils.getShortForm(this.state.namespaces,iri);
         const nodeMap = {};
         const edges = [];
         const fromToCount = {};

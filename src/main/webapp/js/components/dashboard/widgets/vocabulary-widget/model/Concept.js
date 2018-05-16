@@ -3,7 +3,7 @@
 import React from "react";
 import Resource from "./Resource";
 
-class Concept extends Resource {
+export default class Concept extends Resource {
 
     parentIri;
 
@@ -27,5 +27,3 @@ class Concept extends Resource {
         return new Concept( iri, {"en" : label}, parentIri);
     }
 }
-
-export default Concept;

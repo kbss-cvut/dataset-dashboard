@@ -1,14 +1,17 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
+import {Badge,Button,ButtonGroup} from "react-bootstrap";
+
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import {Badge,Button,ButtonGroup} from "react-bootstrap";
 import Hierarchy from "./Hierarchy";
+import Utils from "../../../../utils/Utils";
 
-class VocabularyWidget extends React.Component {
+class VocabularyWidget extends Reflux.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -17,11 +20,13 @@ class VocabularyWidget extends React.Component {
             activeLanguages:[],
             vocabularies: []
         }
+        this.store = NamespaceStore
     };
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
         this.selectDatasetSource();
+        super.componentWillMount();
     };
 
     selectDatasetSource() {
@@ -71,14 +76,19 @@ class VocabularyWidget extends React.Component {
 
     componentWillUnmount() {
         this.unsubscribe();
+        super.componentWillUnmount();
     };
+
+    s(iri) {
+        return Utils.getShortForm(this.state.namespaces,iri);
+    }
 
     renderType() {
         let type = 'unknown';
         if (this.state.type && this.state.type[0]) {
-            type = NamespaceStore.getShortForm(this.state.type[0]['@id']);
+            type = this.s(this.state.type[0]['@id']);
         }
-        return <Badge bsClass="badge badge-info">{NamespaceStore.getShortForm(type)}</Badge>;
+        return <Badge bsClass="badge badge-info">{type}</Badge>;
     };
 
     onLanguageSelect(item) {
@@ -101,7 +111,7 @@ class VocabularyWidget extends React.Component {
                     <Button key={language}
                             bsSize="small"
                             active={languages[language]}
-                            onClick={() => this.onLanguageSelect(language)}>{NamespaceStore.getShortForm(language)}
+                            onClick={() => this.onLanguageSelect(language)}>{this.s(language)}
                     </Button>);
             });
         }

@@ -3,7 +3,7 @@
 import React from "react";
 import Resource from "./Resource"
 
-class Vocabulary extends Resource {
+export default class Vocabulary extends Resource {
 
     subVocabularies;
 
@@ -18,5 +18,3 @@ class Vocabulary extends Resource {
         return new Vocabulary( iri, {"en" : label});
     }
 }
-
-export default Vocabulary;

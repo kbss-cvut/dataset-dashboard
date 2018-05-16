@@ -1,6 +1,7 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
 import DatasetDescriptorStore from "../../../stores/DatasetDescriptorStore";
 import DashboardContextStore from "../../../stores/DashboardContextStore";
@@ -10,12 +11,11 @@ import FullscreenWidgetPanelUI from "./FullscreenWidgetPanelUI";
 import LoadingWrapper from "../../misc/LoadingWrapper";
 import {Button, Glyphicon} from "react-bootstrap";
 
-class WidgetPanel extends React.Component {
+class WidgetPanel extends Reflux.Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            excludedEntities: [],
             descriptorTypeIris: this.props.descriptorTypeIris,
             descriptorQuery: this.props.descriptorQuery,
             descriptors: [],
@@ -25,27 +25,20 @@ class WidgetPanel extends React.Component {
             },
             datasetSource: null
         };
+        this.store = DashboardContextStore;
     }
 
     componentWillMount() {
         this.unsubscribe1 = DatasetSourceStore.listen(this._onDescriptorsLoaded.bind(this));
         this.unsubscribe2 = DatasetDescriptorStore.listen(this._onDescriptorsLoaded.bind(this));
-        this.unsubscribe3 = DashboardContextStore.listen(this._onDescriptorsLoaded.bind(this));
         this.getCurrentDatasetSource();
-        this.setExcludedEntities(DashboardContextStore.getExcludedEntities());
+        super.componentWillMount();
     };
-
-    setExcludedEntities(entities) {
-        const entities2 = entities.slice(0);
-        this.setState({
-            excludedEntities : entities
-        });
-    }
 
     componentWillUnmount() {
         this.unsubscribe1();
         this.unsubscribe2();
-        this.unsubscribe3();
+        super.componentWillUnmount();
     };
 
     getCurrentDatasetSource() {

@@ -1,16 +1,18 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Actions from "../../../../actions/Actions";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
-import {Button, Col, Grid, Row} from "react-bootstrap";
+import {Col, Grid, Row} from "react-bootstrap";
 import Tree, {TreeNode} from "rc-tree";
 import Vocabulary from "./model/Vocabulary";
 import Concept from "./model/Concept";
+import Utils from "../../../../utils/Utils";
 
-class Hierarchy extends React.Component {
+class Hierarchy extends Reflux.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -18,11 +20,13 @@ class Hierarchy extends React.Component {
             iriToVocabularyMap: {},
             vocabularyIriActiveMap: {}
         }
+        this.store=NamespaceStore;
     };
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded.bind(this));
         this.selectDatasetSource();
+        super.componentWillMount();
     };
 
     selectDatasetSource() {
@@ -58,6 +62,7 @@ class Hierarchy extends React.Component {
 
     componentWillUnmount() {
         this.unsubscribe();
+        super.componentWillUnmount();
     };
 
     createDefaultVocabulary(defaultVocabularyIri, parentIri) {
@@ -185,7 +190,7 @@ class Hierarchy extends React.Component {
 
     _renderTree(current,path) {
         const children = current.children.map((child) => this._renderTree(child,path.concat([current.iri])));
-        const label = NamespaceStore.getShortForm(current.labelMap ? current.labelMap["en"] : current.iri);
+        const label = Utils.getShortForm(this.state.namespaces,current.labelMap ? current.labelMap["en"] : current.iri);
         const pathId = path.join("-") + "-" + current.iri;
 
         if (!children || ( children.length == 0 )) {

@@ -4,8 +4,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import {Glyphicon, Label} from "react-bootstrap";
 
-import NamespaceStore from "../../stores/NamespaceStore";
-
 export default class EntityFilterUI extends React.Component {
 
     constructor(props) {
@@ -16,10 +14,10 @@ export default class EntityFilterUI extends React.Component {
         const tagElements = [],
             tags = this.props.entities;
         for (let i = 0, len = tags.length; i < len; i++) {
-            tagElements.push(<Label key={tags[i]} bsStyle='info'>
-                {NamespaceStore.getShortForm(tags[i])}
+            tagElements.push(<Label key={tags[i].full} bsStyle='info'>
+                {tags[i].abbr}
                 <Glyphicon glyph='remove' className='label-glyph' title="Remove"
-                           onClick={() => this.props.includeEntity(tags[i])}/>
+                           onClick={() => this.props.includeEntity(tags[i].full)}/>
             </Label>);
         }
         return tagElements;
@@ -38,10 +36,10 @@ export default class EntityFilterUI extends React.Component {
 
 EntityFilterUI.propTypes = {
     entities: PropTypes.array,
-    excludeEntities: PropTypes.func,
+    includeEntity: PropTypes.func,
 };
 
 EntityFilterUI.defaultProps = {
     entities: [],
-    excludeEntities: (entities)=>{},
+    includeEntity: (entity)=>{},
 };

@@ -1,16 +1,26 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
+import { TableHeaderColumn } from 'react-bootstrap-table';
+
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
-import { TableHeaderColumn } from 'react-bootstrap-table';
 import Table from './Table';
 
-export default class PropertyPartitionWidgetComponent extends React.Component {
+export default class PropertyPartitionWidgetComponent extends Reflux.Component {
+
+    constructor(props)
+    {
+        super(props);
+        this.state = {};
+        this.store = NamespaceStore;
+    }
 
     format(cell, row) {
-        return '<a href="'+cell+'" target="_blank">'+NamespaceStore.getShortForm(cell)+'</a> ';
+        const n = this.state.namespaces;
+        return <a href="'+cell+'" target="_blank">{Utils.getShortForm(n,cell)}</a>;
     };
 
     render() {
@@ -26,7 +36,7 @@ export default class PropertyPartitionWidgetComponent extends React.Component {
                 });
             const numberColWidth = "80" ;
             const columns=[];
-            columns.push(<TableHeaderColumn key="property" dataField="property" isKey={true} dataSort={true} dataFormat={this.format}>property</TableHeaderColumn>)
+            columns.push(<TableHeaderColumn key="property" dataField="property" isKey={true} dataSort={true} dataFormat={(cell,row)=>this.format(cell,row)}>property</TableHeaderColumn>)
             columns.push(<TableHeaderColumn key="triples" dataField="triples" dataSort={true} width={numberColWidth}>triples</TableHeaderColumn>)
             columns.push(<TableHeaderColumn key="distinctSubjects" dataField="distinctSubjects" dataSort={true} width={numberColWidth}>dist.sbj</TableHeaderColumn>)
             columns.push(<TableHeaderColumn key="distinctObjects" dataField="distinctObjects" dataSort={true} width={numberColWidth}>dist.obj</TableHeaderColumn>)

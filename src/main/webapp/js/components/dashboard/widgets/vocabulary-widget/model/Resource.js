@@ -1,10 +1,8 @@
 'use strict';
 
 import React from "react";
-import NamespaceStore from "../../../../../stores/NamespaceStore";
 
-
-class Resource {
+export default class Resource {
 
     iri;
 
@@ -26,11 +24,9 @@ class Resource {
             } else if (label["@value"]) {
                 label = label["@value"];
             } else if (label["@id"]) {
-                label = NamespaceStore.getShortForm(label["@id"]);
+                label = label["@id"];
             }
         }
         return label;
     }
 }
-
-export default Resource;

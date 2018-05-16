@@ -2,59 +2,37 @@
 
 import Reflux from 'reflux';
 import Actions from '../actions/Actions';
-const namespacesAdHoc = require('../../resources/namespaces/ad-hoc.json');
-const namespacesPrefixcc = require('../../resources/namespaces/prefix-cc.json');
 
-const NamespaceStore = Reflux.createStore({
+export default class NamespaceStore extends Reflux.Store {
 
-    listenables: [Actions],
-    namespaces: {},
+    constructor()
+    {
+        super();
+        this.state = { namespaces: {} };
+        this.listenables = [Actions];
 
-    init() {
-        this.addFromResource(namespacesPrefixcc);
-        this.addFromResource(namespacesAdHoc);
-    },
+        const namespacesPrefixcc = require('../../resources/namespaces/prefix-cc.json');
+        this.addPrefixes(namespacesPrefixcc);
+
+        const namespacesAdHoc = require('../../resources/namespaces/ad-hoc.json');
+        this.addPrefixes(namespacesAdHoc);
+    }
 
     list() {
-        return this.namespaces;
-    },
+        return this.state.namespaces;
+    }
 
-    addFromResource(data) {
-        for (var key in data) {
-            this.namespaces[data[key]]=key;
-        }
-    },
+    addPrefixes(data) {
+        const namespaces = this.state.namespaces;
+        Object.keys(data).forEach((key) => {
+            namespaces[data[key]]=key;
+        })
+        this.setState({namespaces:namespaces});
+    }
 
-    getPrefix: function(namespace) {
-        return this.namespaces[namespace];
-    },
-
-    // calculate a short form of a uri
-    getShortForm: function(uri){
-        if ( uri == null ) {
-           return "";
-    } else
-        if ( uri.indexOf("#") != -1 ) {
-            const [namespace,id] = uri.split('#');
-            const prefix=this.getPrefix(namespace+'#');
-            if (prefix) {
-                return prefix+':'+id;
-            }
-        } else if ( uri.indexOf("/") != -1 ) {
-            const namespace = uri.substring(0,uri.lastIndexOf('/'))
-            const id = uri.substring(uri.lastIndexOf('/') + 1)
-            const prefix = this.getPrefix(namespace+'/');
-            if (prefix) {
-                return prefix+':'+id;
-            }
-        }
-
-        return uri;
-    },
-
-    onRegisterNamespace: function( namespace,prefix) {
-        return this.namespaces[namespace] = prefix;
-    },
-});
-
-module.exports = NamespaceStore;
+    onRegisterNamespace( namespace, prefix ) {
+        const map = {}
+        map[prefix] = namespace;
+        this.addPrefixes(map);
+    }
+}

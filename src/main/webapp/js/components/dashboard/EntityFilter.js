@@ -1,37 +1,24 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 
 import EntityFilterUI from "./EntityFilterUI";
 import Actions from "../../actions/Actions";
 
 import DashboardContextStore from "../../stores/DashboardContextStore";
+import NamespaceStore from "../../stores/NamespaceStore";
 
-export default class EntityFilter extends React.Component {
+import Utils from "../../utils/Utils";
+
+export default class EntityFilter extends Reflux.Component {
 
     constructor(props)
     {
         super(props);
         this.state = {};
+        this.stores = [DashboardContextStore,NamespaceStore];
     }
-    componentDidMount() {
-        this.unsubscribe = DashboardContextStore.listen(this._onDataLoaded);
-        this.setState({excludedEntities: DashboardContextStore.getExcludedEntities()});
-    };
-
-    _onDataLoaded = (data) => {
-        if (data === undefined) {
-            return
-        }
-
-        if ( data.action === Actions.excludeEntities ) {
-            this.setState({excludedEntities: data.entities})
-        }
-    }
-
-    componentWillUnmount() {
-        this.unsubscribe();
-    };
 
     includeEntity(entity) {
         const entities = this.state.excludedEntities.slice(0);
@@ -41,7 +28,11 @@ export default class EntityFilter extends React.Component {
 
     render() {
         return (
-            <EntityFilterUI entities={this.state.excludedEntities}
-                            includeEntity={(entity) => this.includeEntity(entity)}/> );
+            <EntityFilterUI entities={this.state.excludedEntities.map(
+                e => {
+                    return {full:e,
+                    abbr:(Utils.getShortForm(this.state.namespaces,e))}
+                })
+            } includeEntity={(entity) => this.includeEntity(entity)}/> );
     }
 }

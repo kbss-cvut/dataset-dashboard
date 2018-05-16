@@ -3,22 +3,16 @@
 import Reflux from "reflux";
 import Actions from "../actions/Actions";
 
-const DashboardContextStore = Reflux.createStore({
+export default class DashboardContextStore extends Reflux.Store {
 
-    listenables: [Actions],
-    excludedEntities: [],
+    constructor()
+    {
+        super();
+        this.state = { excludedEntities: []};
+        this.listenables = [Actions]
+    }
 
     onExcludeEntities(entities) {
-        this.excludedEntities = entities;
-        this.trigger({
-            action: Actions.excludeEntities,
-            entities: this.excludedEntities
-        });
-    },
-
-    getExcludedEntities() {
-        return this.excludedEntities;
+        this.setState({excludedEntities : entities})
     }
-});
-
-module.exports = DashboardContextStore;
+}

@@ -1,27 +1,24 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 import DatasetSourceStore from "../../../stores/DatasetSourceStore";
 import DashboardContextStore from "../../../stores/DashboardContextStore";
 import Actions from "../../../actions/Actions";
 import LoadingWrapper from "../../misc/LoadingWrapper";
 
-class SingleSparqlWidget extends React.Component {
+class SingleSparqlWidget extends Reflux.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
-            excludedEntities: []
         }
+        this.store = DashboardContextStore;
     };
 
     componentDidMount() {
         this.unsubscribe1 = DatasetSourceStore.listen((data) => this._onDataLoaded(data));
-        this.unsubscribe2 = DashboardContextStore.listen((data) => this._onDataLoaded(data));
         this.selectDatasetSource();
-        this.setState({
-            excludedEntities: DashboardContextStore.getExcludedEntities()
-        });
     };
 
     selectDatasetSource() {
@@ -37,10 +34,6 @@ class SingleSparqlWidget extends React.Component {
         }
         if (data.action === Actions.selectDatasetSource) {
             this.selectDatasetSource()
-        } else if (data.action === Actions.excludeEntities) {
-            this.setState({
-                excludedEntities: data.entities
-            });
         } else if (data.queryName === this.props.query) {
             this.setState({
                 data: data.content
@@ -52,7 +45,6 @@ class SingleSparqlWidget extends React.Component {
     componentWillUnmount() {
         this.props.loadingOff();
         this.unsubscribe1();
-        this.unsubscribe2();
     };
 
     render() {
