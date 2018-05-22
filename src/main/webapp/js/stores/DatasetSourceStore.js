@@ -111,35 +111,28 @@ const DatasetSourceStore = Reflux.createStore({
 
     hierarchizeDS: function (dss) {
         const roots = {}
-        dss.forEach((ds) => {
-            if (ds.type == Ddo.SparqlEndpointDatasetSource) {
-                if (roots[ds.tempid]) {
-                    if (roots[ds.tempid].generated) {
-                        roots[ds.tempid] = ds;
-                    } else {
-                        console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
-                    }
-                } else {
-                    roots[ds.tempid] = ds;
-                }
+        dss.filter((ds) => ds.type == Ddo.SparqlEndpointDatasetSource).forEach((ds) => {
+            if (!roots[ds.tempid] || roots[ds.tempid].generated) {
+                roots[ds.tempid] = ds;
+            } else {
+                console.log("WARNING - duplicate SPARQL endpoint source, using the last - " + ds.endpointUrl);
             }
         });
 
-        dss.forEach((ds) => {
-            if (ds.type == Ddo.NamedGraphSparqlEndpointDatasetSource) {
-                const endpointUrls= Object.keys(roots).filter(c => (roots[c].endpointUrl == ds.endpointUrl));
-                let root;
-                if ( endpointUrls.length < 1) {
-                    root = new SparqlEndpointDatasetSource(ds.endpointUrl);
-                    roots[ds.endpointUrl] = root;
-                    root.tempid = ds.endpointUrl;
-                    root.generated = true;
-                } else {
-                    // TODO currently taking first occurrence
-                    root = roots[endpointUrls[0]]
-                }
-                root.addPart(ds);
+        const r = Object.keys(roots);
+        dss.filter((ds) => ds.type == Ddo.NamedGraphSparqlEndpointDatasetSource).forEach((ds) => {
+            const endpointUrls = r.filter(c => (roots[c].endpointUrl == ds.endpointUrl));
+            let root;
+            if (endpointUrls.length < 1) {
+                root = new SparqlEndpointDatasetSource(ds.endpointUrl);
+                roots[ds.endpointUrl] = root;
+                root.tempid = ds.endpointUrl;
+                root.generated = true;
+            } else {
+                // TODO currently taking first occurrence
+                root = roots[endpointUrls[0]]
             }
+            root.addPart(ds);
         });
         return roots;
     },
@@ -182,10 +175,10 @@ const DatasetSourceStore = Reflux.createStore({
             params: par,
             datasetSourceId: datasetSourceId
         };
-        const url = this.requestURL("actions/query",{}) + Utils.createQueryParams({
-            id: datasetSourceId,
-            queryFile: queryName
-        }) + "&" + Utils.createQueryParams(params)
+        const url = this.requestURL("actions/query", {}) + Utils.createQueryParams({
+                id: datasetSourceId,
+                queryFile: queryName
+            }) + "&" + Utils.createQueryParams(params)
         Ajax.get(url).end(function (data) {
             const that = this;
             jsonld.flatten(data, function (err, canonical) {

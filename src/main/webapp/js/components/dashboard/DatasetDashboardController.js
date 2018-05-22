@@ -7,6 +7,7 @@ import DatasetSourceStore from "../../stores/DatasetSourceStore";
 import MainNavBar from "../navigation/MainNavBar";
 import Actions from "../../actions/Actions";
 import EntityFilter from "./EntityFilter";
+import ReactTooltip from "react-tooltip";
 
 export default class DatasetDashboardController extends React.Component {
 
@@ -35,7 +36,7 @@ export default class DatasetDashboardController extends React.Component {
     };
 
     render() {
-        return (
+        const x=  (
             <div><MainNavBar/>
                 {this.state.datasetSource ? <Grid fluid={true}>
                     <Row>
@@ -53,7 +54,10 @@ export default class DatasetDashboardController extends React.Component {
                         </p>
                     </Jumbotron>
                     }
+                <ReactTooltip className="tooltipContent" />
             </div>
         );
+        ReactTooltip.rebuild();
+        return x;
     }
 }

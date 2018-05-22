@@ -20,7 +20,7 @@ class Hierarchy extends Reflux.Component {
             iriToVocabularyMap: {},
             vocabularyIriActiveMap: {}
         }
-        this.store=NamespaceStore;
+        this.store = NamespaceStore;
     };
 
     componentWillMount() {
@@ -188,9 +188,9 @@ class Hierarchy extends Reflux.Component {
         });
     }
 
-    _renderTree(current,path) {
-        const children = current.children.map((child) => this._renderTree(child,path.concat([current.iri])));
-        const label = Utils.getShortForm(this.state.namespaces,current.labelMap ? current.labelMap["en"] : current.iri);
+    _renderTree(current, path) {
+        const children = current.children.map((child) => this._renderTree(child, path.concat([current.iri])));
+        const label = Utils.getShortForm(this.state.namespaces, current.labelMap ? current.labelMap["en"] : current.iri);
         const pathId = path.join("-") + "-" + current.iri;
 
         if (!children || ( children.length == 0 )) {
@@ -236,7 +236,7 @@ class Hierarchy extends Reflux.Component {
             }).length > 0);
         });
         const children = rootsWithActiveVocabularies.map((node) => {
-            return this._renderTree(node,[]);
+            return this._renderTree(node, []);
         });
         // const subVocabulariesComponents = subVocabularyIris.map((iri) => {
         //     return <Button key={iri} onClick={() => {
@@ -246,7 +246,7 @@ class Hierarchy extends Reflux.Component {
         //     </Button>;
         // });
         const subVocabulariesComponents = subVocabularyIris.map((iri) => {
-            return { id: iri };
+            return {id: iri};
         });
         return (<div>
             <Grid>
@@ -256,13 +256,17 @@ class Hierarchy extends Reflux.Component {
                             <TableHeaderColumn dataField="id" isKey={true} dataSort={true}></TableHeaderColumn>
                         </BootstrapTable>
                     </Col>
-                    <Col xs={12} md={8}><Tree
-                        showLine
-                        showIcon={false}
-                        defaultExpandAll
-                        autoExpandParent={true}>
-                        {children}
-                    </Tree></Col>
+                    <Col xs={12} md={8}>
+                        <Scrollbars style={{height: this.props.height, width: this.props.width}}>
+                            <Tree
+                                showLine
+                                showIcon={false}
+                                defaultExpandAll
+                                autoExpandParent={true}>
+                                {children}
+                            </Tree>
+                        </Scrollbars>
+                    </Col>
                 </Row>
             </Grid>
 

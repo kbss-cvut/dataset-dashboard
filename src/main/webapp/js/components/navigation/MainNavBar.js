@@ -2,32 +2,22 @@
 
 import React from "react";
 import MainNavBarUI from "./MainNavBarUI";
-import Dialog from 'react-bootstrap-dialog';
 import DatasetSourceTree from '../dataset-sources/DatasetSourceTree';
 import RefreshDatasetSourcesButton from '../dataset-sources/RefreshDatasetSourcesButton';
 
 export default class MainNavBar extends React.Component {
 
-    changeDatasetSource(e) {
-        this.dialog.show({
-            title: 'Select Dataset Source',
-            body: <div><RefreshDatasetSourcesButton/><DatasetSourceTree/></div>,
-            actions: [
-                Dialog.OKAction()
-            ],
-            bsSize: 'large',
-            onHide: (dialog) => {
-                dialog.hide()
-            }
-        })
-    }
-
-    renderDialog(e) {
-        this.dialog = e
+    constructor(props)
+    {
+        super(props);
+        this.state = {};
     }
 
     render() {
-        return (<MainNavBarUI renderDialog={(e) => this.renderDialog(e)}
-                              onChangeDatasetSource={(e) => this.changeDatasetSource(e)}/>);
+        const content = <div><RefreshDatasetSourcesButton/><DatasetSourceTree/></div>
+        return (<MainNavBarUI content={content}
+                              showModal={this.state.show}
+                              onShowModal={()=>{this.setState({show:true})}}
+                              onHideModal={()=>{this.setState({show:false})}} /> );
     }
 }

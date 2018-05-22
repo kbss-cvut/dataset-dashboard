@@ -206,10 +206,10 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
         ds.getProperties()
           .put(Vocabulary.s_p_has_endpoint_url, Collections.singleton(endpointUrl));
         ds.getTypes().add(Vocabulary.s_c_sparql_endpoint_dataset_source);
-        final List<String> graphIds = getAllNamedGraphsInEndpoint(endpointUrl);
-        for (final String graphId : graphIds) {
-            registerNamedGraph(endpointUrl, graphId);
-        }
+//        final List<String> graphIds = getAllNamedGraphsInEndpoint(endpointUrl);
+//        for (final String graphId : graphIds) {
+//            registerNamedGraph(endpointUrl, graphId);
+//        }
         return ds;
     }
 

@@ -1,10 +1,17 @@
 'use strict';
 
 import React from "react";
+import Reflux from "reflux";
 import {ControlLabel, FormControl, FormGroup} from "react-bootstrap";
 import NamespaceStore from "../../../../stores/NamespaceStore";
+import Utils from "../../../../utils/Utils";
 
-class SelectGeoSparqlFeature extends React.Component {
+class SelectGeoSparqlFeature extends Reflux.Component {
+
+    constructor(props) {
+        super(props);
+        this.store=NamespaceStore;
+    };
 
     componentDidMount() {
         const max=10000000000000000000000000000000000000;
@@ -28,7 +35,7 @@ class SelectGeoSparqlFeature extends React.Component {
             const id = item["@id"];
             selectOptions.push(
                 <option key={id} value={id}>
-                    {NamespaceStore.getShortForm(id)}({num})
+                    {Utils.getShortForm(this.state.namespaces,id)}({num})
                 </option>
             )
         });

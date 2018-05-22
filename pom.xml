@@ -22,7 +22,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <com.fasterxml.jackson.version>2.7.3</com.fasterxml.jackson.version>
 
-        <cz.cvut.kbss.jopa.version>0.9.16</cz.cvut.kbss.jopa.version>
+        <cz.cvut.kbss.jopa.version>0.10.0</cz.cvut.kbss.jopa.version>
         <org.springframework.version>4.3.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>4.2.3.RELEASE</org.springframework.security.version>
         <ch.qos.logback.version>1.1.6</ch.qos.logback.version>

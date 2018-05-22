@@ -7,6 +7,9 @@ import DatasetDashboardController from "./components/dashboard/DatasetDashboardC
 import PersistentDatasetDashboardController from "./components/dashboard/PeristentDatasetDashboardController";
 // import DatasetSourceManagementController from "./components/dataset-sources/DatasetSourceManagementController";
 import NamespaceManagementController from "./components/namespaces/NamespaceManagementController";
+import Actions from "./actions/Actions";
+
+Actions.refreshDatasetSources();
 
 ReactDOM.render((
     <Router>

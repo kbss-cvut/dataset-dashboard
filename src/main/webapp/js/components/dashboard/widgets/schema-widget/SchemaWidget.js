@@ -13,8 +13,6 @@ import NamespaceStore from "../../../../stores/NamespaceStore";
 import Utils from "../../../../utils/Utils";
 import Rdf from "../../../../vocabulary/Rdf";
 import Ddo from "../../../../vocabulary/Ddo";
-import Skos from "../../../../vocabulary/Skos";
-import Owl from "../../../../vocabulary/Owl";
 
 export default class SchemaWidget extends Reflux.Component {
 
@@ -42,7 +40,6 @@ export default class SchemaWidget extends Reflux.Component {
              * Node selected
              */
             selectedNode: null,
-            redirect : null
         };
         this.store=NamespaceStore;
     };
@@ -96,43 +93,6 @@ export default class SchemaWidget extends Reflux.Component {
             nodesWithEdge.push(tgtNode);
         }
     }
-
-    // parse(results) {
-    //     const edges=[];
-    //     const nodeIri2DS=[];
-    //     const ds2source=[];
-    //     results.forEach( b => {
-    //         // normal edge
-    //         if ( b[Rdf.NS + 'subject'] ) {
-    //             edges.push(b);
-    //         }
-    //         // dataset source specification
-    //         else if (b[Rdf.NS + 's-p-o-summary/hasDatasetSource']) {
-    //             const parseDS = (s) => s[0]['@value'];
-    //             parseDS(b[Ddo.NS + 's-p-o-summary/hasDatasetSource']).forEach( ds => {
-    //                 nodeIri2DS[b['@id']] = ds['@id']
-    //             });
-    //         }
-    //         // dataset source definition
-    //         else if (b[Rdf.NS + 's-p-o-summary/has-endpoint-url']) {
-    //             if (b[Rdf.NS + 's-p-o-summary/has-graph-iri']) {
-    //                 ds2source[b['@id']] = new NamedGraphSparqlEndpointDatasetSource(b[Rdf.NS + 's-p-o-summary/has-endpoint-url'],b[Rdf.NS + 's-p-o-summary/has-graph-iri'] );
-    //             } else {
-    //                 ds2source[b['@id']] = new SparqlEndpointDatasetSource(b[Rdf.NS + 's-p-o-summary/has-endpoint-url']);
-    //             }
-    //         }
-    //     });
-    //
-    //     console.log(edges)
-    //     console.log(nodeIri2DS)
-    //     console.log(ds2source)
-    //
-    //     return {
-    //         edges:edges,
-    //         nodeIri2DS: nodeIri2DS,
-    //         ds2source : ds2source
-    //     }
-    // }
 
     // transform data to be used with vis js
     _constructGraphData(results) {
@@ -191,21 +151,14 @@ export default class SchemaWidget extends Reflux.Component {
         if ( this.state.selectedNode) {
             this.state.selectedNode.datasetSources.map(ds => {
                 // TODO remove this nasty hack
-                b.push(<li key={ds}>
-                    {/*<Button bsStyle="link" onClick={() => this.setState({redirect: ds})}>{ds}</Button>*/}
-                    <a href={'#/dashboard/online?endpointUrl='+ds}>{ds}</a>
-                </li>);
+                b.push(<li key={ds}><a href={'#/dashboard/online?endpointUrl='+ds}>{ds}</a></li>);
             });
         }
-
-        // if (this.state.redirect) {
-        //     return <Redirect to={this.state.redirect} />
-        // }
 
         return <div>
             <Modal show={this.state.show} onHide={() => this.setState({ show: false })}>
             <Modal.Header closeButton>
-                <Modal.Title>Modal title</Modal.Title>
+                <Modal.Title>Linked Datasets</Modal.Title>
             </Modal.Header>
                 <Modal.Body><ul>{b}</ul></Modal.Body>
             </Modal>

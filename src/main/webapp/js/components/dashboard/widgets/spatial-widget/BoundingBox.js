@@ -1,6 +1,6 @@
 'use strict';
 
-class BoundingBox {
+export default class BoundingBox {
     min = [null,null];
     max = [null,null];
 
@@ -15,5 +15,3 @@ class BoundingBox {
         return [this.min, this.max];
     }
 }
-
-export default BoundingBox;

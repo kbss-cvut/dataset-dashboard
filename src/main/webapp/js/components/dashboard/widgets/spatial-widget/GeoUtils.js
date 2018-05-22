@@ -5,7 +5,7 @@ import proj4 from "proj4";
 const EPSG_5514 = "http://www.opengis.net/def/crs/EPSG/0/5514"
 proj4.defs(EPSG_5514, "+proj=krovak +lat_0=49.5 +lon_0=24.83333333333333 +alpha=30.28813972222222 +k=0.9999 +x_0=0 +y_0=0 +ellps=bessel +towgs84=589,76,480,0,0,0,0 +units=m +no_defs");
 
-class GeoUtils {
+export default class GeoUtils {
     //TODO: See GML
 
     static checkConvertible(x, y) {
@@ -104,4 +104,3 @@ class GeoUtils {
         return [pos[1], pos[0]];
     }
 }
-export default GeoUtils;

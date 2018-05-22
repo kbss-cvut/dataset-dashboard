@@ -12,6 +12,6 @@ export default class DatasetSourceLink extends React.Component {
 
     render() {
         const ds = this.props.datasetSource;
-        return ( ds.generated ? <div><DatasetSourceLabel datasetSource={ds}/></div> : <a href="#" onClick={(e) => this.onClick(e)}><DatasetSourceLabel datasetSource={ds}/></a> );
+        return ( ds.generated ? <DatasetSourceLabel datasetSource={ds}/> : <a href="#" onClick={(e) => this.onClick(e)}><DatasetSourceLabel datasetSource={ds}/></a> );
     }
 }

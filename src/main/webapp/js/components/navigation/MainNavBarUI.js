@@ -1,14 +1,19 @@
 'use strict';
 
 import React from "react";
-import {Nav, Navbar, NavItem, Button} from "react-bootstrap";
+import {Modal, Nav, Navbar, NavItem, Button} from "react-bootstrap";
 import {LinkContainer} from "react-router-bootstrap";
 import PersistentLinkContainer from "./PersistentLinkContainer";
 import SelectedDatasetSourcesLabel from "./SelectedDatasetSourcesLabel";
-import Dialog from 'react-bootstrap-dialog';
 
 const MainNavBarUI = (props) => (
     <Navbar>
+        <Modal show={props.showModal} onHide={() => props.onHideModal()}>
+            <Modal.Header closeButton>
+                <Modal.Title>Select Dataset Source</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{props.content}</Modal.Body>
+        </Modal>
         <Navbar.Header>
             <LinkContainer to="/home"><Navbar.Brand>Dataset Dashboard</Navbar.Brand></LinkContainer>
         </Navbar.Header>
@@ -19,9 +24,8 @@ const MainNavBarUI = (props) => (
             <PersistentLinkContainer/>
         </Nav>
         <Navbar.Text pullRight>
-            <Button onClick={props.onChangeDatasetSource}><SelectedDatasetSourcesLabel/></Button>
+            <Button onClick={() => props.onShowModal()}><SelectedDatasetSourcesLabel/></Button>
         </Navbar.Text>
-        <Dialog ref={(e) => props.renderDialog(e)} />
     </Navbar>
 );
 

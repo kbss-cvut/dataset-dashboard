@@ -18,11 +18,6 @@ class DatasetSourceTree extends React.Component {
 
     componentWillMount() {
         this.state.data = DatasetSourceStore.getAllDatasetSources();
-        if ( this.state.data == null ) {
-            this.props.loadingOn();
-            Actions.refreshDatasetSources();
-        }
-
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
     };
 
@@ -37,13 +32,6 @@ class DatasetSourceTree extends React.Component {
                 data: data.datasetSources,
             });
         }
-
-        if (( data.action == Actions.registerDatasetSourceEndpoint )
-            || ( data.action == Actions.registerDatasetSourceNamedGraph )
-            || ( data.action == Actions.registerDatasetUrl )) {
-            this.props.loadingOn();
-            Actions.refreshDatasetSources();
-        }
     };
 
     componentWillUnmount() {
@@ -51,7 +39,7 @@ class DatasetSourceTree extends React.Component {
     };
 
     render() {
-        return (this.state.data ?
+        const comp= (this.state.data ?
             <DatasetSourceFilterableTreeComponent
                 data={this.state.data}
                 height={400}
@@ -62,6 +50,8 @@ class DatasetSourceTree extends React.Component {
                 createKey={(item) => item.tempid + " " + item.endpointUrl + " " + item.graphId}
                 createView={(item) => <DatasetSourceLink datasetSource={item}/>}
             /> : <div>No data</div>);
+
+        return comp;
     }
 }
 export default LoadingWrapper(DatasetSourceTree, {maskClass: 'mask-container'});
