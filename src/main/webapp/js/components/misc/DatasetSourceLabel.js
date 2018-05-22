@@ -23,20 +23,20 @@ export default class DatasetSourceLabel extends Reflux.Component {
     render() {
         const ds = this.props.datasetSource;
         let label;
-        const cmp = (title) => this.props.onClick ? <a href="#" onClick={(e) => this.onClick(e)}>{title}</a> : title;
+        const cmp = (title) => this.props.onClick ? <a href="#" onClick={(e) => this.props.onClick(e)}>{title}</a> : title;
         if (ds) {
+            let title;
             if (ds.type === Ddo.SparqlEndpointDatasetSource) {
-                const title = this.s(ds.endpointUrl);
-                const comp = cmp(title);
-                label = <span data-tip={ds.id}>{comp} <a href={ds.id}>&#x2197;</a></span>
+                title = this.s(ds.endpointUrl);
             } else if (ds.type === Ddo.NamedGraphSparqlEndpointDatasetSource) {
-                label = <span data-tip={ds.id}>{this.s(ds.graphId)}<span
-                    style={{fontSize: '75%'}}>&#10148; {this.s(ds.endpointUrl)}<a href={ds.id}>&#x2197;</a></span></span>
+                title = <span><span>{this.s(ds.graphId)}</span><span
+                    style={{fontSize: '75%'}}>&#10148;{this.s(ds.endpointUrl)}</span></span>;
             } else if (ds.type === Ddo.UrlDatasetSource) {
-                label = <span data-tip={ds.id}>{this.s(ds.url)}<a href={ds.id}>&#x2197;</a></span>
+                title = this.s(ds.url);
             } else {
-                label = <span data-tip={ds.id}>{ds.id + " (unknown type)"}<a href={ds.id}>&#x2197;</a></span>
+                title = ds.id + " (unknown type)";
             }
+            label = <span data-tip={ds.id}>{cmp(title)} <a href={ds.id}>&#x2197;</a></span>
         } else {
             label = <span>No Dataset Source Selected</span>;
         }

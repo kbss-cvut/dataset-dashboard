@@ -11,6 +11,7 @@ import Tree, {TreeNode} from "rc-tree";
 import Vocabulary from "./model/Vocabulary";
 import Concept from "./model/Concept";
 import Utils from "../../../../utils/Utils";
+import {Scrollbars} from "react-custom-scrollbars";
 
 class Hierarchy extends Reflux.Component {
     constructor(props) {
