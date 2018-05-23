@@ -28,6 +28,7 @@ public class DescriptorComputerParameterRegistry {
 
         final DescriptorComputerSpecification sSpoEnh = new DescriptorComputerSpecification("compute-spo-summary-with-marginals-descriptor");
         sSpoEnh.add("marginalsDefsFileUrl", environment.getProperty("spipes.service.wdrDefsFileUrl") );
+        sSpoEnh.add("marginalsFileUrl", environment.getProperty("spipes.service.wdrFileUrl") );
         register(Vocabulary.ONTOLOGY_IRI_dataset_descriptor
                  + "/spo-summary-with-marginals-descriptor", sSpoEnh );
 

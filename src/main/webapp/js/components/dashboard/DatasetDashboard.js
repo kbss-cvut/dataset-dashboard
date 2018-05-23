@@ -41,6 +41,7 @@ export default class DashboardController extends React.Component {
         const ResponsiveReactGridLayout = WidthProvider(Responsive);
         return (<div>
                 <ResponsiveReactGridLayout
+                    draggableCancel="input,textarea"
                     className="layout"
                     layouts={layouts}
                     cols={cols}

@@ -31,7 +31,7 @@ export default class SchemaWidget extends Reflux.Component {
             /**
              * Minimal weight - edges below this weight will be discarded from the graph
              */
-            minWeight: 0,
+            minWeight: 100,
             /**
              * State for dataset sources dialog
              */
@@ -103,15 +103,24 @@ export default class SchemaWidget extends Reflux.Component {
         const fromToCount = {};
         const nodesWithEdge = [];
 
-        // const x = this.parse(results);
-
         results.forEach(function (b) {
             const from = b[Rdf.NS + 'subject'][0];
             const fromId = from['@id'];
+            if (this.props.excludedEntities.includes(fromId)) {
+                return;
+            }
+
             const pred = b[Rdf.NS + 'predicate'][0];
             const predId = pred['@id'];
+            if (this.props.excludedEntities.includes(predId)) {
+                return;
+            }
+
             const to = b[Rdf.NS + 'object'][0];
             const toId = to['@id'];
+            if (this.props.excludedEntities.includes(toId)) {
+                return;
+            }
 
             const weight = parseInt(b[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value']);
 
@@ -119,7 +128,6 @@ export default class SchemaWidget extends Reflux.Component {
 
             const sDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasSubjectDatasetSource']);
             const oDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasObjectDatasetSource']);
-
             const fromNode = SchemaUtils.ensureNodeExists(nodeMap, fromId, newNode, labelFn, sDatasetSources);
             if (SchemaUtils.isDataType(toId)) {
                 this._addDataProperty(fromNode, predId, toId, nodesWithEdge, weight)
@@ -130,7 +138,7 @@ export default class SchemaWidget extends Reflux.Component {
             }
         }.bind(this));
         return {
-            'nodes': Utils.unique(nodesWithEdge.filter(n => (!this.props.excludedEntities.includes(n.id)))),
+            'nodes': Utils.unique(nodesWithEdge),
             'edges': edges,
             nodeMap : nodeMap
         };
