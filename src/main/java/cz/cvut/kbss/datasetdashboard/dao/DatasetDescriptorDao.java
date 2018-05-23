@@ -127,18 +127,14 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
         // TODO what to do for other dataset sources (downloadUrl). Should be outside of this method.
         addType(indDatasetSource,Vocabulary.s_c_single_snapshot_dataset_source);
         String eid = getSingleProperty(dsx, Vocabulary.s_p_has_endpoint_url);
+        String gid = getSingleProperty(dsx, Vocabulary.s_p_has_graph_id);
+        addType(indDatasetSource, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
         if (eid != null ) {
             addObjectPropertyValue(indDatasetSource, Vocabulary.s_p_has_endpoint_url,
                 getDescriptorsEndpointForRealEndpoint(eid));
-            final String gid = getSingleProperty(dsx, Vocabulary.s_p_has_graph_id);
-            if (gid == null) {
-                addType(indDatasetSource, Vocabulary.s_c_sparql_endpoint_dataset_source);
-            } else {
-                addType(indDatasetSource, Vocabulary.s_c_named_graph_sparql_endpoint_dataset_source);
-                addObjectPropertyValue(indDatasetSource, Vocabulary.s_p_has_graph_id,
-                    SparqlUtils.getDescriptorGraphIri(descriptorType, gid));
-            }
         }
+        addObjectPropertyValue(indDatasetSource, Vocabulary.s_p_has_graph_id,
+            SparqlUtils.getDescriptorGraphIri(descriptorType, gid));
 
         String id = getId(indDatasetSource);
 

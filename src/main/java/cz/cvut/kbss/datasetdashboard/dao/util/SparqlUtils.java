@@ -50,8 +50,12 @@ public class SparqlUtils {
 
     public static String getDescriptorGraphIri(final String descriptorType, final String originalGraphIri) {
         try {
-            return new StringBuilder(descriptorType).append("--").append(
-                URLEncoder.encode(originalGraphIri, "utf-8")).toString();
+            final StringBuilder b = new StringBuilder(descriptorType);
+            if ( originalGraphIri != null ) {
+                b.append("--").append(
+                    URLEncoder.encode(originalGraphIri, "utf-8"));
+            }
+            return b.toString();
         } catch (UnsupportedEncodingException e) {
             LOG.warn("Url Encoding failed, using original unencoded version");
             return new StringBuilder(descriptorType).append("--").append(originalGraphIri).toString();
