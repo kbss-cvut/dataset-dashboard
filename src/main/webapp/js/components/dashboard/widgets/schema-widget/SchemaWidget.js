@@ -44,10 +44,6 @@ export default class SchemaWidget extends Reflux.Component {
         this.store=NamespaceStore;
     };
 
-    s(iri) {
-        return Utils.getShortForm(this.state.namespaces,iri);
-    }
-
     // creates a new edge from srcNode to tgtNode using label prp.
     // fromToCount counts number of parallel edges srcNode to tgtNode and is
     // used to compute roundness of these edges
@@ -55,11 +51,11 @@ export default class SchemaWidget extends Reflux.Component {
         const edge = JSON.parse(JSON.stringify(GraphDefaults.edgeTemplate()));
         edge.from = srcNode.id;
         edge.to = tgtNode.id;
-        edge.label = this.s(prp);
+        edge.label = Utils.getShortForm(this.state.namespaces,prp);
         if (this.state.showWeight) {
             edge.width = SchemaUtils.getWidth(weight);
             edge.title = "" + weight;
-            edge.label = edge.label + " (" + weight + ")";
+            edge.label += " (" + weight + ")";
         }
         let count = fromToCount[SchemaUtils.getEdgeId(srcNode.id,tgtNode.id)];
         if (!count) count = 0;
@@ -68,20 +64,41 @@ export default class SchemaWidget extends Reflux.Component {
         return edge;
     };
 
-    _updateLabel(node, prp, tgt, weight) {
-        node.label += "\n"
-            + this.s(prp)
-            + " ► "
-            + this.s(tgt);
-        if (this.state.showWeight) {
-            node.label += " (" + weight + ")";
+    setLabel(n,namespaces,showWeight) {
+        n.label = '<b>'+Utils.getShortForm(namespaces,n.id)+'</b>' ;
+        if (n.datasetSources.length > 0) {
+            n.label += ' \n( in ';
+            if (n.inDatasetClass) {
+                n.label += ' current and '
+            }
+
+            n.label += n.datasetSources.length + ' other datasets )';
         }
+        n.label += '\n';
+
+        if ( n.dp ) {
+            Object.keys(n.dp).forEach((dp) => {
+                n.label += "\n"
+                    + Utils.getShortForm(namespaces, n.dp[dp].prp)
+                    + " ► "
+                    + Utils.getShortForm(namespaces, n.dp[dp].tgt);
+                if (showWeight) {
+                    n.label += " (" + n.dp[dp].weight + ")";
+                }
+            });
+        }
+
+        return n;
     }
 
-    _addDataProperty(srcNode, prp, tgt, nodesWithEdge, weight) {
+    _addDataProperty(node, prp, tgt, nodesWithEdge, weight) {
         if (this.state.showAttributes && weight >= this.state.minWeight) {
-            this._updateLabel(srcNode, prp, tgt, weight);
-            nodesWithEdge.push(srcNode);
+            if (!node.dp) {node.dp={}}
+            if (!node.dp[prp+tgt]) {node.dp[prp+tgt] = {}}
+            node.dp[prp+tgt].prp=prp;
+            node.dp[prp+tgt].tgt=tgt;
+            node.dp[prp+tgt].weight=weight;
+            nodesWithEdge.push(node);
         }
     }
 
@@ -97,7 +114,6 @@ export default class SchemaWidget extends Reflux.Component {
     // transform data to be used with vis js
     _constructGraphData(results) {
         const newNode = () => JSON.parse(JSON.stringify(GraphDefaults.nodeTemplate()));
-        const labelFn = (iri) => Utils.getShortForm(this.state.namespaces,iri);
         const nodeMap = {};
         const edges = [];
         const fromToCount = {};
@@ -128,15 +144,16 @@ export default class SchemaWidget extends Reflux.Component {
 
             const sDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasSubjectDatasetSource']);
             const oDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasObjectDatasetSource']);
-            const fromNode = SchemaUtils.ensureNodeExists(nodeMap, fromId, newNode, labelFn, sDatasetSources);
+            const fromNode = SchemaUtils.ensureNodeExists(nodeMap, fromId, newNode, sDatasetSources);
             if (SchemaUtils.isDataType(toId)) {
                 this._addDataProperty(fromNode, predId, toId, nodesWithEdge, weight)
             } else {
-                const tgtNode = SchemaUtils.ensureNodeExists(nodeMap, toId, newNode, labelFn, oDatasetSources);
+                const tgtNode = SchemaUtils.ensureNodeExists(nodeMap, toId, newNode, oDatasetSources);
                 this._addObjectProperty(fromNode, predId, tgtNode, nodesWithEdge,
                     weight, fromToCount, edges);
             }
         }.bind(this));
+        nodesWithEdge.forEach((n) => { this.setLabel( n, this.state.namespaces, this.state.showWeight )});
         return {
             'nodes': Utils.unique(nodesWithEdge),
             'edges': edges,
@@ -150,8 +167,11 @@ export default class SchemaWidget extends Reflux.Component {
         const {nodes,edges,nodeMap} = this._constructGraphData(this.props.descriptorContent);
         const events = {
             select : (event) => {
-                const { nodes, edges } = event;
-                this.setState({ show: true, selectedNode: nodeMap[nodes[0]] });
+                const {nodes, edges} = event;
+                if (nodes.filter(n => n).length > 0)
+                {
+                    this.setState({show: true, selectedNode: nodeMap[nodes[0]]});
+                }
             }
         };
 

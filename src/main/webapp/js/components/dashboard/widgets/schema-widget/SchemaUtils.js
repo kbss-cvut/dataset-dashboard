@@ -65,20 +65,14 @@ export default class SchemaUtils {
      * @param nodeIri
      * @returns {*}
      */
-    static ensureNodeExists(nodeMap, nodeIri, newNode, label, datasetSources) {
+    static ensureNodeExists(nodeMap, nodeIri, newNode, datasetSources) {
         let n = nodeMap[nodeIri];
 
         if (!n) { // the node is not created yet
             n = newNode();
             n.id = nodeIri;
-            n.datasetSources = datasetSources.filter(ds => ds).map( ds => {
-                // if (ds.contains('graphIri')) {
-                //     // TODO nasty hack, should be passed from the server
-                // }
-                if (ds.endsWith("dataset/snapshot")) {
-                    ds = ds.substring(0,ds.length-16);
-                }
-
+            n.datasetSources = datasetSources.map( ds => {
+                // TODO nasty hack, should be passed from the server
                 return ds;
             });
             n.inDatasetClass = (n.datasetSources.length == 0)
@@ -87,17 +81,6 @@ export default class SchemaUtils {
             n.datasetSources = Utils.unique(n.datasetSources.concat(datasetSources));
             n.inDatasetClass = n.inDatasetClass || ( datasetSources.length == 0 );
         }
-
-        n.label = '<b>'+label(nodeIri)+'</b>' ;
-        if (n.datasetSources.length > 0) {
-            n.label = n.label + ' \n( in ';
-            if (n.inDatasetClass) {
-                n.label = n.label + ' current and '
-            }
-
-            n.label = n.label + n.datasetSources.length + ' other datasets )';
-        }
-        n.label = n.label + '\n';
         return n;
     };
 
