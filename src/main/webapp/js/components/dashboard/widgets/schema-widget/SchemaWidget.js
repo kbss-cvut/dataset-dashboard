@@ -124,7 +124,7 @@ export default class SchemaWidget extends Reflux.Component {
 
             const weight = parseInt(b[Ddo.NS + 's-p-o-summary/hasWeight'][0]['@value']);
 
-            const parseDS = (s) => s[0]['@value'].split(",");
+            const parseDS = (s) => s[0]['@value'].split(",").filter((x) => x);
 
             const sDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasSubjectDatasetSource']);
             const oDatasetSources = parseDS(b[Ddo.NS + 's-p-o-summary/hasObjectDatasetSource']);

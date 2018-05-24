@@ -3,6 +3,8 @@
 import Rdf from "../../../../vocabulary/Rdf";
 import Ddo from "../../../../vocabulary/Ddo";
 
+import Utils from "../../../../utils/Utils";
+
 export default class SchemaUtils {
 
     // i - index of the edge
@@ -65,10 +67,10 @@ export default class SchemaUtils {
      */
     static ensureNodeExists(nodeMap, nodeIri, newNode, label, datasetSources) {
         let n = nodeMap[nodeIri];
+
         if (!n) { // the node is not created yet
             n = newNode();
             n.id = nodeIri;
-            n.label = '<b>'+label(nodeIri)+'</b>' ;
             n.datasetSources = datasetSources.filter(ds => ds).map( ds => {
                 // if (ds.contains('graphIri')) {
                 //     // TODO nasty hack, should be passed from the server
@@ -79,12 +81,23 @@ export default class SchemaUtils {
 
                 return ds;
             });
-            if (n.datasetSources.length > 0) {
-                n.label = n.label + ' \n( in ' + n.datasetSources.length + ' other datasets )';
-            }
-            n.label = n.label + '\n';
+            n.inDatasetClass = (n.datasetSources.length == 0)
             nodeMap[nodeIri] = n;
+        } else {
+            n.datasetSources = Utils.unique(n.datasetSources.concat(datasetSources));
+            n.inDatasetClass = n.inDatasetClass || ( datasetSources.length == 0 );
         }
+
+        n.label = '<b>'+label(nodeIri)+'</b>' ;
+        if (n.datasetSources.length > 0) {
+            n.label = n.label + ' \n( in ';
+            if (n.inDatasetClass) {
+                n.label = n.label + ' current and '
+            }
+
+            n.label = n.label + n.datasetSources.length + ' other datasets )';
+        }
+        n.label = n.label + '\n';
         return n;
     };
 
