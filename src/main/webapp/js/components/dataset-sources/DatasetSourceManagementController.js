@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import DatasetSourcePanel from "./DatasetSourcePanel";
 import DatasetSourceRegistration from "./DatasetSourceRegistration";
 import MainNavBar from "../navigation/MainNavBar";

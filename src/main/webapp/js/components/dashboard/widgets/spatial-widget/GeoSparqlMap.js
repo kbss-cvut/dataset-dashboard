@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Map, Marker, Polygon, Popup, TileLayer} from "react-leaflet";
 import Geometry from "./Geometry";
 import GeoUtils from "./GeoUtils";

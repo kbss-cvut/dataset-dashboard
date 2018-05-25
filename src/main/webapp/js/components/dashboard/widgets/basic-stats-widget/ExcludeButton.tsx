@@ -1,7 +1,13 @@
-import React from "react";
+import * as React from "react";
 import {Button, Glyphicon} from "react-bootstrap";
 
-const ExcludeButton = (props) => {
+interface IProps {
+    entityIri: string
+    excludedEntities: string[],
+    onExcludeEntities: (entities: string[]) => void,
+}
+
+export const ExcludeButton : React.SFC<IProps> = (props) => {
     const id = props.entityIri;
     const excludedEntities = props.excludedEntities;
     const selected = excludedEntities.includes(id);
@@ -20,5 +26,3 @@ const ExcludeButton = (props) => {
         <Glyphicon glyph={selected ? "plus" : "minus"}/>
     </Button>;
 }
-
-export default ExcludeButton;

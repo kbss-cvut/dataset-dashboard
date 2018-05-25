@@ -1,7 +1,7 @@
 'use strict';
 
-import React from "react";
-import MainNavBar from "../navigation/MainNavBar";
+import * as React from "react";
+import {MainNavBar} from "../navigation/MainNavBar";
 import NamespaceList from "../namespaces/NamespaceList";
 
 const NamespaceManagementController = () => (

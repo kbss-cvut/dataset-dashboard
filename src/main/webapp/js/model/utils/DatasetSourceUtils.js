@@ -4,8 +4,8 @@ import Ddo from '../../vocabulary/Ddo';
 import NamedGraphSparqlEndpointDatasetSource from '../NamedGraphSparqlEndpointDatasetSource';
 import SparqlEndpointDatasetSource from '../SparqlEndpointDatasetSource';
 
-module.exports = {
-    toQueryString: function (ds) {
+export class DatasetSourceUtils {
+    static toQueryString(ds) {
         if (!ds) {
             return null;
         }
@@ -19,9 +19,9 @@ module.exports = {
         } else {
             return null;
         }
-    },
+    }
 
-    create(ds) {
+    static create(ds) {
         let datasetSource;
         if (ds.type === Ddo.NamedGraphSparqlEndpointDatasetSource) {
             datasetSource = new NamedGraphSparqlEndpointDatasetSource(ds.endpointUrl, ds.graphId);
@@ -38,4 +38,4 @@ module.exports = {
             throw new Error("Unknown dataset source type - " + ds.type);
         }
     }
-};
+}

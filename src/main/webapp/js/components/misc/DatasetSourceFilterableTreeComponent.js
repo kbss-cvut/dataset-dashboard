@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {FormControl} from "react-bootstrap";
 import Tree, {SHOW_PARENT, TreeNode} from "rc-tree";
 import {Scrollbars} from "react-custom-scrollbars";

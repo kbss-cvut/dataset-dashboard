@@ -5,7 +5,7 @@ export default class BoundingBox {
     max = [null,null];
 
     add(p) {
-        if (!p || !p[0] || !p[1]) {
+        if (!p || p[0] === undefined || p[1] === undefined ) {
             console.log("Invalid point : " + p);
             return;
         }

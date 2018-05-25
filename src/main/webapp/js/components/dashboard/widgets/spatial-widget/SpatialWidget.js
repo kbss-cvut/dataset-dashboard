@@ -1,7 +1,7 @@
 'use strict';
 
-import React from "react";
-import DatasetSourceStore from "../../../../stores/DatasetSourceStore";
+import * as React from "react";
+import {DatasetSourceStore} from "../../../../stores/DatasetSourceStore";
 import Actions from "../../../../actions/Actions";
 import LoadingWrapper from "../../../misc/LoadingWrapper";
 import SelectGeoSparqlFeature from "./SelectGeoSparqlFeature";

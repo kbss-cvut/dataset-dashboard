@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Button, ControlLabel, FormControl, FormGroup, Panel} from "react-bootstrap";
 import Actions from "../../actions/Actions";
 

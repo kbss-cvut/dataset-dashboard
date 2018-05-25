@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Dropdown, MenuItem} from "react-bootstrap";
 
 export default class DescriptorWidgetSelector extends React.Component {

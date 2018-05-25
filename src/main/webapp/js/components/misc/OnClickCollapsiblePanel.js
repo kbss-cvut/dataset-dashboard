@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Panel, Button} from "react-bootstrap";
 
 export default class OnClickCollapsiblePanel extends React.Component {

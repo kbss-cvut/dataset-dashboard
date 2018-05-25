@@ -1,7 +1,7 @@
 'use strict';
 
 import Reflux from "reflux";
-import jsonld from "jsonld";
+import {flatten} from "jsonld";
 import Actions from "../actions/Actions";
 import Ajax from "../utils/Ajax";
 import Logger from "../utils/Logger";
@@ -9,12 +9,12 @@ import Utils from "../utils/Utils";
 import NamedGraphSparqlEndpointDatasetSource from "../model/NamedGraphSparqlEndpointDatasetSource";
 import SparqlEndpointDatasetSource from "../model/SparqlEndpointDatasetSource";
 import UrlDatasetSource from "../model/UrlDatasetSource";
-import DatasetSourceUtils from "../model/utils/DatasetSourceUtils";
+import {DatasetSourceUtils} from "../model/utils/DatasetSourceUtils";
 import Ddo from "../vocabulary/Ddo";
 
 const datasetSourcesAdHoc = require('../../resources/dataset-sources/ad-hoc.json');
 
-const DatasetSourceStore = Reflux.createStore({
+export const DatasetSourceStore = Reflux.createStore({
 
     base: 'rest/dataset-source',
 
@@ -181,7 +181,7 @@ const DatasetSourceStore = Reflux.createStore({
             }) + "&" + Utils.createQueryParams(params)
         Ajax.get(url).end(function (data) {
             const that = this;
-            jsonld.flatten(data, function (err, canonical) {
+            flatten(data, function (err, canonical) {
                 if (err) {
                     toSend.error = err
                     _executeQueryFail(toSend)
@@ -216,5 +216,3 @@ const DatasetSourceStore = Reflux.createStore({
         return this.base + "/" + path + "?" + Utils.createQueryParams(queryParamMap)
     }
 });
-
-module.exports = DatasetSourceStore;

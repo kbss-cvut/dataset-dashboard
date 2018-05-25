@@ -18,10 +18,6 @@ export default class NamespaceStore extends Reflux.Store {
         this.addPrefixes(namespacesAdHoc);
     }
 
-    list() {
-        return this.state.namespaces;
-    }
-
     addPrefixes(data) {
         const namespaces = this.state.namespaces;
         Object.keys(data).forEach((key) => {

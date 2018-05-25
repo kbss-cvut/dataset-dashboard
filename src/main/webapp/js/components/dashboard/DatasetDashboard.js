@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import VocabularyWidget from "./widgets/vocabulary-widget/VocabularyWidget";
 import SchemaWidget from "./widgets/schema-widget/SchemaWidget";
 import SpatialWidget from "./widgets/spatial-widget/SpatialWidget";
@@ -12,7 +12,7 @@ import WidgetPanel from "./widgets/WidgetPanel";
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import Ddo from "../../vocabulary/Ddo";
 
-export default class DashboardController extends React.Component {
+export class DatasetDashboard extends React.Component {
     render() {
         const sm = [
             // {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
@@ -50,7 +50,7 @@ export default class DashboardController extends React.Component {
                         title="Summary Schema"
                         widget={(content, excludedEntities) => <SchemaWidget descriptorContent={content} excludedEntities={excludedEntities}/>}
                         descriptorQuery="spo/spo-summary"
-                        descriptorTypeIris={[Ddo.NS + "spo-summary-with-marginals-descriptor", Ddo.NS + "spo-summary-descriptor"]}/>}</div>
+                        descriptorTypeIris={[Ddo.NS + "spo-summary-with-marginals-descriptor", Ddo.NS + "spo-summary-descriptor", Ddo.NS+"spo-summary-with-marginals--worldlod--baseline--descriptor"]}/>}</div>
                     <div key="righttop">{<FullscreenWidgetPanelUI title="Classes" widget={<ClassPartitionWidget/>} />}</div>
                     <div key="rightcenter">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
                     <div key="rightbottom">{<WidgetPanel

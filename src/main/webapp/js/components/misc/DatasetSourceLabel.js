@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import Reflux from "reflux";
 
 import NamespaceStore from "../../stores/NamespaceStore";

@@ -1,7 +1,7 @@
 'use strict';
 
-import React from "react";
-import PropTypes from "prop-types";
+import * as React from "react";
+import * as PropTypes from "prop-types";
 import {Glyphicon, Label} from "react-bootstrap";
 
 export default class EntityFilterUI extends React.Component {

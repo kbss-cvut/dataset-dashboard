@@ -1,10 +1,10 @@
 'use strict';
 
 import { parse } from 'qs'
-import React from "react";
-import DatasetSourceStore from "../../stores/DatasetSourceStore";
+import * as React from "react";
+import {DatasetSourceStore} from "../../stores/DatasetSourceStore";
 import Actions from "../../actions/Actions";
-import DatasetDashboardController from "./DatasetDashboardController";
+import { DatasetDashboardController } from "./DatasetDashboardController";
 import LoadingWrapper from "../misc/LoadingWrapper";
 
 class PersistentDatasetDashboardController extends React.Component {

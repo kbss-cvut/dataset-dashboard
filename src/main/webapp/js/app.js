@@ -1,9 +1,9 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {HashRouter as Router, Route, Switch} from "react-router-dom";
-import ReactDOM from "react-dom";
-import DatasetDashboardController from "./components/dashboard/DatasetDashboardController";
+import * as ReactDOM from "react-dom";
+import {DatasetDashboardController} from "./components/dashboard/DatasetDashboardController";
 import PersistentDatasetDashboardController from "./components/dashboard/PeristentDatasetDashboardController";
 // import DatasetSourceManagementController from "./components/dataset-sources/DatasetSourceManagementController";
 import NamespaceManagementController from "./components/namespaces/NamespaceManagementController";

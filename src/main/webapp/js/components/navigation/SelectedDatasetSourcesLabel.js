@@ -1,10 +1,10 @@
 'use strict';
 
-import React from "react";
-import DatasetSourceStore from "../../stores/DatasetSourceStore";
+import * as React from "react";
+import {DatasetSourceStore} from "../../stores/DatasetSourceStore";
 import DatasetSourceLabel from "../misc/DatasetSourceLabel";
 
-export default class SelectedDatasetSourcesLabel extends React.Component {
+export class SelectedDatasetSourcesLabel extends React.Component {
 
     componentWillMount() {
         this.unsubscribe = DatasetSourceStore.listen((data) => this.reload());

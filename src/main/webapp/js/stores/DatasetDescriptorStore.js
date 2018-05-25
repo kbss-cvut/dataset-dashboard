@@ -1,7 +1,7 @@
 'use strict';
 
 import Reflux from "reflux";
-import jsonld from "jsonld";
+import {flatten}  from "jsonld";
 import Actions from "../actions/Actions";
 import Ajax from "../utils/Ajax";
 import Logger from "../utils/Logger";
@@ -9,7 +9,7 @@ import Logger from "../utils/Logger";
 const BASE_URL = 'rest/dataset-descriptor';
 const ACTIONS_URL = BASE_URL+'/actions';
 
-const DatasetDescriptorStore = Reflux.createStore({
+export const DatasetDescriptorStore = Reflux.createStore({
 
     listenables: [Actions],
 
@@ -28,7 +28,7 @@ const DatasetDescriptorStore = Reflux.createStore({
         }
         Ajax.get(url).end(function (data) {
             const that = this;
-            jsonld.flatten(data, function (err, canonical) {
+            flatten(data, function (err, canonical) {
                 toSend.descriptor.content = canonical;
                 that.trigger(toSend);
             });
@@ -71,5 +71,3 @@ const DatasetDescriptorStore = Reflux.createStore({
         }.bind(this));
     }
 });
-
-module.exports = DatasetDescriptorStore;

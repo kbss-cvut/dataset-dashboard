@@ -1,15 +1,15 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Grid, Jumbotron, Row} from "react-bootstrap";
-import DatasetDashboard from "./DatasetDashboard";
-import DatasetSourceStore from "../../stores/DatasetSourceStore";
-import MainNavBar from "../navigation/MainNavBar";
+import {DatasetDashboard} from "./DatasetDashboard";
+import {DatasetSourceStore} from "../../stores/DatasetSourceStore";
+import {MainNavBar} from "../navigation/MainNavBar";
 import Actions from "../../actions/Actions";
-import EntityFilter from "./EntityFilter";
-import ReactTooltip from "react-tooltip";
+import {EntityFilter} from "./EntityFilter";
+// import {ReactTooltip} from "react-tooltip";
 
-export default class DatasetDashboardController extends React.Component {
+export class DatasetDashboardController extends React.Component {
 
     constructor(props) {
         super(props);
@@ -54,10 +54,10 @@ export default class DatasetDashboardController extends React.Component {
                         </p>
                     </Jumbotron>
                     }
-                <ReactTooltip className="tooltipContent" />
+                {/*<ReactTooltip className="tooltipContent" />*/}
             </div>
         );
-        ReactTooltip.rebuild();
+        // ReactTooltip.rebuild();
         return x;
     }
 }

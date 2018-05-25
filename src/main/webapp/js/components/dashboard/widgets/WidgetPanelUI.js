@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {ButtonToolbar, Col, Panel, Row} from "react-bootstrap";
 
 export default class WidgetPanelUI extends React.Component {

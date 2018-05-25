@@ -1,11 +1,11 @@
 'use strict';
 
-import React from "react";
-import MainNavBarUI from "./MainNavBarUI";
+import * as React from "react";
+import {MainNavBarUI} from "./MainNavBarUI";
 import DatasetSourceTree from '../dataset-sources/DatasetSourceTree';
-import RefreshDatasetSourcesButton from '../dataset-sources/RefreshDatasetSourcesButton';
+import {RefreshDatasetSourcesButton} from '../dataset-sources/RefreshDatasetSourcesButton';
 
-export default class MainNavBar extends React.Component {
+export class MainNavBar extends React.Component {
 
     constructor(props)
     {

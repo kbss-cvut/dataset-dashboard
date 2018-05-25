@@ -1,8 +1,8 @@
 'use strict';
 
-import qs from "qs"
+import * as qs from "qs"
 
-var Utils = {
+const Utils = {
     getJsonLdFirst: function getFirst( r, prop ) {
         return  ((r && r.length > 0) ? r[0][prop] : null);
     },
@@ -132,4 +132,4 @@ var Utils = {
 
 };
 
-module.exports = Utils;
+export default Utils;

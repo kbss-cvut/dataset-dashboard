@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import Reflux from "reflux";
 
 import EntityFilterUI from "./EntityFilterUI";
@@ -11,7 +11,7 @@ import NamespaceStore from "../../stores/NamespaceStore";
 
 import Utils from "../../utils/Utils";
 
-export default class EntityFilter extends Reflux.Component {
+export class EntityFilter extends Reflux.Component {
 
     constructor(props)
     {

@@ -1,8 +1,8 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import {Button,Glyphicon} from "react-bootstrap";
-import PropTypes from "prop-types";
+import * as PropTypes from "prop-types";
 
 export default class FullscreenButton extends React.Component {
     render() {

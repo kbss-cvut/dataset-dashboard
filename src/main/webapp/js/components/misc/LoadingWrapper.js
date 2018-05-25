@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 // import getDisplayName from "../../../utils/getDisplayName";
 import Mask from "./Mask";
 

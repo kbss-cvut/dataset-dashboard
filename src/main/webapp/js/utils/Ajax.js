@@ -7,7 +7,7 @@ var Logger = require('./Logger');
 
 var csrfTokenHeader = 'X-CSRF-Token';
 
-var Ajax = {
+const Ajax = {
     req: null,
 
     getCsrfToken: function () {
@@ -113,4 +113,4 @@ var Ajax = {
     }
 };
 
-module.exports = Ajax;
+export default Ajax;

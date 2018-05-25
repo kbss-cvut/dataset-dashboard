@@ -1,11 +1,19 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
+import * as Reflux from "reflux";
 import NamespaceStore from "../../stores/NamespaceStore";
 
-export default class NamespaceList extends React.Component {
+export default class NamespaceList extends Reflux.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+        this.store = NamespaceStore;
+    }
+
     render() {
-        const d = NamespaceStore.list();
+        const d = this.state.namespaces;
         return (<BootstrapTable data={Object.keys(d).map((k) => {
             return {"namespace": k, "prefix": d[k]};
         })} striped={true} hover={true} condensed>

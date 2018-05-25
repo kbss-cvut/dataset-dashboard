@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import ClassPartitionWidgetComponent from "./ClassPartitionWidgetComponent";
 
 import SingleSparqlWidget from '../SingleSparqlWidget';

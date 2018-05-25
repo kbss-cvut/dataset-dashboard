@@ -1,8 +1,8 @@
 'use strict';
 
-const Reflux = require('reflux');
+import * as Reflux from 'reflux';
 
-module.exports = Reflux.createActions([
+const Actions = Reflux.createActions([
     'registerDatasetSourceEndpoint',
     'registerDatasetSourceNamedGraph',
     'registerDatasetUrl',
@@ -17,3 +17,5 @@ module.exports = Reflux.createActions([
     'getDescriptorContent',
     'excludeEntities'
 ]);
+
+export default Actions;

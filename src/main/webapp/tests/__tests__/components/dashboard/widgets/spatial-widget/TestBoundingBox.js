@@ -20,6 +20,7 @@ describe("A BoundingBox Test", function() {
         b.add([-6,9])
         b.add([-1,0])
         b.add([-3,1])
+        console.log(b.getBounds())
         expect(b.getBounds()).toEqual([[-6,0],[8,9]]);
     });
 });

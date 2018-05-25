@@ -1,8 +1,8 @@
 'use strict';
 
-import React from "react";
-import Reflux from "reflux";
-import DatasetSourceStore from "../../../stores/DatasetSourceStore";
+import * as React from "react";
+import * as Reflux from "reflux";
+import {DatasetSourceStore} from "../../../stores/DatasetSourceStore";
 import DashboardContextStore from "../../../stores/DashboardContextStore";
 import Actions from "../../../actions/Actions";
 import LoadingWrapper from "../../misc/LoadingWrapper";

@@ -1,21 +1,19 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import Reflux from "reflux";
-import { TableHeaderColumn } from 'react-bootstrap-table';
+import { TableHeaderColumn } from "react-bootstrap-table";
 
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
-import Table from './Table';
-
-import ExcludeButton from "./ExcludeButton";
-import IncludedExcludedResource from "./IncludedExcludedResource";
+import Table from "./Table";
+import {IncludedExcludedResource} from "./IncludedExcludedResource";
+import {ExcludeButton} from "./ExcludeButton";
 
 export default class ClassPartitionWidgetComponent extends Reflux.Component {
 
-    constructor(props)
-    {
+    constructor(props) {
         super(props);
         this.state = {};
         this.store = NamespaceStore;
@@ -44,7 +42,7 @@ export default class ClassPartitionWidgetComponent extends Reflux.Component {
                   excludedEntities={excludedEntities}
                   onExcludeEntities={this.props.onExcludeEntities}/>}}
             width={actionColWidth}>
-        </TableHeaderColumn>)
+        </TableHeaderColumn>);
         columns.push(<TableHeaderColumn
             key="class"
             dataField="class"
@@ -57,10 +55,8 @@ export default class ClassPartitionWidgetComponent extends Reflux.Component {
                     label={Utils.getShortForm(this.state.namespaces, cell)}
                     excluded={excludedEntities.includes(cell)}></IncludedExcludedResource> }}>
                     class
-        </TableHeaderColumn>)
-        columns.push(<TableHeaderColumn key="entities" dataField="entities" dataSort={true} width={numberColWidth}>instances</TableHeaderColumn>)
-        return(
-            <Table data={data} selectColumnDataField="select" columns={columns} sortName="entities"/>
-        );
+        </TableHeaderColumn>);
+        columns.push(<TableHeaderColumn key="entities" dataField="entities" dataSort={true} width={numberColWidth}>instances</TableHeaderColumn>);
+        return( <Table data={data} selectColumnDataField="select" columns={columns} sortName="entities"/> );
     };
 }

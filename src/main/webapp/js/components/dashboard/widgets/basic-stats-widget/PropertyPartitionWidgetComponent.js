@@ -1,15 +1,15 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import Reflux from "reflux";
-import {TableHeaderColumn} from "react-bootstrap-table";
+import { TableHeaderColumn } from "react-bootstrap-table";
 
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import Table from "./Table";
-import IncludedExcludedResource from "./IncludedExcludedResource";
-import ExcludeButton from "./ExcludeButton";
+import {IncludedExcludedResource} from "./IncludedExcludedResource";
+import {ExcludeButton} from "./ExcludeButton";
 
 export default class PropertyPartitionWidgetComponent extends Reflux.Component {
 
@@ -44,20 +44,27 @@ export default class PropertyPartitionWidgetComponent extends Reflux.Component {
                 excludedEntities={excludedEntities}
                 onExcludeEntities={this.props.onExcludeEntities}/>}}
             width={actionColWidth}>
-        </TableHeaderColumn>)
-        columns.push(<TableHeaderColumn key="property" dataField="property" isKey={true} dataSort={true}
-                                        filter={ { type: 'TextFilter' } }
-                                        dataFormat={(cell,row) =>
-                                        {return <IncludedExcludedResource
-                                            entityIri={cell}
-                                            label={Utils.getShortForm(this.state.namespaces, cell)}
-                                            excluded={excludedEntities.includes(cell)}></IncludedExcludedResource> }}>property</TableHeaderColumn>)
+        </TableHeaderColumn>);
+        columns.push(<TableHeaderColumn
+            key="property"
+            dataField="property"
+            isKey={true}
+            dataSort={true}
+            filter={ { type: 'TextFilter' } }
+            dataFormat={(cell,row) =>
+                {return <IncludedExcludedResource
+                    entityIri={cell}
+                    label={Utils.getShortForm(this.state.namespaces, cell)}
+                    excluded={excludedEntities.includes(cell)}>
+                </IncludedExcludedResource> }}>
+            property
+        </TableHeaderColumn>);
         columns.push(<TableHeaderColumn key="triples" dataField="triples" dataSort={true}
-                                        width={numberColWidth}>triples</TableHeaderColumn>)
+                                        width={numberColWidth}>triples</TableHeaderColumn>);
         columns.push(<TableHeaderColumn key="distinctSubjects" dataField="distinctSubjects" dataSort={true}
-                                        width={numberColWidth}>dist.sbj</TableHeaderColumn>)
+                                        width={numberColWidth}>dist.sbj</TableHeaderColumn>);
         columns.push(<TableHeaderColumn key="distinctObjects" dataField="distinctObjects" dataSort={true}
-                                        width={numberColWidth}>dist.obj</TableHeaderColumn>)
+                                        width={numberColWidth}>dist.obj</TableHeaderColumn>);
         return (<Table data={data} columns={columns} sortName="triples"/>);
     };
 }

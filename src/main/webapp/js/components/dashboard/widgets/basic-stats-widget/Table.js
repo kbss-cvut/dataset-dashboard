@@ -1,6 +1,6 @@
 'use strict';
 
-import React from "react";
+import * as React from "react";
 import { BootstrapTable } from 'react-bootstrap-table';
 
 export default class Table extends React.Component {
