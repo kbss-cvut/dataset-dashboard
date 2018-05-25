@@ -77,12 +77,12 @@
     "watchifyDir": "target/dataset-dashboard-0.0.1"
   },
   "scripts": {
-    "create-dirs": "mkdir -p $npm_package_config_buildDir",
-    "start": "npm run create-dirs & mkdir -p $npm_package_config_watchifyDir/js & watchify -o $npm_package_config_watchifyDir/js/bundle.js -p tsify -vd js/app.js",
+    "create-dirs": "mkdir -p $npm_package_config_buildDir/js & mkdir -p $npm_package_config_buildDir/resources/css",
+    "start": "npm run create-dirs & watchify -o $npm_package_config_watchifyDir/js/bundle.js -p tsify -vd js/app.js",
     "test": "npm run create-dirs & jasmine JASMINE_CONFIG_PATH=tests/jasmine.json",
     "browserify": "npm run create-dirs & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t -o $npm_package_config_buildDir/js/bundle.js",
-    "build-js": "npm run create-dirs & mkdir -p $npm_package_config_buildDir/js & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > $npm_package_config_buildDir/js/bundle.js",
-    "build-css": "npm run create-dirs & mkdir -p $npm_package_config_buildDir/resources/css & cleancss --skip-rebase -d -o $npm_package_config_buildDir/resources/css/dd.css resources/css/dd.css",
+    "build-js": "npm run create-dirs & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > $npm_package_config_buildDir/js/bundle.js",
+    "build-css": "npm run create-dirs & cleancss --skip-rebase -d -o $npm_package_config_buildDir/resources/css/dd.css resources/css/dd.css",
     "build": "npm run build-css & npm run build-js",
     "prebuild": "npm install",
     "lint": "eslint js"
