@@ -8,7 +8,8 @@ import NamespaceStore from "../../../../stores/NamespaceStore";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
 import Table from "./Table";
-import RenderUtils from "./RenderUtils";
+import IncludedExcludedResource from "./IncludedExcludedResource";
+import ExcludeButton from "./ExcludeButton";
 
 export default class PropertyPartitionWidgetComponent extends Reflux.Component {
 
@@ -25,7 +26,6 @@ export default class PropertyPartitionWidgetComponent extends Reflux.Component {
             .map(r => {
                 const id = Utils.getJsonLdFirst(r[Void.PROPERTY],'@id');
                 return {
-                    'select': excludedEntities.includes(id),
                     'property': id,
                     'triples': Utils.getJsonLdFirst(r[Void.TRIPLES], "@value"),
                     'distinctSubjects': Utils.getJsonLdFirst(r[Void.DISTINCT_SUBJECTS], ['@value']),
@@ -35,12 +35,23 @@ export default class PropertyPartitionWidgetComponent extends Reflux.Component {
         const actionColWidth = "50";
         const numberColWidth = "80";
         const columns = [];
-        columns.push(<TableHeaderColumn key="select" dataField="select"
-                                        dataFormat={(cell, row) => RenderUtils.formatSelect(cell, row.property, excludedEntities, (e) => this.props.onExcludeEntities(e))}
-                                        width={actionColWidth}></TableHeaderColumn>)
+        columns.push(<TableHeaderColumn
+            key="select"
+            dataField="property"
+            dataFormat={(cell,row) =>
+            {return <ExcludeButton
+                entityIri={cell}
+                excludedEntities={excludedEntities}
+                onExcludeEntities={this.props.onExcludeEntities}/>}}
+            width={actionColWidth}>
+        </TableHeaderColumn>)
         columns.push(<TableHeaderColumn key="property" dataField="property" isKey={true} dataSort={true}
                                         filter={ { type: 'TextFilter' } }
-                                        dataFormat={(cell, row) => RenderUtils.format(this.state.namespaces,cell, row.select)}>property</TableHeaderColumn>)
+                                        dataFormat={(cell,row) =>
+                                        {return <IncludedExcludedResource
+                                            entityIri={cell}
+                                            label={Utils.getShortForm(this.state.namespaces, cell)}
+                                            excluded={excludedEntities.includes(cell)}></IncludedExcludedResource> }}>property</TableHeaderColumn>)
         columns.push(<TableHeaderColumn key="triples" dataField="triples" dataSort={true}
                                         width={numberColWidth}>triples</TableHeaderColumn>)
         columns.push(<TableHeaderColumn key="distinctSubjects" dataField="distinctSubjects" dataSort={true}

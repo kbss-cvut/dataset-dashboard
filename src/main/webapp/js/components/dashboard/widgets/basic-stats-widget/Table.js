@@ -3,7 +3,7 @@
 import React from "react";
 import { BootstrapTable } from 'react-bootstrap-table';
 
-class Table extends React.Component {
+export default class Table extends React.Component {
     render() {
         let options = {
             sortName: this.props.sortName,
@@ -28,5 +28,3 @@ class Table extends React.Component {
         );
     };
 }
-
-export default Table;

@@ -54,7 +54,7 @@ class SingleSparqlWidget extends Reflux.Component {
         return( <div> {this.props.widget(
             this.state.data,
             this.state.excludedEntities,
-            (entities) => Actions.excludeEntities(entities))}
+            Actions.excludeEntities)}
         </div>);
     };
 }
