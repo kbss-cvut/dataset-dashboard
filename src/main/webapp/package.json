@@ -77,8 +77,8 @@
     "start": "watchify -o $npm_package_buildDir/js/bundle.js -p tsify -vd js/app.js",
     "test": "jasmine JASMINE_CONFIG_PATH=tests/jasmine.json",
     "browserify": "browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t -o $npm_package_buildDir/js/bundle.js",
-    "build-js": "browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > $npm_package_buildDir/js/bundle.js",
-    "build-css": "cleancss --skip-rebase -d -o $npm_package_buildDir/resources/css/dd.css resources/css/dd.css",
+    "build-js": "mkdir -p $npm_package_buildDir/js & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > $npm_package_buildDir/js/bundle.js",
+    "build-css": "mkdir -p $npm_package_buildDir/resources/css & cleancss --skip-rebase -d -o $npm_package_buildDir/resources/css/dd.css resources/css/dd.css",
     "build": "npm run build-css & npm run build-js",
     "prebuild": "npm install",
     "lint": "eslint js"

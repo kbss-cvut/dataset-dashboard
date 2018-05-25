@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es7"
+    ],
+    "jsx": "react"
+  },
+  "include": [
+    "./js/**/*"
+  ]
+}
