@@ -1,13 +1,13 @@
 import * as React from "react";
 import {Button, Glyphicon} from "react-bootstrap";
 
-interface IProps {
-    entityIri: string
+interface Props {
+    entityIri: string,
     excludedEntities: string[],
     onExcludeEntities: (entities: string[]) => void,
 }
 
-export const ExcludeButton : React.SFC<IProps> = (props) => {
+export const ExcludeButton : React.SFC<Props> = (props) => {
     const id = props.entityIri;
     const excludedEntities = props.excludedEntities;
     const selected = excludedEntities.includes(id);

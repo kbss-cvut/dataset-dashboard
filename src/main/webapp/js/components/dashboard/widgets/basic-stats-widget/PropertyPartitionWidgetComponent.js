@@ -7,7 +7,7 @@ import { TableHeaderColumn } from "react-bootstrap-table";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Void from "../../../../vocabulary/Void";
 import Utils from "../../../../utils/Utils";
-import Table from "./Table";
+import {Table} from "./Table";
 import {IncludedExcludedResource} from "./IncludedExcludedResource";
 import {ExcludeButton} from "./ExcludeButton";
 
