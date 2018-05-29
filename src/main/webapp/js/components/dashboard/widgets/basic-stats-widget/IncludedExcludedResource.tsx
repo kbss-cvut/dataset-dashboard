@@ -1,12 +1,12 @@
 import * as React from "react";
 
-interface IProps {
+interface Props {
     entityIri: string
     label: string,
     excluded: boolean,
 }
 
-export const IncludedExcludedResource: React.SFC<IProps> = (props) => {
+export const IncludedExcludedResource: React.SFC<Props> = (props) => {
     let component = <span>{props.label}</span>;
     if (props.excluded) {
         component = <del> {component} </del>

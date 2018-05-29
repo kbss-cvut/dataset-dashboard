@@ -37,8 +37,6 @@
     "react-router-dom": "4.2.2",
     "react-spinners": "0.3.2",
     "react-tooltip": "3.5.0",
-    "react-vis": "1.9.2",
-    "recharts": "0.22.5",
     "reflux": "~6.4.1",
     "remarkable": "~1.7.1",
     "superagent": "~3.8.3",

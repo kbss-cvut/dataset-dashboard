@@ -24,7 +24,7 @@ export default class Geometry {
     }
 
     addPolyline(polyline) {
-        this.polyline.push(polyline);
+        this.polylines.push(polyline);
         // TODO update bounding box
     }
 

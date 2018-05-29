@@ -6,7 +6,7 @@ import {DatasetSourceStore} from "../../../stores/DatasetSourceStore";
 import {DatasetDescriptorStore} from "../../../stores/DatasetDescriptorStore";
 import DashboardContextStore from "../../../stores/DashboardContextStore";
 import Actions from "../../../actions/Actions";
-import DescriptorWidgetSelector from "./DescriptorWidgetSelector";
+import {DescriptorWidgetSelector} from "./DescriptorWidgetSelector";
 import FullscreenWidgetPanelUI from "./FullscreenWidgetPanelUI";
 import LoadingWrapper from "../../misc/LoadingWrapper";
 import {Button, Glyphicon} from "react-bootstrap";
