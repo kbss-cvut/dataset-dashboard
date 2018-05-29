@@ -7,14 +7,14 @@ import {PersistentLinkContainer} from "./PersistentLinkContainer";
 import {SelectedDatasetSourcesLabel} from "./SelectedDatasetSourcesLabel";
 
 interface Props {
-    showModal : boolean,
-    onShowModal : () => void,
-    onHideModal : () => void,
-    content : string
+    showModal: boolean,
+    onShowModal: () => void,
+    onHideModal: () => void,
+    content: string
 }
 
-export const MainNavBarUI: React.SFC<Props> = props => {
-    return (<Navbar>
+export const MainNavBarUI: React.SFC<Props> = props =>
+    (<Navbar>
         <Modal show={props.showModal} onHide={() => props.onHideModal()}>
             <Modal.Header closeButton>
                 <Modal.Title>Select Dataset Source</Modal.Title>
@@ -34,4 +34,4 @@ export const MainNavBarUI: React.SFC<Props> = props => {
             <Button onClick={() => props.onShowModal()}><SelectedDatasetSourcesLabel/></Button>
         </Navbar.Text>
     </Navbar>);
-}
+
