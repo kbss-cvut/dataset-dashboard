@@ -2,7 +2,7 @@
 
 import * as React from "react";
 // import getDisplayName from "../../../utils/getDisplayName";
-import Mask from "./Mask";
+import {Mask} from "./Mask";
 
 /**
  * Higher order component which provides loading mask facilities to the wrapped component.

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Reflux from "reflux";
 
-import EntityFilterUI from "./EntityFilterUI";
+import {EntityFilterUI} from "./EntityFilterUI";
 import Actions from "../../actions/Actions";
 
 import DashboardContextStore from "../../stores/DashboardContextStore";

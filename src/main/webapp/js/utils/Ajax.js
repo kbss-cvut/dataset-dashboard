@@ -1,11 +1,11 @@
 'use strict';
 
-var request = require('superagent');
-var Cookies = require('js-cookie');
+const request = require('superagent');
+const Cookies = require('js-cookie');
 
-var Logger = require('./Logger');
+import Logger from "./Logger";
 
-var csrfTokenHeader = 'X-CSRF-Token';
+const csrfTokenHeader = 'X-CSRF-Token';
 
 const Ajax = {
     req: null,

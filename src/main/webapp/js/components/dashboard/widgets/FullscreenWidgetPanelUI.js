@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Fullscreenable from "react-fullscreenable";
-import FullscreenButton from "./FullscreenButton";
+import {FullscreenButton} from "./FullscreenButton";
 import WidgetPanelUI from "./WidgetPanelUI";
 
 class FullscreenWidgetPanelUI extends React.Component {
