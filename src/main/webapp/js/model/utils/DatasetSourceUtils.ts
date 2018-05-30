@@ -3,6 +3,7 @@
 import Ddo from '../../vocabulary/Ddo';
 import NamedGraphSparqlEndpointDatasetSource from '../NamedGraphSparqlEndpointDatasetSource';
 import SparqlEndpointDatasetSource from '../SparqlEndpointDatasetSource';
+import UrlDatasetSource from "../UrlDatasetSource";
 
 export class DatasetSourceUtils {
     static toQueryString(ds) {
