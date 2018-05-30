@@ -3,13 +3,12 @@
 import * as React from "react";
 import DatasetSourcePanel from "./DatasetSourcePanel";
 import DatasetSourceRegistration from "./DatasetSourceRegistration";
-import MainNavBar from "../navigation/MainNavBar";
+import {MainNavBar} from "../navigation/MainNavBar";
 
-const DatasetSourceManagementController = () => (
+export const DatasetSourceManagementController : React.SFC = (props) => (
     <div>
         <MainNavBar/>
         <DatasetSourceRegistration/>
         <DatasetSourcePanel/>
     </div>
 );
-export default DatasetSourceManagementController;

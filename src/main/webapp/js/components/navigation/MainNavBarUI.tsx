@@ -5,12 +5,13 @@ import {Button, Modal, Nav, Navbar, NavItem} from "react-bootstrap";
 import {LinkContainer} from "react-router-bootstrap";
 import {PersistentLinkContainer} from "./PersistentLinkContainer";
 import {SelectedDatasetSourcesLabel} from "./SelectedDatasetSourcesLabel";
+import {ReactElement} from "react";
 
 interface Props {
     showModal: boolean,
     onShowModal: () => void,
     onHideModal: () => void,
-    content: string
+    content: ReactElement<any>
 }
 
 export const MainNavBarUI: React.SFC<Props> = props =>

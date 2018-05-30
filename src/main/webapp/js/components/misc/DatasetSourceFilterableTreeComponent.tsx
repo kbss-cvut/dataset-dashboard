@@ -5,7 +5,26 @@ import {FormControl} from "react-bootstrap";
 import Tree, {SHOW_PARENT, TreeNode} from "rc-tree";
 import {Scrollbars} from "react-custom-scrollbars";
 
-export default class DatasetSourceFilterableTreeComponent extends React.Component {
+// TODO
+//import DatasetSource from "../../model/DatasetSource";
+
+interface Props {
+    selectable: boolean,
+    treeCheckable: boolean,
+    showIcon: boolean,
+    height: number,
+    width: number,
+    createView: (item) => React.Component,
+    createKey: (item) => string,
+    data: object[]
+}
+
+interface State {
+    tree: object[],
+    inputValue: string,
+}
+
+export default class DatasetSourceFilterableTreeComponent extends React.Component<Props,State> {
 
     constructor(props) {
         super(props);
@@ -17,13 +36,9 @@ export default class DatasetSourceFilterableTreeComponent extends React.Componen
             /**
              * Actual tree.
              */
-            tree : []
+            tree : props.data
         };
     };
-
-    componentDidMount() {
-        this.state.tree = this.props.data;
-    }
 
     traverseTree(nodes, childFn, nodeFn) {
         nodes.forEach((node) => {
@@ -36,16 +51,10 @@ export default class DatasetSourceFilterableTreeComponent extends React.Componen
         return key.indexOf(curValue) > -1;
     }
 
-    filterTreeNode(tree, node) {
-        return this.filterFn(node.props.eventKey,this.state.inputValue);
-    }
-
     onChange(e) {
         const oldInputValue = this.state.inputValue;
         const curInputValue = e.target.value;
-        const state = {
-            inputValue: curInputValue
-        }
+        const state : State = { inputValue : curInputValue, tree: [] };
 
         let tree;
         if ( curInputValue.indexOf(oldInputValue) > -1) {
@@ -98,7 +107,8 @@ export default class DatasetSourceFilterableTreeComponent extends React.Componen
             <Scrollbars style={{height: this.props.height, width: this.props.width}}>
                 <Tree
                     style={{height: this.props.height, width: this.props.width}}
-                    filterTreeNode={(tree, node) => this.filterTreeNode(this,tree, node)}
+                    filterTreeNode={(node) =>
+                        this.filterFn(node.props.eventKey,this.state.inputValue)}
                     selectable={this.props.selectable}
                     autoExpandParent={true}
                     expandable={true}

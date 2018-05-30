@@ -61,5 +61,4 @@ class DatasetSourceTree extends React.Component {
     }
 }
 
-const component = LoadingWrapper(DatasetSourceTree, {maskClass: 'mask-container'});
-export default component;
+export default LoadingWrapper(DatasetSourceTree, {maskClass: 'mask-container'});
