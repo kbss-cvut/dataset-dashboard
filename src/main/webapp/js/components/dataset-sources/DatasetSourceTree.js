@@ -17,22 +17,17 @@ class DatasetSourceTree extends React.Component {
     };
 
     componentWillMount() {
-        console.log("mounting");
         this.state.data = DatasetSourceStore.getAllDatasetSources();
         this.unsubscribe = DatasetSourceStore.listen(this._onDataLoaded);
-        console.log("mounted");
     };
 
     _onDataLoaded = (data) => {
-        console.log("data loaded");
-
         if (data === undefined) {
             return
         }
 
         if (data.action == Actions.refreshDatasetSources) {
             this.props.loadingOff();
-            console.log("state changed");
             this.setState({
                 data: data.datasetSources,
             });

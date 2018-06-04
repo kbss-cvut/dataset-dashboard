@@ -19,7 +19,14 @@ export default class BoundingBox {
         if ((this.max[1] === null) || (y > this.max[1])) this.max[1] = y;
     }
 
-    getBounds() {
+    isDefined() : boolean {
+        return this.min[0] != undefined
+            && this.min[1] != undefined
+            && this.max[0] != undefined
+            && this.max[1] != undefined;
+    }
+
+    getBounds() : number[][] {
         return [this.min, this.max];
     }
 }

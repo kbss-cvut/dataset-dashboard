@@ -1,7 +1,7 @@
 'use strict';
 
-const request = require('superagent');
-const Cookies = require('js-cookie');
+import * as Cookies from 'js-cookie';
+import * as request from 'superagent';
 
 import Logger from "./Logger";
 
@@ -16,7 +16,7 @@ const Ajax = {
     },
 
     get: function (url) {
-        this.req = request.get(url, null, null).accept('json');
+        this.req = request.get(url, null).accept('json');
         return this;
     },
 
@@ -91,10 +91,10 @@ const Ajax = {
      * @private
      */
     _extendPortalSession: function () {
-        if (!top.Liferay) {
-            return;
-        }
-        top.Liferay.Session.extend();
+        // if (!top.Liferay) {
+        //     return;
+        // }
+        // top.Liferay.Session.extend();
     },
 
     _handleError: function (err) {

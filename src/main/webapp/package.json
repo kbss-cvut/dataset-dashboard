@@ -7,6 +7,9 @@
     "@types/react": "15.6.15",
     "@types/react-dom": "15.5.7",
     "@types/react-bootstrap": "0.32.9",
+    "@types/superagent": "3.8.0",
+    "@types/js-cookie": "2.1.0",
+    "@types/windows-script-host": "5.8.2",
     "react": "15.6.2",
     "react-dom": "15.6.2",
     "ts-loader": "4.0.1",
@@ -76,7 +79,7 @@
   },
   "scripts": {
     "create-dirs": "mkdir -p $npm_package_config_buildDir/js & mkdir -p $npm_package_config_buildDir/resources/css",
-    "start": "npm run create-dirs & watchify -o $npm_package_config_watchifyDir/js/bundle.js -p tsify -vd js/app.js",
+    "start": "npm run create-dirs & watchify -o $npm_package_config_watchifyDir/js/bundle.js -p tsify -vd js/app.tsx",
     "test": "npm run create-dirs & jasmine JASMINE_CONFIG_PATH=tests/jasmine.json",
     "browserify": "npm run create-dirs & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t -o $npm_package_config_buildDir/js/bundle.js",
     "build-js": "npm run create-dirs & browserify . -p [ tsify --noImplicitAny ] -g [envify --NODE_ENV 'production'] -t | uglifyjs -cm > $npm_package_config_buildDir/js/bundle.js",

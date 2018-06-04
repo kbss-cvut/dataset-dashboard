@@ -6,7 +6,7 @@ import {ControlLabel, FormControl, FormGroup} from "react-bootstrap";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Utils from "../../../../utils/Utils";
 
-class SelectGeoSparqlFeature extends Reflux.Component {
+export default class SelectGeoSparqlFeature extends Reflux.Component {
 
     constructor(props) {
         super(props);
@@ -14,11 +14,11 @@ class SelectGeoSparqlFeature extends Reflux.Component {
     };
 
     componentDidMount() {
-        const max=10000000000000000000000000000000000000;
+        const max=Number.MAX_VALUE;
         let minNumberInstances = max;
         let minId=null;
         this.props.options.forEach((item) => {
-            const num = item["http://own.schema.org/haveNumberOfInstances"][0]["@value"];
+            const num = item[Ddo.NS+"spatial/has-number-of-instances"][0]["@value"];
             const id = item["@id"];
             if ( (minNumberInstances > num && num > 2) || minNumberInstances == max) {
                 minNumberInstances = num;
@@ -31,7 +31,7 @@ class SelectGeoSparqlFeature extends Reflux.Component {
     render() {
         let selectOptions = [];
         this.props.options.forEach((item) => {
-            const num = item["http://own.schema.org/haveNumberOfInstances"][0]["@value"];
+            const num = item[Ddo.NS+"spatial/has-number-of-instances"][0]["@value"];
             const id = item["@id"];
             selectOptions.push(
                 <option key={id} value={id}>
@@ -52,4 +52,3 @@ class SelectGeoSparqlFeature extends Reflux.Component {
         </FormGroup>;
     }
 }
-export default SelectGeoSparqlFeature;

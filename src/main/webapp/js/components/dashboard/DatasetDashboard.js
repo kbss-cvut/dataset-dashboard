@@ -55,7 +55,7 @@ export class DatasetDashboard extends React.Component {
                     <div key="rightcenter">{<FullscreenWidgetPanelUI title="Properties" widget={<PropertyPartitionWidget/>}/>}</div>
                     <div key="rightbottom">{<WidgetPanel
                         title="Temporal"
-                        widget={(content, excludedEntities) => <TemporalWidget descriptorContent={content} excludedEntities={excludedEntities}/>}
+                        widget={(content, excludedEntities) => <TemporalWidget descriptorContent={content}/>}
                         descriptorQuery="temporal/get_coverage"
                         descriptorTypeIris={[Ddo.NS + "temporal-function"]}/>}</div>
                     <div key="downleft">{<FullscreenWidgetPanelUI title="Geo" widget={<SpatialWidget/>}/>}</div>

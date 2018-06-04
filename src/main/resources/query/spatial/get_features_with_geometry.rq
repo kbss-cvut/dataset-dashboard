@@ -3,8 +3,8 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ogcgs: <http://www.opengis.net/ont/geosparql#>
 PREFIX ogcgml: <http://www.opengis.net/ont/gml#>
 PREFIX schema: <http://schema.org/>
-PREFIX own: <http://own.schema.org/>
-construct {?typ own:haveNumberOfInstances ?c}
+PREFIX ddo-sp: <http://onto.fel.cvut.cz.ontologies/dataset-descriptor/spatial/>
+construct {?typ ddo-sp:has-number-of-instances ?c}
 where
     {
       SELECT ?typ (count(?s) as ?c) {

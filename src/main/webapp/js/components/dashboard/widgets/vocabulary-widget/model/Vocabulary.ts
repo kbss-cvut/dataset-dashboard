@@ -1,11 +1,10 @@
 'use strict';
 
-import * as React from "react";
 import Resource from "./Resource"
+import Rdfs from "../../../../../vocabulary/Rdfs";
+import Utils from "../../../../../utils/Utils";
 
 export default class Vocabulary extends Resource {
-
-    subVocabularies;
 
     constructor(iri, labelMap) {
         super(iri, labelMap);
@@ -13,7 +12,7 @@ export default class Vocabulary extends Resource {
 
     static loadFromJsonLd(jsonLd) {
         const iri = jsonLd['@id'];
-        const label = Resource.getLiteral('http://www.w3.org/2000/01/rdf-schema#label', jsonLd);
+        const label = Utils.getJsonLdPropertySingleLiteralValue(Rdfs.label, jsonLd);
 
         return new Vocabulary( iri, {"en" : label});
     }

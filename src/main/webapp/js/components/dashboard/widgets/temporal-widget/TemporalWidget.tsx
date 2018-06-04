@@ -4,7 +4,11 @@ import * as React from "react";
 
 import Ddo from "../../../../vocabulary/Ddo";
 
-class TemporalWidget extends React.Component {
+interface Props {
+    descriptorContent : string
+}
+
+class TemporalWidget extends React.Component<Props> {
 
     constructor(props) {
         super(props);

@@ -1,10 +1,12 @@
 'use strict';
 
-import * as React from "react";
 import Resource from "./Resource";
+import Rdfs from "../../../../../vocabulary/Rdfs";
+import Utils from "../../../../../utils/Utils";
 
 export default class Concept extends Resource {
 
+    parent;
     parentIri;
 
     constructor(iri, labelMap, parentIri) {
@@ -15,7 +17,7 @@ export default class Concept extends Resource {
 
     static loadFromJsonLd(jsonLd, subConceptOfRelation) {
         const iri = jsonLd['@id'];
-        const label = Resource.getLiteral('http://www.w3.org/2000/01/rdf-schema#label', jsonLd);
+        const label = Utils.getJsonLdPropertySingleLiteralValue(Rdfs.label, jsonLd);
 
         const superConcepts = jsonLd[subConceptOfRelation];
         let parentIri = null;

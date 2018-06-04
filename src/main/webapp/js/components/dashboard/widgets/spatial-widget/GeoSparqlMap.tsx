@@ -4,8 +4,12 @@ import * as React from "react";
 import {Map, Marker, Polygon, Popup, TileLayer} from "react-leaflet";
 import Geometry from "./Geometry";
 import GeoUtils from "./GeoUtils";
+import * as L from "leaflet";
 
-export default class GeoSparqlMap extends React.Component {
+interface Props { data : any }
+interface State { geometry : any }
+
+export default class GeoSparqlMap extends React.Component<Props,State> {
 
     constructor(props) {
         super(props);
@@ -15,20 +19,20 @@ export default class GeoSparqlMap extends React.Component {
     }
 
     componentWillMount() {
-        const g = new Geometry();
+        const g = this.state.geometry;
         // ===== get geometry data into proper structure =====
         this.props.data.forEach((geometry) => {
-            if (!window.DOMParser) {
+            if (!(window as any).DOMParser) {
                 // Internet Explorer
                 let xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
                 xmlDoc.async = false;
             }
             this.processGeometry(geometry, g);
         });
-        this.state.geometry = g;
+        this.setState({geometry :g});
     }
 
-    processGeometry(geometry, g) {
+    processGeometry(geometry, g : Geometry) {
         Object.keys(geometry).forEach(function (key) {
             let val = key.toString();
             let id = geometry['@id'];
@@ -79,17 +83,21 @@ export default class GeoSparqlMap extends React.Component {
     }
 
     render() {
-        const g = this.state.geometry;
+        const g : Geometry = this.state.geometry;
         let bounds = L.polyline(g.boundingBox.getBounds());
-        return <Map bounds={bounds._latlngs} style={{height: "80vh"}}>
-            <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-            />
-            {g.points.map((o) => this.createPoint(o))}
-            {g.polylines.map((o) => this.createPolyline(o))}
-            {g.polygons.map((o) => this.createPolygon(o))}
-            {g.multipolygons.map((o) => this.createMultiPolygon(o))}
-        </Map>;
+        if ( !g.boundingBox.isDefined() ) {
+            return <Map bounds={bounds._latlngs} style={{height: "80vh"}}>
+                <TileLayer
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                />
+                {g.points.map((o) => this.createPoint(o))}
+                {g.polylines.map((o) => this.createPolyline(o))}
+                {g.polygons.map((o) => this.createPolygon(o))}
+                {g.multipolygons.map((o) => this.createMultiPolygon(o))}
+            </Map>;
+        } else {
+            return <div>Invalid bounds {g.boundingBox.getBounds()}</div>
+        }
     }
 }
