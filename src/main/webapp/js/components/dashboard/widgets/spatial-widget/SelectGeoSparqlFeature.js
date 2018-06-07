@@ -5,6 +5,7 @@ import Reflux from "reflux";
 import {ControlLabel, FormControl, FormGroup} from "react-bootstrap";
 import NamespaceStore from "../../../../stores/NamespaceStore";
 import Utils from "../../../../utils/Utils";
+import Ddo from "../../../../vocabulary/Ddo";
 
 export default class SelectGeoSparqlFeature extends Reflux.Component {
 

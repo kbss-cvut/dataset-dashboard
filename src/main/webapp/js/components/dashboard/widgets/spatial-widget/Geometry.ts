@@ -28,19 +28,22 @@ export default class Geometry {
     }
 
     addPolyline(polyline: Polyline): void {
+        const _thisBB = this.boundingBox;
         this.polylines.push(polyline);
-        polyline.position.forEach( this.boundingBox.add );
+        polyline.position.forEach( _thisBB.add.bind(_thisBB) );
     }
 
     addPolygon(polygon: Polygon): void {
         this.polygons.push(polygon);
-        polygon.position.forEach( this.boundingBox.add );
+        const _thisBB = this.boundingBox;
+        polygon.position.forEach( _thisBB.add.bind(_thisBB) );
     }
 
     addMultiPolygon(multipolygon: Multipolygon): void {
+        const _thisBB = this.boundingBox;
         this.multipolygons.push(multipolygon);
         multipolygon.position.forEach((polygon) => {
-            polygon.forEach(this.boundingBox.add);
+            polygon.forEach(_thisBB.add.bind(_thisBB));
         });
     }
 }

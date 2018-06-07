@@ -6,10 +6,15 @@ import Geometry from "./Geometry";
 import GeoUtils from "./GeoUtils";
 import * as L from "leaflet";
 
-interface Props { data : any }
-interface State { geometry : any }
+interface Props {
+    data: any
+}
 
-export default class GeoSparqlMap extends React.Component<Props,State> {
+interface State {
+    geometry: any
+}
+
+export default class GeoSparqlMap extends React.Component<Props, State> {
 
     constructor(props) {
         super(props);
@@ -29,10 +34,10 @@ export default class GeoSparqlMap extends React.Component<Props,State> {
             }
             this.processGeometry(geometry, g);
         });
-        this.setState({geometry :g});
+        this.setState({geometry: g});
     }
 
-    processGeometry(geometry, g : Geometry) {
+    processGeometry(geometry, g: Geometry) {
         Object.keys(geometry).forEach(function (key) {
             let val = key.toString();
             let id = geometry['@id'];
@@ -41,51 +46,59 @@ export default class GeoSparqlMap extends React.Component<Props,State> {
                     var parser = new DOMParser();
                     //geometryValue = geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'];
                     const xmlDoc = parser.parseFromString(geometry["http://www.opengis.net/ont/geosparql#asGML"][0]['@value'], 'text/xml');
-                    if (xmlDoc.getElementsByTagName("gml:Point") != null) g.addPoint(GeoUtils.parsePointFromGML(xmlDoc, id));
-                    if (xmlDoc.getElementsByTagName("gml:Polygon") != null) g.addPolygon(GeoUtils.parsePolygonFromGML(xmlDoc, id));
+                    try {
+                        if (xmlDoc.getElementsByTagName("gml:Point") != null) g.addPoint(GeoUtils.parsePointFromGML(xmlDoc, id));
+                        if (xmlDoc.getElementsByTagName("gml:Polygon") != null) g.addPolygon(GeoUtils.parsePolygonFromGML(xmlDoc, id));
+                    } catch (e) {
+                        console.warn("Error in processing polygons.", e)
+                    }
                     break;
                 case "http://www.opengis.net/ont/geosparql#asWKT":
                     const geometryValue = geometry["http://www.opengis.net/ont/geosparql#asWKT"][0]['@value'];
-                    if (geometryValue.split('(')[0] == 'POLYGON') g.addPolygon(GeoUtils.parsePolygonFromWKT(geometryValue, id));
-                    if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.addMultiPolygon(GeoUtils.parseMultiPolygonFromWKT(geometryValue, id));
-                    if (geometryValue.split('(')[0] == 'POINT') g.addPoint(GeoUtils.parsePointFromWKT(geometryValue, id));
+                    try {
+                        if (geometryValue.split('(')[0] == 'POLYGON') g.addPolygon(GeoUtils.parsePolygonFromWKT(geometryValue, id));
+                        else if (geometryValue.split('(')[0] == 'MULTIPOLYGON') g.addMultiPolygon(GeoUtils.parseMultiPolygonFromWKT(geometryValue, id));
+                        else if (geometryValue.split('(')[0] == 'POINT') g.addPoint(GeoUtils.parsePointFromWKT(geometryValue, id));
+                    } catch (e) {
+                        console.warn("Error in processing poins.", e)
+                    }
                     break;
             }
         });
     }
 
     createPopup(href, title) {
-        return ( <Popup>
-                <span><a target="_blank" href={href}>{title}</a></span>
-            </Popup> );
+        return (<Popup>
+            <span><a target="_blank" href={href}>{title}</a></span>
+        </Popup>);
     }
 
     createPoint(point) {
-        return ( <Marker key={point.id} position={point.position}>
+        return (<Marker key={point.id} position={point.position}>
             {this.createPopup(point.id, point.name)}
-        </Marker> );
+        </Marker>);
     }
 
     createPolyline(polyline) {
         console.log("Polyline rendering not implemented")
-        return ( <div></div> );
+        return (<div></div>);
     }
 
     createPolygon(polygon) {
         console.log("Polygon rendering not implemented")
-        return  ( <div></div> );
+        return (<div></div>);
     }
 
     createMultiPolygon(multipolygon) {
-        return ( <Polygon key={multipolygon.id} color="blue" positions={multipolygon.position}>
+        return (<Polygon key={multipolygon.id} color="blue" positions={multipolygon.position}>
             {this.createPopup(multipolygon.id, multipolygon.name)}
-        </Polygon> );
+        </Polygon>);
     }
 
     render() {
-        const g : Geometry = this.state.geometry;
+        const g: Geometry = this.state.geometry;
         let bounds = L.polyline(g.boundingBox.getBounds());
-        if ( !g.boundingBox.isDefined() ) {
+        if (g.boundingBox.isDefined.bind(g.boundingBox)()) {
             return <Map bounds={bounds._latlngs} style={{height: "80vh"}}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

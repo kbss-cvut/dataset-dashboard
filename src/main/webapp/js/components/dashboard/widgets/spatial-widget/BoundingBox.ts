@@ -1,8 +1,8 @@
 'use strict';
 
 export default class BoundingBox {
-    min = [null,null];
-    max = [null,null];
+    min : number[] = [null,null];
+    max : number[] = [null,null];
 
     add(p) {
         if (!p || p[0] === undefined || p[1] === undefined ) {
