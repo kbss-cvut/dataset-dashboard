@@ -1,7 +1,6 @@
 'use strict';
 
 import * as React from "react";
-// import getDisplayName from "../../../utils/getDisplayName";
 import {Mask} from "./Mask";
 
 /**
@@ -14,13 +13,24 @@ import {Mask} from "./Mask";
  * </ul>
  */
 const LoadingWrapper = (Component, options) => {
-    class Wrapped extends React.Component {
+
+    interface State {
+        loading :boolean;
+        msg :string;
+    }
+
+    return class Wrapped extends React.Component<{}, State> {
+        displayName;
+        wrappedComponent;
+        _wrappedComponent;
+
         constructor(props) {
             super(props);
             this.state = {
                 loading: false,
                 msg: undefined
             };
+            this.displayName = "LoadingWrapper(" + Component + ")";
             this.wrappedComponent = Component.wrappedComponent ? Component.wrappedComponent : Component;
         }
 
@@ -48,9 +58,6 @@ const LoadingWrapper = (Component, options) => {
             );
         }
     }
-    Wrapped.displayName = "LoadingWrapper(" + Component + ")";
-    Wrapped.WrappedComponent = Component.WrappedComponent ? Component.WrappedComponent : Component;
-    return Wrapped;
 };
 
 export default LoadingWrapper;

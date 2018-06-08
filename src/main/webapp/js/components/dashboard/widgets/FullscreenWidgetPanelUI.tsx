@@ -14,9 +14,11 @@ interface Props {
 }
 
 const FullscreenWidgetPanelUI: React.SFC<Props> = props => {
-    let components = []
+    let components;
     if (props.components) {
         components = [].concat(props.components);
+    } else {
+        components = []
     }
     components.push(<FullscreenButton key="btnFullscreen"
                                       isFullscreen={props.isFullscreen}
