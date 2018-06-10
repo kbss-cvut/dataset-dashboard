@@ -1,12 +1,10 @@
 PREFIX analyze: <http://onto.fel.cvut.cz/ontologies/dataset-descriptor/temporal-v1/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 CONSTRUCT {
-    ?ext analyze:hasMaxDate ?MaxDate;
-        analyze:hasMinDate ?MinDate.
+    ?x analyze:beginDate ?MinDate;
+       analyze:endDate ?MaxDate.
 } WHERE {
-    ?ext a analyze:sutime-extraction;
-        analyze:beginDate ?Begin;
-        analyze:endDate ?End.
+  BIND(UUID() AS ?x)
   {
     SELECT (MIN(?Begin) as ?MinDate) (MAX(?End) as ?MaxDate)
     WHERE {

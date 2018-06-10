@@ -12,7 +12,7 @@ interface Props {
 export const Table: React.SFC<Props> = (props) => {
     let options = {
         sortName: props.sortName,
-        sortOrder: 'desc',
+        // TODO sortOrder: 'desc',
         sizePerPageList: [{
             text: '8', value: 8
         }],
@@ -23,7 +23,7 @@ export const Table: React.SFC<Props> = (props) => {
         nextPage: '>', // Next page button text
         firstPage: '<<', // First page button text
         lastPage: '>>', // Last page button text
-        paginationPosition: 'bottom',  // default is bottom, top and both is all available
+        // paginationPosition: 'bottom',  // default is bottom, top and both is all available
         paginationShowsTotal: false
     }
     return (
