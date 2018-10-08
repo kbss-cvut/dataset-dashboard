@@ -7,6 +7,8 @@ The tool aims at visualizing a SPARQL endpoint content from several points of vi
 + GeoSPARQL visualization
 + temporal information visualization
 
+## Demo ##
+See [here](https://onto.fel.cvut.cz/dataset-dashboard)
 
 ## Publications ##
 * [Petr Kremen, Lama Saeeda, Miroslav Blasko, Michal Med:
