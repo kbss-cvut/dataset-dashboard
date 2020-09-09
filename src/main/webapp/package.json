@@ -60,7 +60,7 @@
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
     "tsify": "4.0.0",
-    "clean-css": "^3.4.12",
+    "clean-css": "^4.2.3",
     "envify": "^3.4.0",
     "eslint": "^4.19.1",
     "eslint-plugin-react": "^5.1.1",
