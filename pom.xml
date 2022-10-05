@@ -25,7 +25,7 @@
         <cz.cvut.kbss.jopa.version>0.10.0</cz.cvut.kbss.jopa.version>
         <org.springframework.version>5.2.22.RELEASE</org.springframework.version>
         <org.springframework.security.version>4.2.3.RELEASE</org.springframework.security.version>
-        <ch.qos.logback.version>1.1.6</ch.qos.logback.version>
+        <ch.qos.logback.version>1.2.9</ch.qos.logback.version>
         <org.aspectj.version>1.8.9</org.aspectj.version>
         <jena.version>3.3.0</jena.version>
     </properties>
