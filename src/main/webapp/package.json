@@ -46,7 +46,7 @@
     "remarkable": "~1.7.1",
     "superagent": "~3.8.3",
     "tcs": "^10.0.0",
-    "qs": "6.5.2"
+    "qs": "6.5.3"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
