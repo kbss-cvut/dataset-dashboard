@@ -1,10 +1,7 @@
 package cz.cvut.kbss.datasetdashboard;
 
-import com.google.gson.JsonObject;
 import cz.cvut.kbss.datasetdashboard.dao.DatasetSourceDao;
 import cz.cvut.kbss.datasetdashboard.dao.SparqlAccessor;
-import cz.cvut.kbss.ddo.Vocabulary;
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
