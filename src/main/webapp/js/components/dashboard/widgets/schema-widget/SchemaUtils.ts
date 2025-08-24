@@ -9,7 +9,7 @@ export default class SchemaUtils {
 
     // i - index of the edge
     // max - number of edges
-    static getRoundnessForIthEdge(i, max) {
+    static getRoundnessForIthEdge(i: number, max: number) {
         return ( ( i == 0 ) ? 0 : ( ( i % max ) * 1.5 * ( ( i % 2 ) - 0.5 ) / max ) )
     };
 
@@ -19,7 +19,7 @@ export default class SchemaUtils {
      * @param uri to be checked
      * @returns boolean
      */
-    static isDataType(uri) {
+    static isDataType(uri: string) {
         return uri.startsWith('http://www.w3.org/2001/XMLSchema#')
             || uri.startsWith(Rdf.NS + 'langString');
     };
@@ -30,7 +30,7 @@ export default class SchemaUtils {
      * @param data SPO summary JSON-LD
      * @returns number
      */
-    static computeMaxEdgeWeight(data) {
+    static computeMaxEdgeWeight(data?: any[]) {
         let max = 0;
         if (data) {
             data.forEach((edge) => {
@@ -50,7 +50,7 @@ export default class SchemaUtils {
      * @param tgtNode
      * @returns {*}
      */
-    static getEdgeId(srcNode,tgtNode) {
+    static getEdgeId(srcNode:any,tgtNode:any) {
         if (srcNode < tgtNode ) {
             return srcNode+tgtNode;
         } else {
@@ -65,7 +65,7 @@ export default class SchemaUtils {
      * @param nodeIri
      * @returns {*}
      */
-    static ensureNodeExists(nodeMap, nodeIri, newNode, datasetSources) {
+    static ensureNodeExists(nodeMap:any, nodeIri: string, newNode: any, datasetSources:any[]) {
         let n = nodeMap[nodeIri];
 
         if (!n) { // the node is not created yet
@@ -87,7 +87,7 @@ export default class SchemaUtils {
     /**
      * Generates an edge with for the real width
      */
-    static getWidth(weight) {
+    static getWidth(weight:number) {
         return Math.round(Math.log(weight) / Math.log(5));
     };
 }

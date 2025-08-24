@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const WidgetPanelUI: React.SFC<Props> = (props) => {
-    let components = [];
+    let components: React.ReactNode[] = [];
 
     if (props.components) {
         props.components.forEach((c) => {

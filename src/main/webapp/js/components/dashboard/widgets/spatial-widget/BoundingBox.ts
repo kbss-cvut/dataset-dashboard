@@ -4,7 +4,7 @@ export default class BoundingBox {
     min : number[] = [null,null];
     max : number[] = [null,null];
 
-    add(p) {
+    add(p:number[]) {
         if (!p || p[0] === undefined || p[1] === undefined ) {
             console.log("Invalid point : " + p);
             return;

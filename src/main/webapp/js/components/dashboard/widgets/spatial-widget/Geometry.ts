@@ -24,7 +24,7 @@ export default class Geometry {
 
     addPoint(point: Point): void {
         this.points.push(point);
-        this.boundingBox.add(point);
+        this.boundingBox.add(point.position);
     }
 
     addPolyline(polyline: Polyline): void {

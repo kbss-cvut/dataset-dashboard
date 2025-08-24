@@ -70,7 +70,7 @@ export default class GraphDefaults {
             configure: {
                 enabled : true,
                 showButton: false,
-                filter: (option,path) => true
+                filter: (option:any, path:any) => true
             }
         }
         options.configure.filter = (option, path) => {

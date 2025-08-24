@@ -5,7 +5,7 @@ import {Glyphicon, Label} from "react-bootstrap";
 
 interface Props {
     entities?: any[],
-    includeEntity?: (entity) => void;
+    includeEntity?: (entity: any) => void;
 }
 
 export const EntityFilterUI: React.SFC<Props> = props => {

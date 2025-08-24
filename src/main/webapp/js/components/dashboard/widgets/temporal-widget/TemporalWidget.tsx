@@ -5,6 +5,7 @@ import * as React from "react";
 import Ddo from "../../../../vocabulary/Ddo";
 import Timeline from 'react-calendar-timeline';
 import moment = require("moment");
+import {Moment} from "moment";
 
 interface Props {
     descriptorContent : string
@@ -12,15 +13,15 @@ interface Props {
 
 class TemporalWidget extends React.Component<Props> {
 
-    constructor(props) {
+    constructor(props:Props) {
         super(props);
     };
 
-    compute(results){
+    compute(results: any){
         let k = 0;
-        const items= results.map((i)=> {
-            const minD = i[Ddo.NS+'temporal-v1/beginDate'][0]['@value'];
-            const maxD = i[Ddo.NS+'temporal-v1/endDate'][0]['@value'];
+        const items= results.map((i:any)=> {
+            const minD:string = i[Ddo.NS+'temporal-v1/beginDate'][0]['@value'];
+            const maxD:string = i[Ddo.NS+'temporal-v1/endDate'][0]['@value'];
             return {
                 id:k,
                 group: k++,
@@ -31,7 +32,7 @@ class TemporalWidget extends React.Component<Props> {
         });
 
         let l = 0;
-        const groups= results.map((i)=> {
+        const groups= results.map((i:any)=> {
             return {
                 id:l++,
                 title: i['@id']
@@ -41,7 +42,7 @@ class TemporalWidget extends React.Component<Props> {
     }
 
     render() {
-        const normalize = date => {
+        const normalize = (date: any) => {
             return new Date(date).toLocaleTimeString(
                 "en-US",
                 {year: 'numeric', month:'short', day: 'numeric' }
