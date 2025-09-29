@@ -1,0 +1,9 @@
+declare module "react-fullscreenable";
+declare module "react-bootstrap-table";
+declare module "react-calendar-timeline";
+declare module "rc-tree";
+declare module "react-custom-scrollbars";
+declare module "react-router-bootstrap";
+declare module "qs";
+declare module "react-router-dom";
+declare module "react-router";

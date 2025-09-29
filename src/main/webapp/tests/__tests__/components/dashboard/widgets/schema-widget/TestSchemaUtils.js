@@ -1,7 +1,7 @@
 'use strict';
 
-import SchemaUtils from "../../../../../../js/components/dashboard/widgets/schema-widget/SchemaUtils";
-import Rdf from "../../../../../../js/vocabulary/Rdf";
+import SchemaUtils from "../../../../../../src/components/dashboard/widgets/schema-widget/SchemaUtils";
+import Rdf from "../../../../../../src/vocabulary/Rdf";
 describe("A SchemaUtils Test", function() {
 
     it("valid isDatatype", function() {
