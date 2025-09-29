@@ -8,11 +8,6 @@ import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.util.Constants;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
@@ -23,7 +18,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
 
-//import org.springframework.http.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class SparqlAccessor {

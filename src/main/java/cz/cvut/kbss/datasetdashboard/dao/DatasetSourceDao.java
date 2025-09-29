@@ -10,6 +10,9 @@ import cz.cvut.kbss.ddo.model.named_graph_sparql_endpoint_dataset_source;
 import cz.cvut.kbss.ddo.model.sparql_endpoint_dataset_source;
 import cz.cvut.kbss.jopa.model.EntityManager;
 import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -18,16 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Repository;
 
-import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.create;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
 
 @Repository
-@PropertySource("classpath:config.properties")
 public class DatasetSourceDao extends BaseDao<dataset_source> {
 
     @Autowired

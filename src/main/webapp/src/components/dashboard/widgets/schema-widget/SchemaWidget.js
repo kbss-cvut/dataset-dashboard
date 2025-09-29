@@ -8,6 +8,8 @@ import Slider from "react-rangeslider";
 import GraphDefaults from "./vis/GraphDefaults";
 import SchemaUtils from "./SchemaUtils";
 
+import 'react-rangeslider/lib/index.css'
+
 import NamespaceStore from "../../../../stores/NamespaceStore";
 
 import Utils from "../../../../utils/Utils";

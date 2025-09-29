@@ -41,8 +41,8 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProp
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectPropertyValue;
 
-@Repository @PropertySource("classpath:config.properties") public class DatasetDescriptorDao
-    extends BaseDao<dataset_descriptor> {
+@Repository
+public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     @Autowired @Qualifier("remoteDataLoader") private DataLoader remoteLoader;
 
@@ -273,7 +273,7 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
         final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
         final StringBuilder urlBuilder =
-            new StringBuilder(environment.getProperty("spipes.service"));
+            new StringBuilder(environment.getProperty("spipes.service", ""));
         // not using params - order is important
 
         urlBuilder.append("?id=").append(spec.getFunctionId());
