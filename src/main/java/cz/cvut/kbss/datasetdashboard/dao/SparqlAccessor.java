@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class SparqlAccessor {
      */
     public String getSparqlResult(final String queryFile, final Map<String, String> bindings,
         final String repositoryUrl, final String graphIri, final String mediaType) {
-        if (repositoryUrl.isEmpty()) {
+        if (repositoryUrl == null || repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
@@ -83,7 +84,7 @@ public class SparqlAccessor {
                 q.addGraphURI(graphIri);
                 query = q.toString();
             }
-            query = URLEncoder.encode(query, Constants.UTF_8_ENCODING);
+            query = URLEncoder.encode(query, StandardCharsets.UTF_8);
             final Map<String, String> params = new HashMap<>();
             params.put("query", query);
             if (mediaType != null) {
@@ -91,12 +92,8 @@ public class SparqlAccessor {
             }
             return remoteLoader.loadData(repositoryUrl, params);
         } catch (WebServiceIntegrationException e) {
-            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}, exception "
-                + "{}", queryFile, repositoryUrl, graphIri, e);
+            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}", queryFile, repositoryUrl, graphIri, e);
             return null;
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unable to find encoding " + Constants
-                .UTF_8_ENCODING, e);
         }
     }
 }

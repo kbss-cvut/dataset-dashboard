@@ -68,7 +68,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     public List<dataset_source> getAll() {
         final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut"
                                             + ".cz/ontologies/dataset-descriptor/> SELECT DISTINCT "
-                                            + "" + "?x ?endpoint ?graphId WHERE { "
+                                            + "?x ?endpoint ?graphId WHERE { "
                                             + "?x ddo:has-endpoint-url ?endpoint . "
                                             + "OPTIONAL {?x ddo:has-graph-id " + "?graphId}}")
 //                         .setParameter("type", typeUri)
@@ -257,7 +257,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
                 .getSparqlResult(queryFile, bindings, endpointUrl, null, "text/turtle");
         } else {
             throw new IllegalStateException(MessageFormat.format(
-                "The dataset source of types {} is not recognized.", datasetSource.getTypes()));
+                "The dataset source of types {0} is not recognized.", datasetSource.getTypes()));
         }
     }
 }
