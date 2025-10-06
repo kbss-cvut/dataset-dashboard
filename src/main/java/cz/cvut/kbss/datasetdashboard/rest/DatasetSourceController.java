@@ -12,7 +12,7 @@ import java.util.Formatter;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/dataset-source")
+@RequestMapping("/rest/dataset-source")
 public class DatasetSourceController {
 
     private final DatasetSourceService datasetSourceService;
@@ -22,11 +22,11 @@ public class DatasetSourceController {
     }
 
     /**
-     * Returns all registered dataset sources.
+     * Returns all registered dataset sources.npm
      *
      * @return a dataset source list in JSON
      */
-    @RequestMapping(path = "/", method = RequestMethod.GET, produces = MediaType
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType
         .APPLICATION_JSON_VALUE)
     public RawJson getAll() {
         return datasetSourceService.getDataSources();
@@ -42,7 +42,7 @@ public class DatasetSourceController {
      *                    endpoint
      * @return a dataset source list in JSON
      */
-    @RequestMapping(path = "/", method = RequestMethod.PUT, produces = MediaType
+    @RequestMapping(method = RequestMethod.PUT, produces = MediaType
         .APPLICATION_JSON_VALUE)
     public String register(@RequestParam(required = false) String downloadUrl, @RequestParam
         (required = false) String endpointUrl, @RequestParam(required = false) String graphIri) {
@@ -70,7 +70,7 @@ public class DatasetSourceController {
         bindings) {
         String queryFile = bindings.remove("queryFile");
 
-        return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id,
+        return datasetSourceService.getSparqlConstructResult("query/" + queryFile + ".rq", id,
             bindings);
     }
 

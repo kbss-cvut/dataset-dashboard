@@ -7,6 +7,8 @@ import Logger from "./Logger";
 
 const csrfTokenHeader = 'X-CSRF-Token';
 
+const SERVER_URL = process.env.REACT_APP_SERVER_URL || "";
+
 const Ajax = {
     req: null as request.Request | null,
 
@@ -16,12 +18,12 @@ const Ajax = {
     },
 
     get: function (url:string) {
-        this.req = request.get(url).accept('json');
+        this.req = request.get(SERVER_URL + url).accept('json');
         return this;
     },
 
     post: function (url:string, data:any, type:string) {
-        this.req = request.post(url).type(type ? type : 'json').accept('json');
+        this.req = request.post(SERVER_URL + url).type(type ? type : 'json').accept('json');
         if (data) {
             this.req = this.req.send(data);
         }
@@ -37,7 +39,7 @@ const Ajax = {
     },
 
     put: function (url:string, data:any) {
-        this.req = request.put(url).type('json');
+        this.req = request.put(SERVER_URL + url).type('json');
         if (data) {
             this.req = this.req.send(data);
         }
@@ -45,7 +47,7 @@ const Ajax = {
     },
 
     del: function (url:string) {
-        this.req = request.del(url);
+        this.req = request.del(SERVER_URL + url);
         return this;
     },
 

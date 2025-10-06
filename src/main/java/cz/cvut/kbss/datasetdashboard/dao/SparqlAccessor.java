@@ -76,8 +76,7 @@ public class SparqlAccessor {
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
-            ParameterizedSparqlString pss = new ParameterizedSparqlString(query);
-            pss = SparqlUtils.setSingleBinding(pss, bindings);
+            ParameterizedSparqlString pss = SparqlUtils.setSingleBinding(new ParameterizedSparqlString(query), bindings);
             query = pss.toString();
             if (graphIri != null) {
                 Query q = QueryFactory.create(query);

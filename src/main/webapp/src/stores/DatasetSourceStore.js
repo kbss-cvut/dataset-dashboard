@@ -175,10 +175,10 @@ export const DatasetSourceStore = Reflux.createStore({
             params: par,
             datasetSourceId: datasetSourceId
         };
-        const url = this.requestURL("actions/query", {}) + Utils.createQueryParams({
+        const url = this.requestURL("actions/query", {...{
                 id: datasetSourceId,
                 queryFile: queryName
-            }) + "&" + Utils.createQueryParams(params)
+            }, ...params})
         Ajax.get(url).end(function (data) {
             const that = this;
             flatten(data, function (err, canonical) {
@@ -213,6 +213,13 @@ export const DatasetSourceStore = Reflux.createStore({
     },
 
     requestURL(path, queryParamMap) {
-        return this.base + "/" + path + "?" + Utils.createQueryParams(queryParamMap)
+        let url = this.base;
+        if (path.length > 0) {
+            url += "/" + path;
+        }
+        if (Object.keys(queryParamMap).length > 0) {
+            url += "?" + Utils.createQueryParams(queryParamMap);
+        }
+        return url;
     }
 });

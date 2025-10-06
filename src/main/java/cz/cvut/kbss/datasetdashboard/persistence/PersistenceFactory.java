@@ -3,6 +3,7 @@ package cz.cvut.kbss.datasetdashboard.persistence;
 import cz.cvut.kbss.jopa.model.EntityManagerFactory;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProvider;
+import cz.cvut.kbss.ontodriver.config.OntoDriverProperties;
 import cz.cvut.kbss.ontodriver.rdf4j.Rdf4jDataSource;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -56,11 +57,10 @@ public class PersistenceFactory {
     @PostConstruct
     private void init() {
         final Map<String, String> properties = new HashMap<>(DEFAULT_PARAMS);
-        properties.put(ONTOLOGY_PHYSICAL_URI_KEY,
-                       environment.getProperty("jopa.ddo.repositoryUrl"));
+        properties.put(ONTOLOGY_PHYSICAL_URI_KEY, environment.getProperty("jopa.ddo.repositoryUrl"));
         if (!environment.getProperty("jopa.ddo.repositoryUsername", "").isBlank()) {
-            properties.put("jopa.ddo.repositoryUsername", environment.getProperty("jopa.ddo.repositoryUsername"));
-            properties.put("jopa.ddo.repositoryPassword", environment.getProperty("jopa.ddo.repositoryPassword"));
+            properties.put(OntoDriverProperties.DATA_SOURCE_USERNAME, environment.getProperty("jopa.ddo.repositoryUsername"));
+            properties.put(OntoDriverProperties.DATA_SOURCE_PASSWORD, environment.getProperty("jopa.ddo.repositoryPassword"));
         }
         properties.put(DATA_SOURCE_CLASS, Rdf4jDataSource.class.getName());
         properties.put(CACHE_ENABLED, environment.getProperty("jopa.ddo.cache_enabled"));
