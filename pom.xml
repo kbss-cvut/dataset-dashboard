@@ -146,6 +146,7 @@
     </dependencies>
 
     <build>
+        <finalName>dataset-dashboard</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -225,7 +226,7 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <phase>generate-resources</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -250,6 +251,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>de.qaware.maven</groupId>
+                <artifactId>go-offline-maven-plugin</artifactId>
+                <version>1.2.8</version>
+            </plugin>
         </plugins>
     </build>
 
@@ -270,46 +276,17 @@
                         <version>1.4.0</version>
                         <executions>
                             <execution>
-                                <id>npm-module-cleanup</id>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <phase>compile</phase>
-                                <configuration>
-                                    <workingDirectory>src/main/webapp/</workingDirectory>
-                                    <executable>rm</executable>
-                                    <arguments>
-                                        <argument>-Rf</argument>
-                                        <argument>node_modules</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>ui-build</id>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
-                                <phase>compile</phase>
+                                <phase>generate-sources</phase>
                                 <configuration>
                                     <workingDirectory>src/main/webapp/</workingDirectory>
                                     <executable>npm</executable>
                                     <arguments>
                                         <argument>run</argument>
                                         <argument>build</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>ui-test</id>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <phase>test</phase>
-                                <configuration>
-                                    <workingDirectory>src/main/webapp</workingDirectory>
-                                    <executable>npm</executable>
-                                    <arguments>
-                                        <argument>test</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
