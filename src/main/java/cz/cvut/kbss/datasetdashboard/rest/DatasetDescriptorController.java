@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/rest/dataset-descriptor")
+@RequestMapping("/dataset-descriptor")
 public class DatasetDescriptorController {
 
     private final DatasetDescriptorService service;

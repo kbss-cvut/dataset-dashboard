@@ -12,7 +12,7 @@ import java.util.Formatter;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/rest/dataset-source")
+@RequestMapping("/dataset-source")
 public class DatasetSourceController {
 
     private final DatasetSourceService datasetSourceService;
