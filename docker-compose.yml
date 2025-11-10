@@ -1,0 +1,16 @@
+services:
+  dataset-dashboard:
+#    image: ghcr.io/kbss-cvut/dataset-dashboard:latest
+    build:
+      context: .
+    ports:
+      - ${PORT:-8080}:8080
+    restart: always
+    environment:
+      JOPA_DDO_REPOSITORYURL: $REPOSITORY_URL
+      JOPA_DDO_REPOSITORY_USERNAME: ${REPOSITORY_USERNAME:-''}
+      JOPA_DDO_REPOSITORY_PASSWORD: ${REPOSITORY_PASSWORD:-''}
+      SPIPES_SERVICE: ${SPIPES_URL:-''}
+      RDF4JSERVERFORDESCRIPTORS: ${DESCRIPTORS_RDF4J_URL:-https://onto.fel.cvut.cz/rdf4j-server}
+      SPIPES_SERVICE_WDRDEFSFILEURL: ${WDR_DEFS_FILE_URL:-''}
+      SPIPES_SERVICE_WDRFILEURL: ${WDR_FILE_URL:-''}

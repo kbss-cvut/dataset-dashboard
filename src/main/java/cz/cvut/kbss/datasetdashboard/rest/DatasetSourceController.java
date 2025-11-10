@@ -2,28 +2,31 @@ package cz.cvut.kbss.datasetdashboard.rest;
 
 import cz.cvut.kbss.datasetdashboard.rest.dto.model.RawJson;
 import cz.cvut.kbss.datasetdashboard.service.DatasetSourceService;
-import java.util.Formatter;
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Formatter;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/dataset-source")
 public class DatasetSourceController {
 
-    @Autowired
-    private DatasetSourceService datasetSourceService;
+    private final DatasetSourceService datasetSourceService;
+
+    public DatasetSourceController(DatasetSourceService datasetSourceService) {
+        this.datasetSourceService = datasetSourceService;
+    }
 
     /**
      * Returns all registered dataset sources.
      *
      * @return a dataset source list in JSON
      */
-    @RequestMapping(path = "/", method = RequestMethod.GET, produces = MediaType
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType
         .APPLICATION_JSON_VALUE)
     public RawJson getAll() {
         return datasetSourceService.getDataSources();
@@ -39,7 +42,7 @@ public class DatasetSourceController {
      *                    endpoint
      * @return a dataset source list in JSON
      */
-    @RequestMapping(path = "/", method = RequestMethod.PUT, produces = MediaType
+    @RequestMapping(method = RequestMethod.PUT, produces = MediaType
         .APPLICATION_JSON_VALUE)
     public String register(@RequestParam(required = false) String downloadUrl, @RequestParam
         (required = false) String endpointUrl, @RequestParam(required = false) String graphIri) {
@@ -51,7 +54,7 @@ public class DatasetSourceController {
             return datasetSourceService.register(downloadUrl);
         }
         throw new RuntimeException(new Formatter().format("Insufficient data provided, "
-            + "endpoint=%s, graph=%s, download=%s", endpointUrl, graphIri, downloadUrl).toString());
+            + "endpoint=null, graph=%s, download=null", graphIri).toString());
     }
 
     /**
@@ -67,7 +70,7 @@ public class DatasetSourceController {
         bindings) {
         String queryFile = bindings.remove("queryFile");
 
-        return datasetSourceService.getSparqlConstructResult("/query/" + queryFile + ".rq", id,
+        return datasetSourceService.getSparqlConstructResult("query/" + queryFile + ".rq", id,
             bindings);
     }
 

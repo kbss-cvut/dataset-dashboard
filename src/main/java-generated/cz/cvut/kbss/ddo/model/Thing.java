@@ -1,15 +1,17 @@
 
 package cz.cvut.kbss.ddo.model;
 
-import java.util.Map;
-import java.util.Set;
 import cz.cvut.kbss.ddo.Vocabulary;
-import cz.cvut.kbss.jopa.CommonVocabulary;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLAnnotationProperty;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.Properties;
 import cz.cvut.kbss.jopa.model.annotations.Types;
+import cz.cvut.kbss.jopa.vocabulary.DC;
+import cz.cvut.kbss.jopa.vocabulary.RDFS;
+
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -19,9 +21,9 @@ import cz.cvut.kbss.jopa.model.annotations.Types;
 @OWLClass(iri = Vocabulary.s_c_Thing)
 public class Thing {
 
-    @OWLAnnotationProperty(iri = CommonVocabulary.RDFS_LABEL)
+    @OWLAnnotationProperty(iri = RDFS.LABEL)
     protected String name;
-    @OWLAnnotationProperty(iri = CommonVocabulary.DC_DESCRIPTION)
+    @OWLAnnotationProperty(iri = DC.Terms.DESCRIPTION)
     protected String description;
     @Types
     protected Set<String> types;

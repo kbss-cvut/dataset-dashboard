@@ -1,6 +1,6 @@
 'use strict';
 
-import BoundingBox from "../../../../../../js/components/dashboard/widgets/spatial-widget/BoundingBox";
+import BoundingBox from "../../../../../../src/components/dashboard/widgets/spatial-widget/BoundingBox";
 
 describe("A BoundingBox Test", function() {
     it("null upon creation", function() {

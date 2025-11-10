@@ -8,11 +8,6 @@ import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.util.Constants;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
@@ -23,7 +18,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Repository;
 
-//import org.springframework.http.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class SparqlAccessor {
@@ -71,20 +71,19 @@ public class SparqlAccessor {
      */
     public String getSparqlResult(final String queryFile, final Map<String, String> bindings,
         final String repositoryUrl, final String graphIri, final String mediaType) {
-        if (repositoryUrl.isEmpty()) {
+        if (repositoryUrl == null || repositoryUrl.isEmpty()) {
             throw new IllegalStateException("Missing repository URL configuration.");
         }
         String query = localLoader.loadData(queryFile, Collections.emptyMap());
         try {
-            ParameterizedSparqlString pss = new ParameterizedSparqlString(query);
-            pss = SparqlUtils.setSingleBinding(pss, bindings);
+            ParameterizedSparqlString pss = SparqlUtils.setSingleBinding(new ParameterizedSparqlString(query), bindings);
             query = pss.toString();
             if (graphIri != null) {
                 Query q = QueryFactory.create(query);
                 q.addGraphURI(graphIri);
                 query = q.toString();
             }
-            query = URLEncoder.encode(query, Constants.UTF_8_ENCODING);
+            query = URLEncoder.encode(query, StandardCharsets.UTF_8);
             final Map<String, String> params = new HashMap<>();
             params.put("query", query);
             if (mediaType != null) {
@@ -92,12 +91,8 @@ public class SparqlAccessor {
             }
             return remoteLoader.loadData(repositoryUrl, params);
         } catch (WebServiceIntegrationException e) {
-            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}, exception "
-                + "{}", queryFile, repositoryUrl, graphIri, e);
+            LOG.warn("Error during query execution {} to endpoint {} and graphIri {}", queryFile, repositoryUrl, graphIri, e);
             return null;
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unable to find encoding " + Constants
-                .UTF_8_ENCODING, e);
         }
     }
 }

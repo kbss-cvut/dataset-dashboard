@@ -4,12 +4,12 @@ import cz.cvut.kbss.datasetdashboard.dao.data.DataLoader;
 import cz.cvut.kbss.datasetdashboard.dao.descriptors.DescriptorComputerParameterRegistry;
 import cz.cvut.kbss.datasetdashboard.dao.descriptors.DescriptorComputerSpecification;
 import cz.cvut.kbss.datasetdashboard.dao.util.IdCreator;
-import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.datasetdashboard.dao.util.LocalIdCreator;
 import cz.cvut.kbss.datasetdashboard.dao.util.SparqlUtils;
 import cz.cvut.kbss.datasetdashboard.dao.util.TimeSnapshotIdCreator;
 import cz.cvut.kbss.datasetdashboard.exception.WebServiceIntegrationException;
 import cz.cvut.kbss.datasetdashboard.model.util.DatasetSourceHelper;
+import cz.cvut.kbss.datasetdashboard.model.util.ModelHelper;
 import cz.cvut.kbss.ddo.Vocabulary;
 import cz.cvut.kbss.ddo.model.dataset;
 import cz.cvut.kbss.ddo.model.dataset_descriptor;
@@ -20,13 +20,8 @@ import cz.cvut.kbss.ddo.model.description;
 import cz.cvut.kbss.ddo.model.publisher;
 import cz.cvut.kbss.jopa.model.EntityManager;
 import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,12 +32,16 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
-import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
-import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectPropertyValue;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
 
-@Repository @PropertySource("classpath:config.properties") public class DatasetDescriptorDao
-    extends BaseDao<dataset_descriptor> {
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectPropertyValue;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
+
+@Repository
+public class DatasetDescriptorDao extends BaseDao<dataset_descriptor> {
 
     @Autowired @Qualifier("remoteDataLoader") private DataLoader remoteLoader;
 
@@ -62,11 +61,7 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
 
     private String getId(final dataset_source ds) {
         final String id = DatasetSourceHelper.getHashCode(ds);
-        if ( id != null ) {
-            return new LocalIdCreator(id).createInstanceOf(Vocabulary.s_c_dataset_source);
-        } else {
-            throw new IllegalArgumentException("Dataset source of unsupported type " + ds);
-        }
+        return new LocalIdCreator(id).createInstanceOf(Vocabulary.s_c_dataset_source);
     }
 
     private description createDescription(final dataset_source indDatasetSource,
@@ -106,8 +101,8 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
 
     private String getDescriptorsEndpointForRealEndpoint(final String realEndpoint) {
         final String rdf4jServer = environment.getProperty("rdf4jServerForDescriptors");
-        return new StringBuilder(rdf4jServer).append("/repositories/").append(
-            SparqlUtils.getRepositoryIdForSparqlEndpoint(realEndpoint)).toString();
+        return rdf4jServer + "/repositories/" +
+                SparqlUtils.getRepositoryIdForSparqlEndpoint(realEndpoint);
     }
 
     private dataset_publication createPublication(final dataset_descriptor indDescriptor, final String descriptorType) {
@@ -236,8 +231,7 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
         if (graphIri != null) {
             builder.queryParam("context", "<" + graphIri + ">");
         }
-        final URI urlWithQuery = URI.create(builder.build().encode().toUriString());
-        return urlWithQuery;
+        return URI.create(builder.build().encode().toUriString());
     }
 
     private void removeNamedGraphDatasetSource(final dataset_source ds) {
@@ -273,7 +267,7 @@ import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addObjectProp
         final dataset_source ds = em.find(dataset_source.class, datasetSourceIri);
 
         final StringBuilder urlBuilder =
-            new StringBuilder(environment.getProperty("spipes.service"));
+            new StringBuilder(environment.getProperty("spipes.service", ""));
         // not using params - order is important
 
         urlBuilder.append("?id=").append(spec.getFunctionId());

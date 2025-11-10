@@ -10,6 +10,9 @@ import cz.cvut.kbss.ddo.model.named_graph_sparql_endpoint_dataset_source;
 import cz.cvut.kbss.ddo.model.sparql_endpoint_dataset_source;
 import cz.cvut.kbss.jopa.model.EntityManager;
 import cz.cvut.kbss.jopa.model.descriptors.EntityDescriptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -18,16 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Repository;
 
-import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.addType;
 import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.create;
+import static cz.cvut.kbss.datasetdashboard.model.util.ModelHelper.getSingleProperty;
 
 @Repository
-@PropertySource("classpath:config.properties")
 public class DatasetSourceDao extends BaseDao<dataset_source> {
 
     @Autowired
@@ -69,7 +68,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
     public List<dataset_source> getAll() {
         final List l = em.createNativeQuery("PREFIX ddo: <http://onto.fel.cvut"
                                             + ".cz/ontologies/dataset-descriptor/> SELECT DISTINCT "
-                                            + "" + "?x ?endpoint ?graphId WHERE { "
+                                            + "?x ?endpoint ?graphId WHERE { "
                                             + "?x ddo:has-endpoint-url ?endpoint . "
                                             + "OPTIONAL {?x ddo:has-graph-id " + "?graphId}}")
 //                         .setParameter("type", typeUri)
@@ -258,7 +257,7 @@ public class DatasetSourceDao extends BaseDao<dataset_source> {
                 .getSparqlResult(queryFile, bindings, endpointUrl, null, "text/turtle");
         } else {
             throw new IllegalStateException(MessageFormat.format(
-                "The dataset source of types {} is not recognized.", datasetSource.getTypes()));
+                "The dataset source of types {0} is not recognized.", datasetSource.getTypes()));
         }
     }
 }

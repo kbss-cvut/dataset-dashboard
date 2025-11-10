@@ -1,18 +1,19 @@
 package cz.cvut.kbss.datasetdashboard.dao.descriptors;
 
 import cz.cvut.kbss.ddo.Vocabulary;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.context.annotation.ApplicationScope;
 
-@Repository @ApplicationScope @PropertySource("classpath:config.properties")
+import java.util.HashMap;
+import java.util.Map;
+
+@Repository
+@ApplicationScope
 public class DescriptorComputerParameterRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(DescriptorComputerParameterRegistry.class);
@@ -39,7 +40,7 @@ public class DescriptorComputerParameterRegistry {
     private void register(final String datasetDescriptorTypeIri,
                                 final DescriptorComputerSpecification specification) {
         if (spec.containsKey(datasetDescriptorTypeIri)) {
-            LOG.warn("Overriding an existing dataset descriptor specification for " + datasetDescriptorTypeIri);
+            LOG.warn("Overriding an existing dataset descriptor specification for {}", datasetDescriptorTypeIri);
         }
 
         spec.put(datasetDescriptorTypeIri,specification);
