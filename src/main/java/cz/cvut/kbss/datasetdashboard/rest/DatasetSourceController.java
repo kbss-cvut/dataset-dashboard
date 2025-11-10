@@ -22,7 +22,7 @@ public class DatasetSourceController {
     }
 
     /**
-     * Returns all registered dataset sources.npm
+     * Returns all registered dataset sources.
      *
      * @return a dataset source list in JSON
      */
